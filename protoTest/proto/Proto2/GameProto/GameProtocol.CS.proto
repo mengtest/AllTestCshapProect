@@ -1,0 +1,978 @@
+package GameProtocol.CS;
+
+//本文件中定义所有的客户端和服务器的通信协议格式
+
+import "GameProtocol.Common.proto";
+import "GameProtocol.Account.proto";
+import "GameProtocol.World.proto";
+import "GameProtocol.Zone.proto";
+import "GameProtocol.RegAuth.proto";
+import "GameProtocol.MsgID.proto";
+import "GameProtocol.Rank.proto";
+import "GameProtocol.Mail.proto";
+import "GameProtocol.Center.proto";
+
+//客户端服务器通信的消息结构体
+message CSMsgBody
+{
+	//------------------------------------------------------------------------------	
+	//游戏帐号系统相关的协议，使用消息的ID为 1-20
+	//注册平台帐号相关协议
+	optional AccountDB_AddAccount_Request m_stAccountDB_AddAccount_Request = 1;				//帐号DB新增帐号请求，对应MSGID_ACCOUNTDB_ADDACCOUNT_REQUEST
+	optional AccountDB_AddAccount_Response m_stAccountDB_AddAccount_Response = 2;			//帐号DB新增帐号返回，对应MSGID_ACCOUNTDB_ADDACCOUNT_RESPONSE
+	optional AccountDB_DeleteAccount_Request m_stAccountDB_Delete_Request = 3;				//帐号DB删除帐号请求，对应MSGID_ACCOUNTDB_DELETE_REQUEST
+	optional AccountDB_DeleteAccount_Response m_stAccountDB_Delete_Response = 4;			//帐号DB删除帐号返回，对应MSGID_ACCOUNTDB_DELETE_RESPONSE
+	optional AccountDB_FetchAccount_Request m_stAccountDB_Fetch_Request = 5;				//帐号DB拉取帐号请求，对应MSGID_ACCOUNTDB_FETCH_REQUEST
+	optional AccountDB_FetchAccount_Response m_stAccountDB_Fetch_Response = 6;				//帐号DB拉取帐号返回，对应MSGID_ACCOUNTDB_FETCH_RESPONSE
+	optional AccountDB_UpdateAccount_Request m_stAccountDB_Update_Request = 7;				//帐号DB更新帐号请求，对应MSGID_ACCOUNTDB_UPDATE_REQUEST
+	optional AccountDB_UpdateAccount_Response m_stAccountDB_Update_Response = 8;			//帐号DB更新帐号请求，对应MSGID_ACCOUNTDB_UPDATE_RESPONSE
+
+	//平台帐号的注册协议
+	optional RegAuth_RegAccount_Request m_stRegAuth_RegAccount_Request = 9;					//帐号服务注册帐号请求，对应MSGID_REGAUTH_REGACCOUNT_REQUEST
+	optional RegAuth_RegAccount_Response m_stRegAuth_RegAccount_Response = 10;				//帐号服务注册帐号返回，对应MSGID_REGAUTH_REGACCOUNT_RESPONSE
+	
+	//平台帐号的登录认证协议
+	optional RegAuth_AuthAccount_Request m_stRegAuth_AuthAccount_Request = 11;				//帐号服务认证帐号请求，对应MSGID_REGAUTH_AUTHACCOUNT_REQUEST
+	optional RegAuth_AuthAccount_Response m_stRegAuth_AuthAccount_Response = 12;			//帐号服务认证帐号返回，对应MSGID_REGAUTH_AUTHACCOUNT_RESPONSE
+	
+	//平台帐号的更新协议
+	optional RegAuth_UpdateLastWorld_Request m_stRegAuth_UpdateLastWorld_Request = 13;			//帐号服务更新帐号请求，对应MSGID_REGAUTH_UPDATE_REQUEST
+	optional RegAuth_UpdateLastWorld_Response m_stRegAuth_UpdateAccount_Response = 14;		//帐号服务器更新帐号返回，对应MSGID_REGAUTH_UPDATE_RESPONSE
+	//帐号绑定激活码
+	optional RegAuth_BindActiveCode_Request m_stRegAuth_BindActiveCode_Request = 15;		//激活码绑定帐号
+	optional RegAuth_BindActiveCode_Response m_stRegAuth_BindActiveCode_Response = 16;		//返回绑定激活码结果
+	
+	//帐号登录验证
+	optional RegAuth_UpdateServerInfo_Request m_stRegAuth_UpdateServerInfo_Request = 17;	//更新在world内的角色信息
+	optional RegAuth_UpdateServerInfo_Response m_stRegAuth_UpdateServerInfo_Response = 18;	//更新在world内的角色信息的返回
+	
+	optional AccountDB_BindActiveCode_Request m_stAccountDB_BindActiveCode_Request = 19;	//帐号绑定请求
+	optional AccountDB_BindActiveCode_Response m_stAccountDB_BindActiveCode_Response = 20;	//帐号绑定结果返回
+
+	//------------------------------------------------------------------------------	
+
+
+	
+	//------------------------------------------------------------------------------	
+
+	//游戏完整功能相关的协议，使用的消息ID为 21 及以上 
+
+	optional CreateRole_Account_Request		m_stAccountCreateRoleRequest = 21;				//Account Server创建角色的请求,对应MSGID_ACCOUNT_CREATEROLE_REQUEST
+	optional CreateRole_Account_Response	m_stAccountCreateRoleResponse = 22;				//Account Server创建角色请求的返回,对应MSGID_ACCOUNT_CREATEROLE_RESPONSE
+	optional Account_ListZone_Request		m_stAccount_ListZone_Request = 23;				//Account Server拉取区服务器的请求，对应MSGID_ACCOUNT_LISTZONE_REQUEST
+	optional Account_ListZone_Response		m_stAccount_ListZone_Response = 24;				//Account Server拉取区服务器的的返回，对应MSGID_ACCOUNT_LISTZONE_RESPONSE
+	optional DeleteRole_Account_Request		m_stAccountDeleteRoleRequest = 25;				//Account Server删除玩家角色的请求，对应MSGID_ACCOUNT_DELETEROLE_REQUEST
+	optional DeleteRole_Account_Response	m_stAccountDeleteRoleResponse = 26;				//Account Server删除玩家角色的返回，对应MSGID_ACCOUNT_DELETEROLE_RESPONSE
+	optional ListRole_Account_Request		m_stAccountListRoleRequest = 27;					//Account Server查询玩家角色的请求，对应MSGID_ACCOUNT_LISTROLE_REQUEST
+	optional ListRole_Account_Response		m_stAccountListRoleResponse = 28;				//Account Server查询玩家角色的返回，对应MSGID_ACCOUNT_LISTROLE_RESPONSE
+
+	optional LogoutServer_Request			m_stLogoutServer_Request = 29;					//登出服务器的请求，对应MSGID_LOGOUTSERVER_REQUEST
+	optional LogoutServer_Response			m_stLogoutServer_Response = 30;					//登出服务器的返回，对应MSGID_LOGOUTSERVER_RESPONSE
+
+	optional World_ZoneChanged_Notify		m_stWorld_ZoneChanged_Notify = 31;				//区服务器更新的通知，对应MSGID_WORLD_ZONECHANGED_NOTIFY
+	optional World_CreateRole_Request		m_stWorld_CreateRole_Request = 32;				//世界服务器创建角色的请求,对应MSGID_WORLD_CREATEROLE_REQUEST
+	optional World_CreateRole_Response		m_stWorld_CreateRole_Response = 33;				//世界服务器创建角色的返回，对应MSGID_WORLD_CREATEROLE_RESPONSE
+	optional World_FetchRole_Request		m_stWorld_FetchRole_Request = 34;				//世界拉取角色数据的请求,对应MSGID_WORLD_FETCHROLE_REQUEST
+	optional World_FetchRole_Response		m_stWorld_FetchRole_Response = 35;				//世界拉取角色数据的返回，对应MSGID_WORLD_FETCHROLE_RESPONSE
+	
+	optional Zone_Logout_Notify				m_stZone_Logout_Notify = 36;					//Zone Server 玩家下线的通知,对应MSGID_ZONE_LOGOUT_NOTIFY
+
+	optional World_UpdateRole_Request		m_stWorld_UpdateRole_Request = 37;				//World请求更新玩家数据的请求,对应MSGID_WORLD_UPDATEROLE_REQUEST
+	optional World_UpdateRole_Response		m_stWorld_UpdateRole_Response = 38;				//World请求更新玩家数据的返回,对应MSGID_WORLD_UPDATEROLE_RESPONSE
+	optional Zone_GetFriendInfo_Request		m_stZone_GetFriendInfo_Request = 39;			//Zone拉取好友详细信息的请求，对应MSGID_ZONE_FRIENDINFO_REQUEST
+	optional Zone_GetFriendInfo_Response	m_stZone_GetFriendInfo_Response = 40;			//Zone拉取好友详细信息的返回，对应MSGID_ZONE_FRIENDINFO_RESPONSE
+
+	//玩家登录相关的协议
+	optional Zone_LoginServer_Request		m_stZone_LoginServer_Request = 41;				//Zone的玩家登录请求，对应MSGID_ZONE_LOGINSERVER_REQUEST
+	optional Zone_LoginServer_Response		m_stZone_LoginServer_Response = 42;				//Zone的玩家登录返回，对应MSGID_ZONE_LOGINSERVER_RESPONSE
+	
+	//世界踢人下线的相关协议
+	optional World_KickRole_Request			m_stWorld_KickRole_Request = 43;				//World踢人下线的请求，对应MSGID_WORLD_KICKROLE_REQUEST
+	optional World_KickRole_Response		m_stWorld_KickRole_Response = 44;				//World踢人下线的返回，对应MSGID_WORLD_KICKROLE_RESPONSE
+
+	//分区向世界上报状态的协议
+	optional Zone_OnlineRole_Request		m_stZone_OnlineRole_Request = 45;				//Zone上报分区状态的请求，对应MSGID_ZONE_ONLINEROLENUM_REQUEST
+
+	//World向Cluster上报状态相关协议
+	optional World_OnlineStat_Request		m_stWorld_OnlineStat_Request = 46;				//World向Cluster上报状态的请求，对应MSGID_WORLD_ONLINESTAT_REQUEST
+	optional World_OnlineStat_Response		m_stWorld_OnlineStat_Response = 47;				//World向Cluster上报状态的返回，对应MSGID_WORLD_ONLINESTAT_RESPONSE
+
+	
+	//GM管理员GM操作的协议
+	optional Zone_GameMaster_Request		m_stZone_GameMaster_Request = 48;				//GM管理员GM操作的请求，对应MSGID_ZONE_GAMEMASTER_REQUEST
+	optional Zone_GameMaster_Response		m_stZone_GameMaster_Response = 49;				//GM管理员GM操作的返回，对应MSGID_ZONE_GAMEMASTER_RESPONSE
+
+	//结束PVE战斗关卡的协议
+	optional Zone_PveFinFight_Request		m_stZone_PveFinFight_Request = 50;				//结束PVE战斗关卡的请求，对应MSGID_ZONE_PVEFINFIGHT_REQUEST
+	optional Zone_PveFinFight_Response		m_stZone_PveFinFight_Response = 51;				//结束PVE战斗关卡的返回，对应MSGID_ZONE_PVEFINFIGHT_RESPONSE
+
+	//开始PVE战斗关卡的协议
+	optional Zone_PveStartFight_Request		m_stZone_PveStartFight_Request = 52;			//开始PVE战斗关卡的请求,对应MSGID_ZONE_PVESTARTFIGHT_REQUEST
+	optional Zone_PveStartFight_Response	m_stZone_PveStartFight_Response = 53;			//开始PVE战斗关卡的返回，对应MSGID_ZONE_PVESTARTFIGHT_RESPONSE
+
+	//Server推送玩家资源变化的通知
+	optional Zone_ResourceChange_Notify		m_stZone_ResourceChange_Notify = 54;			//玩家资源变化的通知，对应MSGID_ZONE_RESOURCECHANGE_NOTIFY
+
+	//玩家装备升级的协议
+	optional Zone_UpgradeEquip_Request		m_stZone_UpgradeEquip_Request = 55;				//玩家装备升级请求，对应MSGID_ZONE_UPGRADEEQUIP_REQUEST
+	optional Zone_UpgradeEquip_Response		m_stZone_UpgradeEquip_Response = 56;			//玩家装备升级返回,对应MSGID_ZONE_UPGRADEEQUIP_RESPONSE
+
+	//玩家PVE击杀怪物的协议
+	optional Zone_KillMonster_Request		m_stZone_KillMonster_Request = 57;				//玩家击杀怪物请求，对应MSGID_ZONE_PVEKILLMONSTER_REQUEST
+	optional Zone_KillMonster_Response		m_stZone_KillMonster_Response = 58;				//玩家击杀怪物返回，对应MSGID_ZONE_PVEKILLMONSTER_RESPONSE
+
+	//玩家英雄穿卸装备的协议
+	optional Zone_HeroEquip_Request			m_stZone_HeroEquip_Request = 59;				//玩家穿卸装备请求，对应MSGID_ZONE_HEROEQUIPOPERA_REQUEST
+	optional Zone_HeroEquip_Response		m_stZone_HeroEquip_Response = 60;				//玩家穿卸装备返回,对应MSGID_ZONE_HEROEQUIPOPERA_RESPONSE
+
+	//玩家英雄招募的协议
+	optional Zone_HeroEmploy_Request		m_stZone_HeroEmploy_Request = 61;				//玩家招募英雄请求，对应MSGID_ZONE_HEROEMPLOY_REQUEST
+	optional Zone_HeroEmploy_Response		m_stZone_HeroEmploy_Response = 62;				//玩家招募英雄返回，对应MSGID_ZONE_HEROEMPLOY_RESPONSE
+	
+	//玩家战斗阵形设置的协议
+	optional Zone_SetFightForm_Request		m_stZone_SetFightForm_Request = 63;				//玩家设置阵形请求，对应MSGID_ZONE_SETFIGHTFORM_REQUEST
+	optional Zone_SetFightForm_Response		m_stZone_SetFightForm_Response = 64;			//玩家设置阵形返回，对应MSGID_ZONE_SETFIGHTFORM_RESPONSE
+
+	//玩家出售道具的协议
+	optional Zone_SellUserItem_Request		m_stZone_SellUserItem_Request = 65;				//玩家出售道具请求，对应MSGID_ZONE_SELLUSERITEM_REQUEST
+	optional Zone_SellUserItem_Response		m_stZone_SellUserItem_Response = 66;			//玩家出售道具返回，对应MSGID_ZONE_SELLUSERITEM_RESPONSE
+
+	//玩家升级英雄技能的协议
+	optional Zone_UpgradeSkill_Request		m_stZone_UpgradeSkill_Request = 67;				//升级英雄技能请求，对应MSGID_ZONE_UPGRADESKILL_REQUEST
+	optional Zone_UpgradeSkill_Response		m_stZone_UpgradeSkill_Response = 68;			//升级英雄技能返回，对应MSGID_ZONE_UPGRADESKILL_RESPONSE
+
+	//玩家装配英雄技能的协议
+	optional Zone_EquipHeroSkill_Request	m_stZone_EquipHeroSkill_Request = 69;			//装配英雄技能请求，对应MSGID_ZONE_EQUIPHEROSKILL_REQUEST
+	optional Zone_EquipHeroSkill_Response	m_stZone_EquipHeroSkill_Response = 70;			//装配英雄技能返回，对应MSGID_ZONE_EQUIPHEROSKILL_RESPONSE
+
+	//关卡战斗英雄复活的协议
+	optional Zone_RevivalHero_Request		m_stZone_RevivalHero_Request = 71;				//关卡战斗复活请求，对应MSGID_ZONE_REVIVALHERO_REQUEST
+	optional Zone_RevivalHero_Response		m_stZone_RevivalHero_Response = 72;				//关卡战斗复活返回，对应MSGID_ZONE_REVIVALHERO_RESPONSE
+
+	//玩家背包增加新装备的通知
+	optional Zone_NewRepEquip_Notify		m_stZone_NewRepEquip_Notify = 73;				//背包增加装备通知，对应MSGID_ZONE_NEWREPEQUIP_NOTIFY
+
+	//名字服务器中增加新名字的协议
+	optional AddNewName_Request				m_stAddNewName_Request = 74;					//名字服务增加名字请求，对应MSGID_ADDNEWNAME_REQUEST
+	optional AddNewName_Response			m_stAddNewName_Response = 75;					//名字服务增加名字返回，对应MSGID_ADDNEWNAME_RESPONSE
+
+	//名字服务器中删除名字的协议
+	optional DeleteName_Request				m_stDeleteName_Request = 76;					//名字服务删除名字的请求，对应MSGID_DELETENAME_REQUEST
+	optional DeleteName_Response			m_stDeleteName_Response = 77;					//名字服务删除名字的返回，对应MSGID_DELETENAME_RESPONSE
+
+	//商城抽奖相关的协议
+	optional Zone_MarketLottery_Request		m_stZone_MarketLottery_Request = 78;			//玩家商城抽奖的请求，对应MSGID_ZONE_MARKETLOTTERY_REQUEST
+	optional Zone_MarketLottery_Response	m_stZone_MarketLottery_Response = 79;			//玩家商城抽奖的返回，对应MSGID_ZONE_MARKETLOTTERY_RESPONSE
+	optional Zone_LotteryRecover_Notify		m_stZone_LotteryRecover_Notify = 80;			//普通抽奖次数回复的通知，对应MSGID_ZONE_LOTTERYRECOVER_NOTIFY
+
+	//新手教程相关的协议
+	optional Zone_UpdateBeginner_Request	m_stZone_UpdateBeginner_Request = 81;			//玩家更新新手教程的请求,对应MSGID_ZONE_UPDATEBEGINNER_REQUEST
+	optional Zone_UpdateBeginner_Response	m_stZone_UpdateBeginner_Response = 82;			//玩家更新新手教程的返回，对应MSGID_ZONE_UPDATEBEGINNER_RESPONSE
+
+   //英雄星级相关协议
+   optional Zone_UpgradeStar_Request       m_stZone_UpgradeStar_Request  = 83;             //英雄星级升级的请求，对应MSGID_ZONE_UPGRADESTAR_REQUEST
+   optional Zone_UpgradeStar_Response      m_stZone_UpgradeStar_Response = 84;             //英雄星级升级的返回,对应MSGID_ZONE_UPGRADESTAR_RESPONSE
+
+	//玩家英雄品质相关的协议
+	optional Zone_UpgradeQuality_Request	m_stZone_UpgradeQuality_Request = 85;			//玩家英雄升品质的请求，对应MSGID_ZONE_UPGRADEQUALITY_REQUEST
+	optional Zone_UpgradeQuality_Response	m_stZone_UpgradeQuality_Response = 86;			//玩家英雄升品质的返回，对应MSGID_ZONE_UPGRADEQUALITY_RESPONSE
+
+	//玩家扩充背包格子的协议
+	optional Zone_AddRepBlock_Request		m_stZone_AddRepBlock_Request = 87;				//玩家扩充背包格子的请求，对应MSGID_ZONE_ADDREPBLOCK_REQUEST
+	optional Zone_AddRepBlock_Response		m_stZone_AddRepBlock_Response = 88;				//玩家扩充背包格子的返回，对应MSGID_ZONE_ADDREPBLOCK_RESPONSE
+	// 日常炼金的协议
+	optional Zone_RefineGold_Request 		m_stZone_RefineGold_Request = 89;				// 玩家炼金的请求, 对应MSGID_ZONE_REFINEGOLD_REQUEST
+	optional Zone_RefineGold_Response 		m_stZone_RefineGold_Response = 90;				// 玩家炼金的返回, 对应MSGID_ZONE_REFINEGOLD_RESPONSE
+	optional Zone_RefineGold_Notify 		m_stZone_RefineGold_Notify = 91;				// 玩家炼金次数重置的通知, 对应MSGID_ZONE_REFINEGOLD_NOTIFY
+	//抽魂协议
+	optional Zone_ExtractSoul_Request		m_stZone_ExtractSoul_Request = 92;				//抽魂请求 
+	optional Zone_ExtractSoul_Response		m_stZone_ExtractSoul_Response = 93;				//
+	optional Zone_ExchangeSoul_Request		m_stZone_ExchangeSoul_ReQuest = 94;				//战魂对换
+	optional Zone_ExchangeSoul_Response		m_stZone_ExchangeSoul_Response = 95;			//
+	//英雄培养，升阶，传承
+	optional Zone_FosterHero_Request		m_stZone_FosterHero_Request = 96;				//英雄培养请求			对应MSGID_ZONE_FOSTERHERO_REQUEST
+	optional Zone_FosterHero_Response		m_stZone_FosterHero_Response = 97;				//返回英雄培养结果  	对应MSGID_ZONE_FOSTERHERO_RESPONSE
+	optional Zone_StepUpHero_Request		m_stZone_StepUpHero_Request = 98;				//英雄升阶请求			对应MSGID_ZONE_STEPHERO_REQUEST
+	optional Zone_StepUpHero_Response 		m_stZone_StepUpHero_Response = 99;				//返回英雄升阶请求结果 	对应MSGID_ZONE_STEPHERO_RESPONSE
+	optional Zone_SmritiHero_Request		m_stZone_SmritiHero_Request = 100;				//英雄传承请求			对应MSGID_ZONE_SMRITIHERO_REQUEST
+	optional Zone_SmritiHero_Response		m_stZone_SmritiHero_Response = 101;				//返回英雄传承结果		对应MSGID_ZONE_SMRITIHERO_RESPONSE
+	optional Zone_NewRepProps_Notify		m_stZone_NewRepProps_Notify = 102;				// 道具变化 		对应 MSGID_ZONE_NEWREPPROPS_NOTIFY
+	optional Zone_Items_Notify				m_stZone_Items_Notify = 103;					// 物品添加删除更新 对应 MSGID_ZONE_UPDATEITEM_NOTIFY
+	optional Zone_MineQualityUp_Request 	m_stZone_MineQualityUp_Request = 104;			// 升级框品质的请求 对应 MSGID_ZONE_MINEQUALITYUP_REQUEST
+	optional Zone_MineQualityUp_Response 	m_stZone_MineQualityUp_Response = 105;			// 升级框品质的反馈 对应 MSGID_ZONE_MINEQUALITYUP_RESPONSE
+	optional Zone_UnLockMine_Request 		m_stZone_UnLockMine_Request = 106;				// 解锁矿场的请求	对应 MSGID_ZONE_UNLOCKMINE_REQUEST
+	optional Zone_UnLockMine_Response 		m_stZone_UnLockMine_Response = 107;				// 解锁矿场的反馈	对应 MSGID_ZONE_UNLOCKMINE_RESPONSE
+	optional Zone_GainGoldFromMine_Request  m_stZone_GainGoldFromMine_Request = 108;		// 收获的请求		对应 MSGID_ZONE_GAINGOLDFROMMINE_REQUEST
+	optional Zone_GainGoldFromMine_Response m_stZone_GainGoldFromMine_Response = 109;		// 收获的反馈		对应 MSGID_ZONE_GAINGOLDFROMMINE_RESPONSE
+	optional Zone_SpeedUpMine_Request 		m_stZone_SpeedUpMine_Request	= 110;			// 加速的请求		对应 MSGID_ZONE_SPEEDUPMINE_REQUEST
+	optional Zone_SpeedUpMine_Response 		m_stZone_SpeedUpMine_Response	= 111;			// 加速的请求反馈	对应 MSGID_ZONE_SPEEDUPMINE_RESPONSE
+	optional Zone_MineCraft_Notify			m_stZone_MineCraft_Notify       = 112;			// 服务端主动推送的刷新 对应 MSGID_ZONE_SPEEDUPMINE_NOTIFY
+
+	optional Zone_BuyEnergy_Response        m_stZone_BuyEnergy_Response     = 113;          //体力购买回复       	对应 MSGID_ZONE_BUYENERGY_RESPONSE
+	optional Zone_UpdateBuyEnergyTimes_Notify m_stZone_UpdateBuyEnergyTimes_Notify = 114;   //体力购买次数更新推送 	对应MSGID_ZONE_UPDATEBUYENERGYTIMES_NOTIFY
+	
+	optional Zone_PveReset_Request			m_stZone_PveReset_Request       = 115;			//请求重置关卡
+	optional Zone_PveReset_Response			m_stZone_PveReset_Response		= 116;			//返回重置关卡结果
+	
+	optional Zone_GetStarReward_Request     m_stZone_GetStarReward_Request  = 117;			//请求领取星级奖励  	对应 MSGID_ZONE_GETSTARREWARD_REQUEST
+	optional Zone_GetStarReward_Response    m_stZone_GetStarReward_Response = 118;			//请求领取星级奖励反馈  对应 MSGID_ZONE_GETSTARREWARD_RESPONSE
+	optional Zone_DailyFresh_Notify			m_stZone_DailyFresh_Notify		= 119;			//返回重置关卡结果
+	optional Zone_DropReward_Notify			m_stZone_DropReward_Notify      = 120;			// 推送的奖励     		对应 MSGID_ZONE_DROPREWARD_NOTIFY
+
+	optional Zone_GetEnergyFresh_Notify		m_stZone_GetEnergyFresh_Notify	= 121;			//体力领取更新    对应 MSGID_ZONE_GETENERGYFRESH_NOTIFY
+	optional Zone_GetEnergy_Response	    m_stZone_GetEnergy_Response     = 122;			// 体力领取回复   对应 MSGID_ZONE_GETENERGY_RESPONSE	
+    optional Zone_GetEnergy_Request         m_stZone_GetEnergy_Resquest     = 123;          //体力领取请求    对应 MSGID_ZONE_GETENERGY_REQUEST
+	optional Zone_GetReward_Request			m_stZone_GetReward_Request      = 124;			// 请求领取奖励   对应 MSGID_ZONE_GETREWARD_REQUEST
+	optional Zone_GetReward_Response		m_stZone_GetReward_Response     = 125;			// 推送的奖励     对应 MSGID_ZONE_GETREWARD_RESPONSE
+	optional Zone_Hero_Notify               m_stZone_Hero_Notify            = 126;			// 英雄刷新		  对应 MSGID_ZONE_HERO_NOTIFY
+    optional Zone_FeedBack_Request          m_stZone_FeedBack_Request       = 127;          // 反馈系统       对应 MSGID_ZONE_FEEDBACK_REQUEST
+	optional Zone_Compose_Request	    	m_stZone_Compose_Request     	= 128;			// 请求合成	
+    optional Zone_Compose_Response          m_stZone_Compose_Response     	= 129;          //返回合成结果
+	optional Zone_EquipStrengthen_Request 	m_stZone_EquipStrengthen_Request  = 130;		// 强化			  对应 MSGID_ZONE_EQUIPSTRENGTHEN_REQUEST
+	optional Zone_EquipStrengthen_Response 	m_stZone_EquipStrengthen_Response  = 131;		// 强化反馈		  对应 MSGID_ZONE_EQUIPSTRENGTHEN_RESPONSE
+	optional Zone_EquipRefine_Request 		m_stZone_EquipRefine_Request  = 132;			// 精炼			  对应 MSGID_ZONE_EQUIPREFINE_REQUEST
+	optional Zone_EquipRefine_Response 		m_stZone_EquipRefine_Response  = 133;			// 精炼反馈		  对应 MSGID_ZONE_EQUIPREFINE_RESPONSE
+	optional Zone_ApplyEquipRefine_Request 	m_stZone_ApplyEquipRefine_Request  = 134;		// 应用精炼结果	  对应 MSGID_ZONE_APPLYEQUIPREFINE_REQUEST
+	optional Zone_ApplyEquipRefine_Response m_stZone_ApplyEquipRefine_Response  = 135;		// 应用精炼的反馈 对应 MSGID_ZONE_APPLYEQUIPREFINE_RESPONSE
+	optional Zone_DropEquipRefine_Request 	m_stZone_DropEquipRefine_Request  = 136;		// 放弃精炼结果   对应 MSGID_ZONE_DROPEQUIPREFINE_REQUEST
+	optional Zone_DropEquipRefine_Response 	m_stZone_DropEquipRefine_Response  = 137;		// 放弃精炼的反馈 对应 MSGID_ZONE_DROPEQUIPREFINE_RESPONSE
+	optional Zone_EquipDecompose_Request 	m_stZone_EquipDecompose_Request  = 138;			// 分解装备		  对应 MSGID_ZONE_EQUIPDECOMPOSE_REQUEST
+	optional Zone_EquipDecompose_Response 	m_stZone_EquipDecompose_Response  = 139;		// 分解装备反馈   对应 MSGID_ZONE_EQUIPDECOMPOSE_RESPONSE
+	optional Zone_FeedBack_Response         m_stZone_FeedBack_Response = 140;               //反馈回复        对应 MSGID_ZONE_FEEDBACK_RESOPNSE
+	optional Zone_UseItem_Request           m_stZone_UseItem_Request = 141;                 //请求使用物品    对应 MSGID_ZONE_USEITEM_REQUEST
+	optional Zone_UseItem_Response          m_stZone_UseItem_Response = 142;                //使用物品回复    对应 MSGID_ZONE_USEITEM_RESPONSE
+	optional Zone_HeartBeat_Request   		m_stZone_HeartBeat_Request = 143;         		//使用物品回复    对应 MSGID_ZONE_HEARTBEAT_REQUEST
+	optional Zone_HeartBeat_Response  		m_stZone_HeartBeat_Response = 144;        		//使用物品回复    对应 MSGID_ZONE_HEARTBEAT_RESPONSE
+	optional Zone_MallBuyItem_Request       m_stZone_MallBuyItem_Request = 145;				//商购购买的请求  对应 MSGID_ZONE_MALLBUYITEM_REQUEST
+	optional Zone_MallBuyItem_Response      m_stZone_MallBuyItem_Response = 146;			//商购购买的请求  对应 MSGID_ZONE_MALLBUYITEM_RESPONSE
+	optional Zone_CheckGiftCdk_Request      m_stZone_CheckGiftCdk_Request = 147;			//查看CDK的请求   对应 MSGID_ZONE_CHECKGIFTCDK_REQUEST
+	optional Zone_CheckGiftCdk_Response     m_stZone_CheckGiftCdk_Response = 148;			//查看CDK的反馈   对应 MSGID_ZONE_CHECKGIFTCDK_RESPONSE
+	optional Zone_UseGiftCdk_Request      	m_stZone_UseGiftCdk_Request = 149;			    //使用CDK的请求   对应 MSGID_ZONE_CHECKGIFTCDK_RESPONSE
+	optional Zone_UseGiftCdk_Response       m_stZone_UseGiftCdk_Response = 150;			    //使用CDK的反馈   对应 MSGID_ZONE_USEGIFTCDK_RESPONSE	
+	optional World_FetchGiftCdk_Request  m_stWorld_FetchGiftCdk_Request = 151;			    //World的FetchCdk请求 	对应 MSGID_WORLD_FETCHCDK_REQUEST
+	optional World_FetchGiftCdk_Response m_stWorld_FetchGiftCdk_Response = 152;			    //World的FetchCdk反馈 	对应 MSGID_WORLD_FETCHCDK_RESPONSE
+	optional World_UpdateGiftCdk_Request m_stWorld_UpdateGiftCdk_Request = 153;			    //World的UpdateCdk请求 	对应 MSGID_WORLD_USEGIFTCDK_REQUEST
+	optional World_UpdateGiftCdk_Response m_stWorld_UpdateGiftCdk_Response = 154;		    //World的UpdateCdk反馈 	对应 MSGID_WORLD_USEGIFTCDK_RESPONSE	
+	optional Zone_Sweep_Request m_stZone_Sweep_Request = 155;		    					//扫荡请求 				对应 MSGID_ZONE_SWEEPCROSS_REQUEST
+	optional Zone_Sweep_Response m_stZone_Sweep_Response = 156;		    					//扫荡反馈 				对应 MSGID_ZONE_SWEEPCROSS_RESPONSE
+	optional Zone_ResetSweepCD_Request m_stZone_ResetSweepCD_Request = 157;		    		//重置扫荡CD请求 		对应 MSGID_ZONE_RESETSWEEPCD_REQUEST
+	optional Zone_ResetSweepCD_Response m_stZone_ResetSweepCD_Response = 158;		    	//重置扫荡CD的反馈 		对应 MSGID_ZONE_RESETSWEEPCD_RESPONSE
+	optional Zone_UpdateFunGuideStep_Request m_stZone_UpdateFunGuideStep_Request = 159;		//设置功能引导步骤 		对应 MSGID_ZONE_UPDATEFUNGUIDESTEP_REQUEST
+	optional Zone_UpdateFunGuideStep_Response m_stZone_UpdateFunGuideStep_Response = 160;	//设置功能引导步骤的反馈 对应 MSGID_ZONE_UPDATEFUNGUIDESTEP_RESPONSE
+	optional Zone_ClearItemDailyBuy_Notify m_stZone_ClearItemDailyBuy_Notify = 161;			//清除日常购买记录的通知 对应 MSGID_ZONE_CLEARITEMDAILYBUY_NOTIFY
+	optional RegAuth_ServerList_Request m_stRegAuth_ServerList_Request = 162;				// 请求服务器列表        对应MSGID_REGAUTH_SERVERLIST_REQUEST
+	optional RegAuth_ServerList_Response m_stRegAuth_ServerList_Response = 163;				// 请求服务器列表的返回  对应MSGID_REGAUTH_SERVERLIST_RESPONSE
+	optional Zone_MysShopBuyItem_Request m_stZone_MysShopBuyItem_Request = 164;				// 购买神秘商店物品的请求 对应MSGID_ZONE_MYSSHOP_BUYITEM_REQUEST
+	optional Zone_MysShopBuyItem_Response m_stZone_MysShopBuyItem_Response = 165;			// 购买神秘商店物品的回复 对应MSGID_ZONE_MYSSHOP_BUYITEM_RESPONSE
+	optional Zone_MysShopUpdate_Request m_stZone_MysShopUpdate_Request = 166;				// 神秘商店刷新请求	对应 MSGID_ZONE_MYSSHOP_UPDATE_REQUEST
+	optional Zone_MysShopUpdate_Response m_stZone_MysShopUpdate_Response = 167;				// 神秘商店刷新请求	对应 MSGID_ZONE_MYSSHOP_UPDATE_RESPONSE
+	optional Zone_MysShopUpdate_Notify m_stZone_MysShopUpdate_Notify = 168;					// 请求神秘商店 	对应MSGID_ZONE_MYSSHOP_INFO_REQUEST
+	optional Zone_MysShopUpdateFreeTimes_Notify m_stZone_MysShopUpdateFreeTimes_Notify = 169;// 请求神秘商店 	对应MSGID_ZONE_MYSSHOP_UPDATE_FREETIMES_NOTIFY
+	optional Zone_ExtractHero_Request m_stZone_ExtractHero_Request = 170;					// 请求抽取英雄        MSGID_ZONE_EXTRACTHERO_REQUEST
+	optional Zone_ExtractHero_Response m_stZone_ExtractHero_Response = 171;					// 返回抽英雄结果  MSGID_ZONE_EXTRACTHERO_RESPONSE
+	optional Zone_DelHero_Notify m_stZone_DelHero_Notify = 172;								// 删除英雄通知 
+	optional Zone_AddHero_Notify m_stZone_AddHero_Notify = 173;								// 添加英雄的通知   对应MSGID_ZONE_ADDHERO_NOTIFY
+	optional Zone_HeroDecompose_Request m_stZone_HeroDecompose_Request = 174;				// 英雄分解请求    MSGID_ZONE_HERODECOMPOSE_REQUEST
+	optional Zone_HeroDecompose_Response m_stZone_HeroDecompose_Response = 175;				// 英雄分解的反馈  MSGID_ZONE_HERODECOMPOSE_RESPONSE
+	optional Zone_ReviveHero_Request m_stZone_ReviveHero_Request = 176;						// 英雄重生请求
+	optional Zone_ReviveHero_Response m_stZone_ReviveHero_Response = 177;					// 英雄重生 回复
+	optional Zone_ResDecompose_Request m_stZone_ResDecompose_Request = 178;					// 分解资源的请求 MSGID_ZONE_RESDECOMPOSE_REQUEST
+	optional Zone_ResDecompose_Response m_stZone_ResDecompose_Response = 179;				// 分解资源的反馈 MSGID_ZONE_RESDECOMPOSE_RESPONSE
+    optional RegAuth_GMAccountLogin_Request m_stRegAuth_GMAccountLogin_Request = 180;        //GM登录请求       MSGID_GMACCOUNT_LOGIN_REQUEST
+    optional RegAuth_GMAccountLogin_Response m_stRegAuth_GMAccountLogin_Response = 181;      //GM登录回复      MSGID_GMACCOUNT_LOGIN_RESPONSE
+    optional RegAuth_AuthFetchRole_GM_Request  m_stRegAuth_AuthFetchRole_GM_Request = 182;   //GM拉取角色信息 MSGID_FETCHROLE_GM_REQUEST
+    optional RegAuth_AddGM_Request m_stRegAuth_AddGM_Request = 183;                         //添加GM帐号      MSGID_REGAUTH_ADDGM_REQUEST
+    optional RegAuth_AddGM_Response m_stRegAuth_AddGM_Response = 184;                       //GM添加帐号请求  MSGID_REGAUTH_ADDGM_RESPONSE
+    optional RegAuth_DelGM_Request m_stRegAuth_DelGM_Request = 185;                         //GM删除帐号请求  MSGID_REGAUTH_DELGM_REQUEST
+    optional RegAuth_DelGM_Response m_stRegAuth_DelGM_Response = 186;                      //GM删除帐号回复  MSGID_REGAUTH_DELGM_RESPONSE
+    optional RegAuth_AlterGM_Request m_stRegAuth_AlterGM_Request = 187;                     //GM修改帐号请求  MSGID_REGAUTH_ATLGM_REQUEST 
+    optional RegAuth_AlterGM_Response m_stRegAuth_AlterGM_Response = 188;                   //GM修改帐号回复  MSGID_REGAUTH_ATLGM_RESPONSE	
+	optional Zone_EquipReborn_Request m_stZone_EquipReborn_Request = 189;					// 装备重生的请求 MSGID_ZONE_EQUIPREBORN_REQUEST 
+	optional Zone_EquipReborn_Response m_stZone_EquipReborn_Response = 190;					// 装备重生的反馈 MSGID_ZONE_EQUIPREBORN_RESPONSE 
+	optional Zone_SetLittleBuddy_Request m_stZone_SetLittleBuddy_Request = 191;				// 设置小伙伴     MSGID_ZONE_SETLITTLEBUDDY_REQUEST
+	optional Zone_SetLittleBuddy_Response m_stZone_SetLittleBuddy_Response = 192;			// 设置小伙伴的反馈 MSGID_ZONE_SETLITTLEBUDDY_RESPONSE
+	optional Zone_FreshFightList_Response m_stZone_FreshFightList_Response = 193;			//返回挑战列表
+	optional Zone_FightBaseData_Response m_stZone_FightBaseData_Response = 194;				//返回pvp前十列表
+	optional Zone_FightSomeOne_Request m_stZone_FightSomeOne_Request = 195;					//请求pvp挑战
+	optional Zone_FightSomeOne_Response m_stZone_FightSomeOne_Response = 196;				//返回pvp挑战结果
+	optional Zone_GetFightEveryDayAward_Response m_stZone_GetFightEveryDayAward_Response = 197;	//返回领取每日奖励结果
+	optional Zone_PVPStore_Buy_Request m_stZone_PVPStore_Buy_Request = 198;					//pvp商城购买请求
+	optional Zone_PVPStore_Buy_Response m_stZone_PVPStore_Buy_Response = 199;				//pvp购买回复
+	optional Zone_PVPRankList_Notify m_stZone_PVPRankList_Notify = 200;						//pvp排行榜推送消息
+	optional Zone_PVPHistory_Response m_stZone_PVPHistory_Response = 201;					//返回pvp战报
+	optional World_PVPList_Request m_stWorld_PVPList_Request = 210;							//请求pvplist
+	optional World_PVPList_Response m_stWorld_PVPList_Response = 211;						//返回pvplist
+	optional Zone_QueryBasicPlayerById_Request m_stZone_QueryBasicPlayerById_Request = 212;	// 查找玩家的请求 	   对应MSGID_ZONE_QUERYBASICPLAYERBYID_REQUEST
+	optional Zone_QueryBasicPlayerById_Response m_stZone_QueryBasicPlayerById_Response = 213;// 查找玩家的反馈      对应MSGID_ZONE_QUERYBASICPLAYERBYID_RESPONSE
+	optional Zone_QueryPlayerById_Request m_stZone_QueryPlayerById_Request = 214;			// 查找玩家的请求 	   对应MSGID_ZONE_QUERYPLAYERBYID_REQUEST
+	optional Zone_QueryPlayerById_Response m_stZone_QueryPlayerById_Response = 215;			// 查找玩家的反馈      对应MSGID_ZONE_QUERYPLAYERBYID_RESPONSE
+	optional Zone_ApplyAddFriend_Request m_stZone_ApplyAddFriend_Request = 216;				// 申请加好友的请求    对应MSGID_ZONE_APPLYADDFRIEND_REQUEST
+	optional Zone_ApplyAddFriend_Response m_stZone_ApplyAddFriend_Response = 217;			// 申请加好友的反馈    对应MSGID_ZONE_APPLYADDFRIEND_RESPONSE
+	optional Zone_HandleApplyAddFriend_Request m_stZone_HandleApplyAddFriend_Request = 218; // 同意添加好友的请求  对应MSGID_ZONE_HANDLEADDFRIEND_REQUEST
+	optional Zone_HandleApplyAddFriend_Response m_stZone_HandleApplyAddFriend_Response = 219;// 同意添加好友的请求  对应MSGID_ZONE_HANDLEADDFRIEND_RESPONSE
+	optional Zone_DelFriend_Request m_stZone_DelFriend_Request = 220;						// 删除好友的请求      对应MSGID_ZONE_DELFRIEND_REQUEST
+	optional Zone_DelFriend_Response m_stZone_DelFriend_Response = 221;						// 删除好友的反馈      对应MSGID_ZONE_DELFRIEND_RESPONSE
+	optional Zone_SendEnergy_Request m_stZone_SendEnergy_Request = 222;						// 赠送体力的请求      对应MSGID_ZONE_SENDENERGY_REQUEST
+	optional Zone_SendEnergy_Response m_stZone_SendEnergy_Response = 223;					// 赠送体力的反馈      对应MSGID_ZONE_SENDENERGY_RESPONSE
+	optional Zone_AskEnergy_Request m_stZone_AskEnergy_Request = 224;						// 索取体力的请求      对应MSGID_ZONE_ASKENERGY_REQUEST
+	optional Zone_AskEnergy_Response m_stZone_AskEnergy_Response = 225;						// 索取体力的反馈      对应MSGID_ZONE_ASKENERGY_RESPONSE
+	optional Zone_GetFriendEnergy_Request m_stZone_GetFriendEnergy_Request = 226;			// 获取体力的请求      对应MSGID_ZONE_GETENERGY_REQUEST
+	optional Zone_GetFriendEnergy_Response m_stZone_GetFriendEnergy_Response = 227;			// 获取体力的反馈      对应MSGID_ZONE_GETENERGY_RESPONSE
+	optional Zone_RecommendFriends_Request m_stZone_RecommendFriends_Request = 228;			// 请求推荐好友的请求  对应MSGID_ZONE_RECOMMENDFRIENDS_REQUEST
+	optional Zone_RecommendFriends_Response m_stZone_RecommendFriends_Response = 229;		// 请求推荐好友的反馈  对应MSGID_ZONE_RECOMMENDFRIENDS_RESPONSE
+	optional Zone_PVPFinFight_Request m_stZone_PVPFinFight_Request = 230;					//请求结束pvp
+	optional Zone_PVPFinFight_Response m_stZone_PVPFinFight_Response = 231;					//PVP结束战斗返回
+	optional Zone_ApplyAddFriend_Notify m_stZone_ApplyAddFriend_Notify = 232;				// 好友申请的在线通知 对应MSGID_ZONE_APPLYADDFRIEND_NOTIFY
+	optional Zone_HandleApplyAddFriend_Notify m_stZone_HandleApplyAddFriend_Notify = 233;	// 好友申请处理的在线通知 对应MSGID_ZONE_HANDLEAPPLYADDFRIEND_NOTIFY
+	optional Zone_DelFriend_Notify m_stZone_DelFriend_Notify = 234;							// 删除好友的在线通知 对应MSGID_ZONE_DELFRIEND_NOTIFY
+	optional Zone_SendEnergy_Notify m_stZone_SendEnergy_Notify = 235;						// 索取体力的在线通知 对应MSGID_ZONE_SENDENERGY_NOTIFY
+	optional Zone_AskEnergy_Notify m_stZone_AskEnergy_Notify = 236;							// 赠送体力的在线通知 对应MSGID_ZONE_ASKENERGY_NOTIFY 
+	optional World_FetchOffLineRole_Request m_stWorld_FetchOffLineRole_Request = 237;		// 拉取角色数据的请求 对应MSGID_FETCHOFFLINEROLE_REQUEST
+	optional World_FetchOffLineRole_Response m_stWorld_FetchOffLineRole_Response = 238;		// 拉取角色数据的请求 对应MSGID_FETCHOFFLINEROLE_RESPONSE
+	optional World_FetchRecommendFriends_Request m_stWorld_FetchRecommendFriends_Request = 239;	 // 拉取角色数据的请求 对应MSGID_FETCHRECOMMENDFRIENDS_REQUEST
+	optional World_FetchRecommendFriends_Response m_stWorld_FetchRecommendFriends_Response = 240;// 拉取角色数据的请求 对应MSGID_FETCHRECOMMENDFRIENDS_RESPONSE
+	optional World_UpdateOffLineData_Request m_stWorld_UpdateOffLineData_Request = 241;	 		// 刷新离线数据的请求  对应MSGID_UPDATEOFFLINEDATA_REQUEST
+	optional World_UpdateOffLineData_Response m_stWorld_UpdateOffLineData_Response = 242;		// 刷新离线数据的反馈  对应MSGID_UPDATEOFFLINEDATA_RESPONSE
+	optional Rank_GetFightEveryDayAward_Response m_stRank_GetFightEveryDayAward_Response = 243;	//返回领取奖励的index
+	optional Rank_UpdataPVP_Notify m_stRank_UpdataPVP_Notify = 244;							//通知ranksvr更新pvp数据
+	optional Zone_FetchGM_Request m_stZone_FetchGM_Request = 245;                           //GM拉取请求 MSGID_ZONE_FETCHGM_REQUEST
+	optional Zone_FetchGM_Response m_stZone_FetchGM_Response = 246;                        //GM拉取返回 MSGID_ZONE_FETCHGM_RESPONSE
+	optional Zone_TrinketStrength_Request m_stZone_TrinketStrength_Request = 247;				// 饰品的强化 		   对应MSGID_ZONE_TRINKETSTRENGTH_REQUEST
+	optional Zone_TrinketStrength_Response m_stZone_TrinketStrength_Response = 248;				// 饰品强化的返回 	   对应MSGID_ZONE_TRINKETSTRENGTH_RESPONSE
+	optional Zone_TrinketRefine_Request m_stZone_TrinketRefine_Request = 249;					// 饰品精炼的请求      对应MSGID_ZONE_TRINKETREFINE_REQUEST
+	optional Zone_TrinketRefine_Response m_stZone_TrinketRefine_Response = 250;					// 饰品精炼的反馈	   对应MSGID_ZONE_TRINKETREFINE_RESPONSE
+	optional Zone_TrinketReborn_Request m_stZone_TrinketReborn_Request = 251;					// 饰品重生的请求  	   对应MSGID_ZONE_TRINKETREBORN_REQUEST
+	optional Zone_TrinketReborn_Response m_stZone_TrinketReborn_Response = 252;					// 饰品重生的反馈	   对应MSGID_ZONE_TRINKETREBORN_RESPONSE
+	optional Zone_TrinketDecompose_Request m_stZone_TrinketDecompose_Request = 253;				// 饰品分解的请求 	   对应MSGID_ZONE_TRINKETDECOMPOSE_REQUEST
+	optional Zone_TrinketDecompose_Response m_stZone_TrinketDecompose_Response = 254; 			// 饰品分解的反馈      对应MSGID_ZONE_TRINKETDECOMPOSE_RESPONSE
+	optional Zone_RoleKicked_Notify m_stZone_RoleKicked_Notify = 255; 							// 角色踢下线的        对应MSGID_ZONE_ROLEKICKED_NOTIFY
+	optional Zone_FightValue_Notify m_stZone_FightValue_Notify = 256;							// 上报战斗力
+	optional Zone_HeadImgList_Request m_stZone_HeadImgList_Request = 257;						// 请求可选头像列表的请求 对应MSGID_ZONE_HEADIMG_REQUEST
+	optional Zone_HeadImgList_Response m_stZone_HeadImgList_Response = 258;						// 请求可选头像列表的反馈 对应MSGID_ZONE_HEADIMG_RESPONSE
+	optional Zone_AddHeadImg_Notify m_stZone_AddHeadImg_Notify = 259;							// 新解锁头像			  对应MSGID_ZONE_ADDHEADIMG_NOTIFY
+	optional Zone_ChangeHeadImg_Request m_stZone_ChangeHeadImg_Request = 260;					// 切换头像的请求		  对应MSGID_ZONE_CHANGEHEADIMG_REQUEST
+	optional Zone_ChangeHeadImg_Response m_stZone_ChangeHeadImg_Response = 261;					// 切换头像的反馈   	  对应MSGID_ZONE_CHANGEHEADIMG_RESPONSE
+	optional Zone_ChangeNickName_Request m_stZone_ChangeNickName_Request = 262;					// 请求更改昵称        	  对应MSGID_ZONE_CHANGENICKNAME_REQUEST
+	optional Zone_ChangeNickName_Response m_stZone_ChangeNickName_Response = 263;				// 请求更改昵称			  对应MSGID_ZONE_CHANGENICKNAME_RESPONSE
+    optional Zone_LogoutGameRoleByGM_Request m_stZone_LogoutGameRoleByGM_Request = 264;         //gm请求玩家下线          MSGID_LOGOUTGAMEBYGM_REQUEST
+    optional Zone_LogoutGameRoleByGM_Response m_stZone_LogoutGameRoleByGM_Response = 265;
+	optional Zone_FreshWrestList_Request m_stZone_FreshWrestList_Request = 266;					//刷新夺宝对手
+	optional Zone_FreshWrestList_Response m_stZone_FreshWrestList_Response = 267;				//返回刷新结果
+	optional Zone_WrestHistory_Response m_stZone_WrestHistory_Response = 268;					//返回夺宝记录
+	optional Zone_WrestTreasure_Request m_stZone_WrestTreasure_Request = 269;					//请求夺宝
+	optional Zone_WrestTreasure_Response m_stZone_WrestTreasure_Response = 270;					//返回抢夺对象的信息
+	optional Zone_WrestResult_Request m_stZone_WrestResult_Request = 271;						//请求夺宝结果
+	optional Zone_WrestResult_Response m_stZone_WrestResult_Response = 272;						//返回夺宝结果
+	optional World_WrestData_Request m_stWorld_WrestData_Request = 273;							//请求离线夺宝列表
+	optional World_WrestData_Response m_stWorld_WrestData_Response = 274;						//
+	optional World_Offline_FightData_Req m_stWorld_Offline_FightData_Req = 275;					//查找离线战斗数据
+	optional World_Offline_FightData_Resp m_stWorld_Offline_FightData_Resp = 276;				//
+	optional Zone_UpdateTaskSchedule_Notify m_stZone_UpdateTaskSchedule_Notify = 277;			// 更新进度的通知		对应MSGID_UPDATETASKSCHEDULE_NOTIFY
+	optional Zone_ResetDailyTask_Notify m_stZone_ResetDailyTask_Notify = 278;					// 重置所有日程任务的通知 对应MSGID_RESET_DAILYTASK_NOTIFY
+	optional Zone_OrderForm_Notify m_stZone_OrderForm_Notify = 279;                             //订单通知
+	optional Zone_OffLineFormQuery_Request m_stZone_OffLineFormQuery_Request = 280;             //离线充值状态查询请求
+	optional Zone_OffLineFormQuery_Response m_stZone_OffLineFormQuery_Response = 281;           //离线充值状态查询回复
+	optional World_OffLineFormStateUpdate_Request m_stWorld_OffLineFormStateUpdate_Request = 282;   //更新充值状态请求
+	optional World_OffLineFormStateUpdate_Response m_stWorld_OffLineFormStateUpdate_Response = 283; //更新充值状态回复
+	optional Zone_RechargeInfo_Notify m_stZone_RechargeInfo_Notify = 284;							// 充值的通知
+	optional World_UpdateChips_Req m_stWorld_UpdateChips_Req = 285;								//修改夺宝碎片信息
+	optional World_UpdateChips_Resp m_stWorld_UpdateChips_Resp = 286;							//修改夺宝碎片信息回复
+	optional Zone_FetchOrderID_Request m_stZone_FetchOrderID_Request = 287;                     //请求订单号
+	optional Zone_FetchOrderID_Response m_stZone_FetchOrderID_Response = 288;                     //请求订单号回复
+	optional World_AddOrder_Request m_stWorld_AddOrder_Request = 289;                            //订单号插入请求
+	optional World_AddOrder_Response m_stWorld_AddOrder_Response = 290;                          //订单号插入回复
+	optional Zone_LoginServer_Response_Part2 m_stZone_LoginServer_Response_Part2 = 291;			 // 第二部分数据 对应 MSGID_ZONE_LOGINSERVER_RESPONSE_PART2
+	optional Zone_NewHandBook_Notify m_stZone_NewHandBook_Notify = 292;			 				 // 新增图鉴通知 对应 MSGID_ZONE_NEWHANDBOOK_NOTIFY
+	optional Zone_FetchItem_Response m_stZone_FetchItem_Response = 293;							 // 最多物品数
+	// client 向Zone的 Mail请求 World 和 Zone 做转发
+	optional Zone_FetchMailList_Request m_stZone_FetchMailList_Request = 294;					 // 拉取邮件列表的请求 对应MSGID_ZONE_FETCHMAILLIST_REQUEST
+	optional Zone_FetchMailList_Response m_stZone_FetchMailList_Response = 295;					 // 拉取邮件的反馈 对应MSGID_ZONE_FETCHMAILLIST_RESPONSE
+	optional Zone_NewMail_Notify m_stZone_NewMail_Notify = 296;									 // 新邮件通知     对应MSGID_ZONE_NEWMAIL_NOTIFY
+    optional Zone_ReadMail_Request m_stZone_ReadMail_Request = 297;								 // 阅读邮件的请求 对应MSGID_ZONE_READMAIL_REQUEST
+	optional Zone_ReadMail_Response m_stZone_ReadMail_Response = 298;							 // 阅读邮件的反馈 对应MSGID_ZONE_READMAIL_RESPONSE
+	optional Zone_RecvAttachments_Request m_stZone_RecvAttachments_Request = 299;				 // 收取附件的请求 对应MSGID_ZONE_RECVATTACHMENTS_REQUEST
+	optional Zone_RecvAttachments_Response m_stZone_RecvAttachments_Response = 300;				 // 收取附件的反馈 对应MSGID_ZONE_RECVATTACHMENTS_RESPONSE
+	optional Zone_DeleteMail_Request m_stZone_DeleteMail_Request = 301;							 // 删除邮件的请求 对应MSGID_ZONE_DELETEMAIL_REQUEST
+	optional Zone_DeleteMail_Response m_stZone_DeleteMail_Response = 302;						 // 删除邮件的反馈 对应MSGID_ZONE_DELETEMAIL_RESPONSE
+	// Zone向MailServer 内部通信
+	optional Mail_CreateNewMail_Request m_stMail_CreateNewMail_Request = 303;					 // ZoneServer发邮件的请求 对应MSGID_MAIL_CREATENEWMAIL_REQUEST
+	optional Mail_CreateNewMail_Response m_stMail_CreateNewMail_Response = 304;					 // ZoneServer发邮件的反馈 对应MSGID_MAIL_CREATENEWMAIL_RESPONSE
+	optional Mail_ApplyAttachment_Request m_stMail_ApplyAttachment_Request = 306;				 // 应用附件的请求  对应MSGID_MAIL_APPLYATTACHMENT_REQUEST
+	optional Mail_ApplyAttachment_Response m_stMail_ApplyAttachment_Response = 307;		         // 应用附件的反馈	对应MSGID_MAIL_APPLYATTACHMENT_RESPONSE
+	// MailServer 向MailDB 请求的服务
+	optional MailDB_CreateNewMail_Request m_stMailDB_CreateNewMail_Request = 308;				 // 创建新邮件的请求 对应MSGID_MAILDB_CREATENEWMAIL_REQUEST
+	optional MailDB_CreateNewMail_Response m_stMailDB_CreateNewMail_response = 309;			     // 创建新邮件的反馈 对应MSGID_MAILDB_CREATENEWMAIL_RESPONSE
+	optional MailDB_FetchMailList_Request m_stMailDB_FetchMailList_Request = 310;				 // 拉取邮件列表的请求 对应MSGID_MAILDB_FETCHMAILLIST_REQUEST
+	optional MailDB_FetchMailList_Response m_stMailDB_FetchMailList_Response = 311;				 // 拉取邮件列表的反馈 对应MSGID_MAILDB_FETCHMAILLIST_RESPONSE
+	optional MailDB_FetchOneMail_Request m_stMailDB_FetchOneMail_Request = 312;				 	 // 拉取邮件的请求 对应MSGID_MAILDB_FETCHONEMAIL_REQUEST
+	optional MailDB_FetchOneMail_Response m_stMailDB_FetchOneMail_Response = 313;				 // 拉取邮件的反馈 对应MSGID_MAILDB_FETCHONEMAIL_RESPONSE
+	optional MailDB_CheckNewMailList_Request m_stMailDB_CheckNewMail_Request = 314;				 // 检查新邮件 对应MSGID_MAILDB_CHECKNEWMAIL_REQUEST
+	optional MailDB_CheckNewMailList_Response m_stMailDB_CheckNewMail_Response = 315;		     // 检查新邮件 对应MSGID_MAILDB_CHECKNEWMAIL_RESPONSE
+	optional MailDB_UpdateMail_Request m_stMailDB_UpdateMail_Request = 316;						 // 更新邮件   对应MSGID_MAILDB_UPDATEMAIL_REQUEST
+	optional MailDB_UpdateMail_Response m_stMailDB_UpdateMail_Response = 317;					 // 更新邮件   对应MSGID_MAILDB_UPDATEMAIL_RESPONSE
+	optional Zone_ExtraAward_Notify m_stZone_ExtraAward_Notify = 318;							 //女神眷顾奖励通知
+	optional Zone_DeleteMail_Notify m_stZone_DeleteMail_Notify = 319;							 // 删除邮件的通知 对应MSGID_ZONE_DELETEMAIL_NOTIFY
+	optional Zone_SelfRank_Request m_stZone_SelfRank_Request = 320;								 // 排名请求       对应MSGID_ZONE_SELFRANK_REQUEST
+	optional Zone_SelfRank_Response m_stZone_SelfRank_Response = 321;							 // 排名反馈	   对应MSGID_ZONE_SELFRANK_RESPONSE
+	optional Zone_RankList_Request m_stZone_RankList_Request = 322;								 // 排名列表的请求 对应MSGID_ZONE_RANKLIST_REQUEST
+	optional Zone_RankList_Response m_stZone_RankList_Response = 323;							 // 排名列表的反馈 对应MSGID_ZONE_RANKLIST_RESPONSE
+	optional RankDB_UpdateRank_Request m_stRankDB_UpdateRank_Request = 324;						  // 更新排名请求  对应MSGID_RANKDB_UPDATERANK_REQUEST 
+	optional RankDB_UpdateRank_Response m_stRankDB_UpdateRank_Response = 325;					  // 更新排名请求的回复	 对应MSGID_RANKDB_UPDATERANK_RESPONSE
+	optional RankDB_FetchSelfRank_Request m_stRankDB_FetchSelfRank_Request = 326;				  // 请求自我排名的请求	 对应MSGID_RANKDB_FETCHSELFRANK_REQUEST
+	optional RankDB_FetchSelfRank_Response m_stRankDB_FetchSelfRank_Response = 327;				  // 请求自我排名的回复	 对应MSGID_RANKDB_FETCHSELFRANK_RESPONSE
+	optional RankDB_FetchRankList_Request m_stRankDB_FetchRankList_Request = 328;				  // 请求排名列表		 对应MSGID_RANKDB_FETCHRANKLIST_REQUEST
+	optional RankDB_FetchRankList_Response m_stRankDB_FetchRankList_Response = 329;				   // 请求排名列表 		 对应MSGID_RANKDB_FETCHRANKLIST_RESPONSE
+	optional Zone_TestMail_Request m_stZone_TestMail_Request = 330;								   // 请求发送测试邮件 对应 MSGID_MAIL_TESTMAIL_REQUEST		
+	optional Zone_TestMail_Response m_stZone_TestMail_Response = 331;							   // 请求发送测试邮件 对应 MSGID_MAIL_TESTMAIL_RESPONSE	
+	optional Zone_ActiveTalent_Request m_stZone_ActiveTalent_Request = 332;						   // 激活天赋 对应 MSGID_TALENT_ACTIVE_REQUEST
+	optional Zone_ActiveTalent_Response m_stZone_ActiveTalent_Response = 333;					   // 激活天赋 对应 MSGID_TALENT_ACTIVE_RESPONSE
+	optional MailDB_FetchMailNum_Request m_stMailDB_FetchMailNum_Request = 334;					   // 拉取邮件数量 对应MSGID_MAILDB_FETCHMAILNUM_REQUEST
+	optional MailDB_FetchMailNum_Response m_stMailDB_FetchMailNum_Response = 335;				   // 拉取邮件数量 对应MSGID_MAILDB_FETCHMAILNUM_RESPONSE
+	optional Zone_FetchTailorInfo_Request m_stZone_FetchTailorInfo_Request = 336;				// 拉取裁缝数据的请求 对应 MSGID_ZONE_FETCHTAILORINFO_REQUEST
+	optional Zone_FetchTailorInfo_Response m_stZone_FetchTailorInfo_Response = 337;				// 拉取裁缝数据的反馈 对应 MSGID_ZONE_FETCHTAILORINFO_RESPONSE
+	optional Zone_GetTailorMatrial_Request m_stZone_GetTailorMatrial_Request = 338;				// 获取材料的请求 对应 MSGID_ZONE_FETCHTAILORINFO_RESPONSE
+	optional Zone_GetTailorMatrial_Response m_stZone_GetTailorMatrial_Response = 339;			// 获取材料的反馈 对应 MSGID_ZONE_GETTAILORMATRIAL_RESPONSE
+	optional Zone_RefreshTailorMatrial_Request m_stZone_RefreshTailorMatrial_Request = 340;		// 刷新材料的请求 对应 MSGID_ZONE_REFRESHTAILORMATRIAL_REQUEST
+	optional Zone_RefreshTailorMatrial_Response m_stZone_RefreshTailorMatrial_Response = 341;	// 刷新材料的反馈 对应 MSGID_ZONE_REFRESHTAILORMATRIAL_RESPONSE
+	optional Zone_TailorBluePrint_Notify m_stZone_TailorBluePrint_Notify = 342;					// 刷新图纸的通知 对应 MSGID_ZONE_TAILORBLUEPRINT_NOTIFY
+	optional Zone_TailorMatrial_Notify m_stZone_TailorMatrial_Notify = 343;						// 刷新材料的通知 对应 MSGID_ZONE_TAILORMATRIAL_NOTIFY
+	optional Zone_RefreshTailorReward_Request m_stZone_RefreshTailorReward_Request = 344;		// 刷新奖励的请求 对应 MSGID_ZONE_REFRESHTAILORREWARD_REQUEST 
+	optional Zone_RefreshTailorReward_Response m_stZone_RefreshTailorReward_Response = 345;		// 刷新奖励的反馈 对应 MSGID_ZONE_REFRESHTAILORREWARD_RESPONSE
+	optional Zone_GetTailorReward_Request m_stZone_GetTailorReward_Request = 346;				// 获取奖励的请求 对应 MSGID_ZONE_GETTAILORREWARD_REQUEST
+	optional Zone_GetTailorReward_Response m_stZone_GetTailorReward_Response = 347;				// 获取奖励的反馈 对应 MSGID_ZONE_GETTAILORREWARD_RESPONSE
+	
+	optional Zone_FightWorldBoss_Request m_stZone_FightWorldBoss_Request = 348;					 //请求挑战worldboss
+	optional Zone_WorldBossHurt_Upload m_stZone_WorldBossHurt_Upload = 349;						 //上传世界boss伤害
+	optional Zone_EnterWorldBoss_Response m_stZone_EnterWorldBoss_Response = 350;				 //
+	optional Zone_FightWorldBoss_Response m_stZone_FightWorldBoss_Response = 351;				 //
+	optional Zone_FinWorldBoss_Response m_stZone_FinWorldBoss_Response = 352;					 //
+	optional Zone_KillWorldBoss_Notify m_stZone_KillWorldBoss_Notify = 353;						 //worldboss被击杀通知
+	optional Zone_WorldBossRank_Notify m_stZone_WorldBossRank_Notify = 354;						 //排行变动通知
+	optional Zone_WorldBossBlood_Response m_stZone_WorldBossBlood_Response = 355;				 //boss血量通知
+	optional Zone_WorldBossClearCD_Response m_stZone_WorldBossClearCD_Response = 356;			 //
+	
+	optional Zone_EnterConqTower_Response m_stZone_EnterConqTower_Response = 357;				 //返回征服之塔数据
+	optional Zone_ConqTowerReset_Request m_stZone_ConqTowerReset_Request = 358;					 //征服之塔重置操作
+	optional Zone_ConqTowerReset_Response m_stZone_ConqTowerReset_Response = 359;				 //
+	optional Zone_SweepConqTower_response m_stZone_SweepConqTower_response = 360;				 //返回扫荡征服之塔
+	optional Zone_CancelSweep_Response m_stZone_CancelSweep_Response = 361;					 	 //返回取消扫荡征服之塔
+	optional Zone_FinSweepTower_Notify m_stZone_FinSweepTower_Notify = 362;					 	 //扫荡结束通知征服之塔
+
+	optional Zone_FetchFriendInfo_Request m_stZone_FetchFriendInfo_Request = 363;			 	 // 拉取好友的请求     对应 MSGID_ZONE_FETCHFRIEND_REQUEST
+	optional Zone_FetchFriendInfo_Response m_stZone_FetchFriendInfo_Response = 364;			 	 // 拉取好友请求的反馈 对应 MSGID_ZONE_FETCHFRIEND_RESPONSE
+	optional World_UpdateFriendInfo_Request m_stWorld_UpdateFriendInfo_Request = 365;			 // RoleDB更新好友数据 对应 MSGID_FRIEND_UPDATEFRIEND_REQUEST
+	optional World_UpdateFriendInfo_Response m_stWorld_UpdateFriendInfo_Response = 366;			 // RoleDB更新好友数据 对应 MSGID_FRIEND_UPDATEFRIEND_RESPONSE
+	optional World_FetchFriendInfo_Request m_stWorld_FetchFriendInfo_Request = 367;			 // RoleDB更新好友数据 对应 MSGID_FRIEND_FETCHFRIEND_REQUEST
+	optional World_FetchFriendInfo_Response m_stWorld_FetchFriendInfo_Response = 368;			 // RoleDB更新好友数据 对应 MSGID_FRIEND_FETCHFRIEND_RESPONSE
+	optional MailDB_GMQueryMail_Request m_stMailDB_GMQueryMail_Request = 369;                   //查询是否有需要发送的邮件 对应 MSGID_GMQUERYMAILID_REQUEST
+	optional MailDB_GMQueryMail_Response m_stMailDB_GMQueryMail_Response = 370;					//查询回复 对应 MSGID_GMQUERYMAILID_RESPONSE
+	optional MailDB_InsertNewMailGM_Request m_stMailDB_InsertNewMailGM_Request = 371;			//插入邮件事件 对应 MSGID_GMINSERTMAIL_REQUEST
+	optional MailDB_InsertNewMailGM_Response m_stMailDB_InsertNewMailGM_Response = 372;			//插入回复 对应 MSGID_GMINSERTMAIL_RESPONSE
+	optional Zone_BuyGrowPlan_Request m_stZone_BuyGrowPlan_Request = 373;						// 购买成长计划的请求 MSGID_BUYGEOWPALN_REQUEST
+	optional Zone_BuyGrowPlan_Response m_stZone_BuyGrowPlan_Response = 374;						// 购买成长计划的回复 MSGID_BUYGEOWPALN_RESPONSE
+	optional Zone_GetGrowPlanPart_Request m_stZone_GetGrowPlanPart_Request = 375;				// 获得基金请求       MSGID_GETGEOWPALNPART_REQUEST
+	optional Zone_GetGrowPlanPart_Response m_stZone_GetGrowPlanPart_Response = 376;				// 获得基金回复		  MSGID_GETGEOWPALNPART_RESPONSE
+	optional Zone_LogEvent_Request m_stZone_LogEvent_Request = 377;								//记录客户端点击事件 MSGID_ZONE_LOGEVENT_REQUEST 
+	optional Zone_ActivityRecharge_Notify m_stZone_ActivityRecharge_Notify = 378;				// 活动通知 MSGID_ZONE_ACTIVITY_NOTIFY
+	optional Zone_ActivityGetReward_Request m_stZone_ActivityGetReward_Request = 379;			// 获取活动奖励的请求 MSGID_ZONE_ACTIVITYGETREWARD_REQUEST
+	optional Zone_ActivityGetReward_Response m_stZone_ActivityGetReward_Response = 380;			// 获取活动奖励的反馈 MSGID_ZONE_ACTIVITYGETREWARD_RESPONSE
+	optional Zone_TalkMsg_Request m_stZone_TalkMsg_Request = 381;								//请求发送聊天消息
+	optional Zone_TalkMsg_Response m_stZone_TalkMsg_Response = 382;								//返回聊天消息
+	optional Zone_PlyEvtBulletin_Notify m_stZone_PlyEvtBulletin_Notify = 383;					//玩家事件通知	MSGID_ZONE_PLYEVTBULLETIN_NOTIFY 
+	optional Zone_Bulletin_Notify m_stZone_Bulletin_Notify = 384;								//游戏公告通知	MSGID_ZONE_BULLETIN_NOTIFY
+	optional Zone_FriendEvtDel_Notify m_stZone_FriendEvtDel_Notify = 385;						//好友事件 		MSGID_ZONE_FRIENDEVTDEL_NOTIFY
+	optional World_UpdateWorldBoss_Request m_stWorld_UpdateWorldBoss_Request = 386;				//
+	optional World_FetchWorldBoss_Request m_stWorld_FetchWorldBoss_Request = 387;				//
+	optional World_FetchWorldBoss_Response m_stWorld_FetchWorldBoss_Response = 388;				//
+	optional World_ClearWorldBoss_Request m_stWorld_ClearWorldBoss_Request = 389;				//
+	optional Zone_GetTowerAward_Response m_stZone_GetTowerAward_Response = 390;					//返回征服之塔奖励
+	optional World_UpdateWorldChat_Request m_stWorld_UpdateWorldChat_Request = 391;				//更新世界聊天数据
+	optional World_FetchWorldChat_Request m_stWorld_FetchWorldChat_Request = 392;				//拉取世界聊天数据
+	optional World_FetchWorldChat_Response m_stWorld_FetchWorldChat_Response = 393;				//返回世界聊天数据
+	optional Zone_StarUpHero_Request m_stZone_StarUpHero_Request = 394;							// 升星级         对应 MSGID_ZONE_STARUPHERO_REQUEST
+	optional Zone_StarUpHero_Response m_stZone_StarUpHero_Response = 395;						// 升星级的反馈	  对应 MSGID_ZONE_STARUPHERO_RESPONSE
+	optional Zone_ExtractBestHero_Request m_stZone_ExtractBestHero_Request = 396;				// 抽取限时英雄的请求 对应 MSGID_ZONE_EXTRACTBESTHERO_REQUEST
+	optional Zone_ExtractBestHero_Response m_stZone_ExtractBestHero_Response = 397;				// 抽取限时英雄的请求 对应 MSGID_ZONE_EXTRACTBESTHERO_RESPONSE
+	optional Zone_BestHeroRankList_Request m_stZone_BestHeroRankList_Request = 398;				// 限时神将的排名信息的请求 对应 MSGID_ZONE_BESTHERORANKLIST_REQUEST
+	optional Zone_BestHeroRankList_Response m_stZone_BestHeroRankList_Response = 399;			// 限时神将的排名信息的反馈 对应 MSGID_ZONE_BESTHERORANKLIST_RESPONSE
+	optional World_UpdateActData_Request m_stWorld_UpdateActData_Request = 400;					// 更新活动数据到数据库的请求 对应 MSGID_WORLD_UPDATEACTDATA_REQUEST
+	optional World_UpdateActData_Response m_stWorld_UpdateActData_Response = 401;				// 更新活动数据到数据库的反馈 对应 MSGID_WORLD_UPDATEACTDATA_RESPONSE
+	optional World_CreateActData_Request m_stWorld_CreateActData_Request = 402;					// 创建活动数据到数据库的请求 对应 MSGID_WORLD_CREATEACTDATA_REQUEST
+	optional World_CreateActData_Response m_stWorld_CreateActData_Response = 403;				// 创建活动数据到数据库的反馈 对应 MSGID_WORLD_CREATEACTDATA_RESPONSE
+	optional Zone_ActivityList_Request m_stZone_ActivityList_Request = 404;						// 请求活动列表 			  对应 MSGID_ZONE_ACTIVITYLIST_REQUEST
+	optional Zone_ActivityList_Response m_stZone_ActivityList_Response = 405;					// 请求活动列表 			  对应 MSGID_ZONE_ACTIVITYLIST_RESPONSE
+	optional Zone_Activity_Notify m_stZone_Activity_Notify = 406;								// 活动的变更通知			  对应 MSGID_ZONE_ACTIVITY_NOTIFY
+	optional Zone_SoundChat_Request m_stZone_SoundChat_Request = 407;							//请求语音聊天
+	optional Zone_SoundChat_Response m_stZone_SoundChat_Response = 408;							//返回语音内容
+	
+	optional Zone_UserInfo_Request m_stZone_UserInfo_Request = 409;								//记录玩家设备相关信息和 MSGID_ZONE_USERINFO_REQUEST
+	optional Zone_GMFetchRole_Request m_stZone_GMFetchRole_Request = 410;						//GM拉取角色信息
+	optional Zone_CommondGM_Request m_stZone_CommondGM_Request = 411;							//GM命令请求
+	optional Zone_CommondGM_Response m_stZone_CommondGM_Response = 412;							//GM回馈
+	optional World_GMFetchRoleInfo_Request m_stWorld_GMFetchRoleInfo_Request = 413;				//GM到数据库拉取角色信息
+	optional World_GMFetchRoleInfo_Response m_stWorld_GMFetchRoleInfo_Response = 414;			//GM拉取角色的反馈
+	optional Zone_GMFetchRole_Response m_stZone_GMFetchRole_Response = 415;						//GM拉取角色反馈给web
+	optional RegAuth_GMServer_Notify m_stRegAuth_GMServer_Notify = 416;							//GM通知服务器
+	optional RegAuth_AddWhite_Request m_stRegAuth_AddWhite_Request = 417;						//白名单请求
+	optional Zone_ChargeToClient_Notify m_stZone_ChargeToClient_Notify = 418;					//充值发货通知
+	
+	optional Zone_FreshMasterFightList_Response m_stZone_FreshMasterFightList_Response = 419;	//刷新战斗大师列表
+	optional Zone_MasterTenList_Response m_stZone_MasterTenList_Response = 420;					//战斗大师前十排名
+	optional Zone_MasterRevengeList_Response m_stZone_MasterRevengeList_Response = 421;			//战斗大师复仇列表
+	optional Zone_MasterStore_Buy_Request m_stZone_MasterStore_Buy_Request = 422;				//战斗大师商城购买请求
+	optional Zone_MasterStore_Buy_Response m_stZone_MasterStore_Buy_Response = 423;				//战斗大师购买回复
+	optional Zone_MasterFightSomeOne_Request m_stZone_MasterFightSomeOne_Request = 424;			//请求战斗大师挑战
+	optional Zone_MasterFightSomeOne_Response m_stZone_MasterFightSomeOne_Response = 425;		//返回战斗大师挑战结果
+	optional Zone_MasterFinFight_Request m_stZone_MasterFinFight_Request = 426;					//请求结束战斗大师
+	optional Zone_MasterFinFight_Response m_stZone_MasterFinFight_Response = 427;				//返回结束战斗大师
+	optional World_GMFetchPve_Request m_stWorld_GMFetchPve_Request = 428;						//拉取PVE副本信息请求
+	optional World_GMFetchPve_Response m_stWorld_GMFetchPve_Response = 429;						//拉取PVE副本信息回复
+	optional Zone_GMFetchPve_Response m_stZone_GMFetchPve_Response = 430;						//返回给GM的PVE
+	optional Zone_BuySweepTimes_Request m_stZone_BuySweepTimes_Request = 431;					//购买扫荡次数的请求 MSGID_ZONE_BUYSWEEPTIMES_REQUEST
+	optional Zone_BuySweepTimes_Response m_stZone_BuySweepTimes_Response = 432;					//购买扫荡次数的反馈 MSGID_ZONE_BUYSWEEPTIMES_RESPONSE
+	optional World_FetchMasterFight_Request m_stWorld_FetchMasterFight_Request = 433;			//拉取战斗大师数据请求
+	optional World_FetchMasterFight_Response m_stWorld_FetchMasterFight_Response = 434;			//返回战斗大师数据
+	optional World_UpdateMasterFight_Request m_stWorld_UpdateMasterFight_Request = 435;			//更新战斗大师排行列表
+	optional Zone_BuyCrossTimes_Request m_stZone_BuyCrossTimes_Request = 436;					//购买关卡次数的请求 MSGID_ZONE_BUYCROSSTIMES_REQUEST
+	optional Zone_BuyCrossTimes_Response m_stZone_BuyCrossTimes_Response = 437;					//购买关卡次数的反馈 MSGID_ZONE_BUYCROSSTIMES_RESPONSE
+	optional World_FetchWrestCompose_Request m_stWorld_FetchWrestCompose_Request = 438;			//拉取饰品合成数据
+	optional World_FetchWrestCompose_Response m_stWorld_FetchWrestCompose_Response = 439;		//返回饰品合成数据
+	optional World_UpdateWrestCompose_Request m_stWorld_UpdateWrestCompose_Request = 440;		//更新饰品合成数据
+
+	optional World_GMUpdateRoleBase_Response m_stWorld_GMUpdateRoleBase_Response = 441;			//GM更新玩家基础信息返回并解锁
+	optional World_GMUpdateRoleItem_Request m_stWorld_GMUpdateRoleItem_Request = 442;			//GM更新玩家道具请求
+	optional World_GMUpdateRoleItem_Response m_stWorld_GMUpdateRoleItem_Response = 443;			//GM更新玩家道具回复
+	optional World_UpdateRoleStatuOpen_Request m_stWorld_UpdateRoleStatuOpen_Request = 444;		//GM开锁
+	optional World_UpdateHeroInfo_Request m_stWorld_UpdateHeroInfo_Request = 445;				//GM添加新英雄和更新英雄数据请求
+	optional Zone_GMSendBulletinBoard_Notify m_stZone_GMSendBulletinBoard_Notify = 446;			//GM走马灯通告
+	optional World_UpdateHeroInfo_Response m_stWorld_UpdateHeroInfo_Response = 447;				//GM添加新英雄和更新英雄数据回复
+	optional World_GMUpdatePinstance_Request m_stWorld_GMUpdatePinstance_Request = 448;			//GM更新副本信息请求
+	optional World_GMUpdatePinstance_Response m_stWorld_GMUpdatePinstance_Response = 449;		//GM更新副本信息回复
+	optional World_GMUpdateRoleStatu_Request m_stWorld_GMUpdateRoleStatu_Request = 450;			//GM对角色加锁请求
+	optional World_GMUpdateRoleStatu_Response m_stWorld_GMUpdateRoleStatu_Response = 451;		//GM加锁请求返回并得到roleid
+	optional World_GMUpdateRoleBase_Request m_stWorld_GMUpdateRoleBase_Request = 452;			//GM更新玩家基础信息请求	
+	optional Zone_GMLoginBoard_Notify m_stZone_GMLoginBoard_Notify = 453;						//GM推送登录公告到各个服务器
+	optional Zone_LoginBoard_Response m_stZone_LoginBoard_Response = 454;					//反馈给客户端公告
+	optional Zone_UpdateLoginBoardToDB_Notify m_stZone_UpdateLoginBoardToDB_Notify = 455;	//更新登录公告到数据库
+	optional Zone_UpdateLoginBoardfromDB_Notify m_stZone_UpdateLoginBoardfromDB_Notify = 456;//更新公告从数据库
+	optional Zone_LoginBoard_Notify m_stZone_LoginBoard_Notify = 457;						//推送新的登录公告
+	optional Zone_FightHistory_Notify m_stZone_FightHistory_Notify = 458;					//记录信息更新通知
+	// 公会 459 - 540 预留 都是
+	optional Zone_GuildList_Request m_stZone_GuildList_Request = 459;							// 拉取公会列表信息的请求          对应 MSGID_ZONE_GUILD_LIST_REQUEST 
+	optional Zone_GuildList_Response m_stZone_GuildList_Response = 460;							// 拉取公会列表信息的反馈          对应 MSGID_ZONE_GUILD_LIST_RESPONSE 
+	optional Zone_FetchGuildInfo_Request m_stZone_FetchGuildInfo_Request = 461;					// 拉取公会信息的请求              对应 MSGID_ZONE_FETCHGUILD_REQUEST
+	optional Zone_FetchGuildInfo_Response m_stZone_FetchGuildInfo_Response = 462;				// 拉取公会信息的请求              对应 MSGID_ZONE_FETCHGUILD_RESPONSE
+	optional Zone_SearchGuild_Request m_stZone_SearchGuild_Request = 463;						// 查找公会的请求                  对应 MSGID_ZONE_GUILD_SEARCH_REQUEST
+	optional Zone_SearchGuild_Response m_stZone_SearchGuild_Response = 464;						// 查找公会的反馈                  对应 MSGID_ZONE_GUILD_SEARCH_RESPONSE
+	optional Zone_CreateGuild_Request m_stZone_CreateGuild_Request = 465;						// 创建公会的请求                  对应 MSGID_ZONE_GUILD_CREATE_REQUEST
+	optional Zone_CreateGuild_Response m_stZone_CreateGuild_Response = 466;						// 创建公会的反馈                  对应 MSGID_ZONE_GUILD_CREATE_RESPONSE
+	optional Zone_EditDeclaration_Request m_stZone_EditDeclaration_Request = 467;				// 编辑宣言的申请                  对应 MSGID_ZONE_GUILD_EDITDEC_REQUEST 
+	optional Zone_EditDeclaration_Response m_stZone_EditDeclaration_Response = 468;				// 编辑宣言的反馈                  对应 MSGID_ZONE_GUILD_EDITDEC_RESPONSE 
+	optional Zone_EditNotice_Request m_stZone_EditNotice_Request = 469;							// 编辑公告的申请                  对应 MSGID_ZONE_GUILD_EDITNOTICE_REQUEST 
+	optional Zone_EditNotice_Response m_stZone_EditNotice_Response = 470;						// 编辑公告的反馈                  对应 MSGID_ZONE_GUILD_EDITNOTICE_RESPONSE 
+	optional Zone_ApplyGuild_Request m_stZone_ApplyGuild_Request = 471;							// 申请公会的请求                  对应 MSGID_ZONE_GUILD_APPLY_REQUEST
+	optional Zone_ApplyGuild_Response m_stZone_ApplyGuild_Response = 472;						// 申请公会的反馈                  对应 MSGID_ZONE_GUILD_APPLY_RESPONSE
+	optional Zone_DealGuildApply_Request m_stZone_DealGuildApply_Request = 473;					// 处理公会的申请                  对应 MSGID_ZONE_GUILD_APPROVAL_REQUEST 
+	optional Zone_DealGuildApply_Response m_stZone_DealGuildApply_Response = 474;				// 处理公会的申请                  对应 MSGID_ZONE_GUILD_APPROVAL_RESPONSE 
+	optional Zone_EditPosition_Request m_stZone_EditPosition_Request = 475;						// 编辑职位的申请                  对应 MSGID_ZONE_GUILD_EDITPOS_REQUEST 
+	optional Zone_EditPosition_Response m_stZone_EditPosition_Response = 476;					// 编辑职位的反馈                  对应 MSGID_ZONE_GUILD_EDITPOS_RESPONSE 
+	optional Zone_KickoutGuild_Request m_stZone_KickoutGuild_Request = 477;						// 踢出公会的申请                  对应 MSGID_ZONE_GUILD_KICKOUT_REQUEST 
+	optional Zone_KickoutGuild_Response m_stZone_KickoutGuild_Response = 478;					// 踢出公会的反馈                  对应 MSGID_ZONE_GUILD_KICKOUT_RESPONSE 
+	optional Zone_QuitGuild_Request m_stZone_QuitGuild_Request = 479;							// 离开公会的申请                  对应 MSGID_ZONE_GUILD_QUIT_REQUEST 
+	optional Zone_QuitGuild_Response m_stZone_QuitGuild_Response = 480;							// 离开公会的反馈                  对应 MSGID_ZONE_GUILD_QUIT_RESPONSE 
+	optional Zone_TransferPresident_Request m_stZone_TransferPresident_Request = 481;			// 转让公会的申请                  对应 MSGID_ZONE_GUILD_TRANSFER_REQUEST
+	optional Zone_TransferPresident_Response m_stZone_TransferPresident_Response = 482;			// 转让公会的反馈                  对应 MSGID_ZONE_GUILD_TRANSFER_RESPONSE
+	optional Zone_GuildWorship_Request m_stZone_GuildWorship_Request = 483;						// 公会膜拜的请求                  对应 MSGID_ZONE_GUILD_WORSHIP_REQUEST 
+	optional Zone_GuildWorship_Response m_stZone_GuildWorship_Response = 484;					// 公会膜拜的反馈                  对应 MSGID_ZONE_GUILD_WORSHIP_RESPONSE 
+	optional Zone_GatherWorshipCoin_Request m_stZone_GatherWorshipCoin_Request = 485;			// 公会收集膜拜金币的请求          对应 MSGID_ZONE_GUILD_GETWORSHIP_REQUEST
+	optional Zone_GatherWorshipCoin_Response m_stZone_GatherWorshipCoin_Response = 486;			// 公会收集膜拜金币的反馈          对应 MSGID_ZONE_GUILD_GETWORSHIP_RESPONSE 
+	optional Zone_NewGuildEvent_Notify m_stZone_NewGuildEvent_Notify = 487;						// 公会新事件通知                  对应 MSGID_ZONE_GUILD_NEWGUILDEVT_NOTIFY
+	optional Zone_NewGuildApply_Notify m_stZone_NewGuildApply_Notify = 488;						// 通知公会的人有新的公会申请	   对应 MSGID_ZONE_GUILD_NEWAPPLY_NITIFY;
+	optional Zone_GuildApproval_Notify m_stZone_GuildApproval_Notify = 489;						// 公会申请处理的通知			   对应 MSGID_ZONE_GUILD_APPROVAL_NOTIFY
+	optional Zone_CancelGuildApply_Request m_stZone_CancelGuildApply_Request = 490;				// 取消公会的申请				   对应 MSGID_ZONE_GUILD_CANCELAPPLY_REQUEST
+	optional Zone_CancelGuildApply_Response m_stZone_CancelGuildApply_Response = 491;			// 取消公会的反馈				   对应 MSGID_ZONE_GUILD_CANCELAPPLY_RESPONSE
+	optional Zone_CancelGuildApply_Notify m_stZone_CancelGuildApply_Notify = 492;				// 取消公会的通知 				   对应 MSGID_ZONE_GUILD_CANCELAPPLY_NOTIFY
+	optional Zone_GuildApplyList_Request m_stZone_GuildApplyList_Request = 493;					// 请求公会的申请过的列表		   对应 MSGID_ZONE_GUILD_GUILDAPPLYLIST_REQUEST
+	optional Zone_GuildApplyList_Response  m_stZone_GuildApplyList_Response = 494;				// 请求公会的申请过的列表          对应 MSGID_ZONE_GUILD_GUILDAPPLYLIST_RESPONSE
+	optional Zone_GuildMemberList_Request m_stZone_GuildMemberList_Request = 495;				// 请求公会成员列表		   		   对应 MSGID_ZONE_GUILD_MEMBERLIST_REQUEST
+	optional Zone_GuildMemberList_Response  m_stZone_GuildMemberList_Response = 496;			// 请求公会成员列表                对应 MSGID_ZONE_GUILD_MEMBERLIST_RESPONSE
+	optional Zone_Guild_ApplyPlyList_Request m_stZone_Guild_ApplyPlyList_Request = 497;			// 请求公会的申请玩家的列表		   对应 MSGID_ZONE_GUILD_APPLYPLYLIST_REQUEST
+	optional Zone_Guild_ApplyPlyList_Response  m_stZone_Guild_ApplyPlyList_Response = 498;		// 请求公会的申请玩家的列表        对应 MSGID_ZONE_GUILD_APPLYPLYLIST_RESPONSE
+	optional Zone_WorshipInfo_Request m_stZone_WorshipInfo_Request = 499;						// 请求公会的膜拜信息的请求		   对应 MSGID_ZONE_WORSHIPINFO_REQUEST
+	optional Zone_WorshipInfo_Response m_stZone_WorshipInfo_Response = 500;						// 请求公会的膜拜信息的反馈		   对应 MSGID_ZONE_WORSHIPINFO_RESPONSE
+	optional Zone_Guild_Dismiss_Request m_stZone_Guild_Dismiss_Request = 501;				    // 请求解散公会的请求			   对应 MSGID_ZONE_GUILD_DISMISS_REQUEST
+	optional Zone_Guild_Dismiss_Response m_stZone_Guild_Dismiss_Response = 502;				    // 请求解散公会的反馈 			   对应 MSGID_ZONE_GUILD_DISMISS_RESPONSE
+	optional Zone_Guild_ChangeFlag_Request m_stZone_Guild_ChangeFlag_Request = 503;				// 请求更换旗帜的请求			   对应 MSGID_ZONE_GUILD_CHANGEFLAG_REQUEST
+	optional Zone_Guild_ChangeFlag_Response m_stZone_Guild_ChangeFlag_Response = 504;		 	// 请求更换旗帜的反馈			   对应 MSGID_ZONE_GUILD_CHANGEFLAG_RESPONSE
+	optional Zone_Guild_DealAllApply_Request m_stZone_Guild_DealAllApply_Request = 505;			// 请求处理所有申请请求			   对应 MSGID_ZONE_GUILD_DEALALLAPPLY_REQUEST
+	optional Zone_Guild_DealAllApply_Response m_stZone_Guild_DealAllApply_Response = 506;		// 请求处理所有申请反馈			   对应 MSGID_ZONE_GUILD_DEALALLAPPLY_RESPONSE
+	optional Zone_RedPoint_Notify m_stZone_RedPoint_Notify = 507;								// 红点通知                        对应 MSGID_ZONE_RED_POINT_NOTIFY
+	// DB 操作                                                                                                                    
+	optional World_FetchGuildList_Request m_stWorld_FetchGuildList_Request = 510;				// 拉取公会信息列表的请求          对应 MSGID_WORLD_FETCHGUILDLIST_REQUEST 
+	optional World_FetchGuildList_Response m_stWorld_FetchGuildList_Response = 511;				// 拉取公会信息列表的反馈          对应 MSGID_WORLD_FETCHGUILDLIST_RESPONSE 
+	optional World_SearchGuild_Request m_stWorld_SearchGuild_Request = 512;						// 查找公会的请求                  对应 MSGID_WORLD_SEARCHGUILD_REQUEST
+	optional World_SearchGuild_Response m_stWorld_SearchGuild_Response = 513;					// 查找公会的反馈                  对应 MSGID_WORLD_SEARCHGUILD_RESPONSE
+	optional World_CreateGuild_Request m_stWorld_CreateGuild_Request = 514;						// 创建公会的请求                  对应 MSGID_WORLD_CREATEGUILD_REQUEST 
+	optional World_CreateGuild_Response m_stWorld_CreateGuild_Response = 515;					// 创建公会的反馈                  对应 MSGID_WORLD_CREATEGUILD_RESPONSE 
+	optional World_FetchGuild_Request m_stWorld_FetchGuild_Request = 516;						// 拉取公会的请求                  对应 MSGID_WORLD_FETCHGUILDINFO_REQUEST
+	optional World_FetchGuild_Response m_stWorld_FetchGuild_Response = 517;						// 拉取公会的反馈                  对应 MSGID_WORLD_FETCHGUILDINFO_RESPONSE
+	optional World_UpdateGuild_Request m_stWorld_UpdateGuild_Request = 518;						// 更新公会信息的请求              对应 MSGID_WORLD_UPDATEGUILD_REQUEST
+	optional World_UpdateGuild_Response m_stWorld_UpdateGuild_Response = 519;					// 更新公会信息的反馈              对应 MSGID_WORLD_UPDATEGUILD_RESPONSE
+	optional World_UpdateSelfGuild_Request m_stWorld_UpdateSelfGuild_Request = 520;				// 更新公会的关联数据的请求        对应 MSGID_WORLD_UPDATESELFGUILD_REQUEST
+	optional World_UpdateSelfGuild_Response m_stWorld_UpdateSelfGuild_Response = 521;			// 更新公会的关联数据的反馈        对应 MSGID_WORLD_UPDATESELFGUILD_RESPONSE
+	optional World_DeleteGuild_Request m_stWorld_DeleteGuild_Request = 522;						// 删除公会的请求				   对应 MSGID_WORLD_DELETEGUILD_REQUEST
+	optional World_DeleteGuild_Response m_stWorld_DeleteGuild_Response = 523;					// 删除公会的反馈				   对应 MSGID_WORLD_DELETEGUILD_RESPONSE
+	
+	// 非公会
+	optional Zone_GMForbidenToRole_Request m_stZone_GMForbidenToRole_Request = 540;				//封号禁言的操作 MSGID_ZONE_GMFORBIDENTOROLE_REQUEST
+	optional Zone_CloseXinge_Request m_stZone_CloseXinge_Request = 541;							//从客户端获取玩家的信鸽帐号 MSGID_ZONE_CLOSEXINGE_REQUEST
+	optional World_UpdateTokenToDB_Request m_stWorld_UpdateTokenToDB_Request = 542;				//更新信鸽帐号到数据库 MSGID_WORL_UPDATETOKENINFO
+	optional Zone_BuyFuncUseTime_Request m_stZone_BuyFuncUseTime_Request = 543;					// 购买功能使用次数的请求       	对应 MSGID_ZONE_BUYFUNCUSETIME_REQUEST	
+	optional Zone_BuyFuncUseTime_Response m_stZone_BuyFuncUseTime_Response = 544;				// 购买功能使用次数的反馈       	对应 MSGID_ZONE_BUYFUNCUSETIME_RESPONSE	
+	optional Zone_GetDailyTaskReward_Request m_stZone_GetDailyTaskReward_Request = 545;			// 领取日常奖励 					对应 MSGID_ZONE_GETDAILYTASKREWARD_REQUEST
+	optional Zone_GetDailyTaskReward_Response m_stZone_GetDailyTaskReward_Response = 546;		// 领取日常奖励 					对应 MSGID_ZONE_GETDAILYTASKREWARD_RESPONSE
+	optional Zone_CloseXinge_Response m_stZone_CloseXinge_Response = 547;						//关闭推送返回	
+	optional Zone_PVPStore_Fresh_Response m_stZone_PVPStore_Fresh_Response = 548;				// 返回pvp商城刷新结果
+	optional Zone_PVPStoreInfo_Notify m_stZone_PVPStoreInfo_Notify = 549;						// pvp商城数据更新通知
+	optional Zone_WrestBuyCount_Request m_stZone_WrestBuyCount_Request = 550;					//购买夺宝次数
+	optional Zone_WrestBuyCount_Response m_stZone_WrestBuyCount_Response = 551;					//购买夺宝次数
+	optional Zone_WrestRecoverTime_Notify m_stZone_WrestRecoverTime_Notify = 552;				//夺宝次数上次回复时间
+	optional Zone_BuyBlackMarket_Request m_stZone_BuyBlackMarket_Request = 555;					// 购买黑市物品的请求 MSGID_ZONE_BUYBLACKMARKET_REQUEST
+	optional Zone_BuyBlackMarket_Response m_stZone_BuyBlackMarket_Response = 556;				// 购买黑市物品的反馈 MSGID_ZONE_BUYBLACKMARKET_RESPONSE
+	optional Zone_UpdateBlackMarket_Request m_stZone_UpdateBlackMarket_Request = 557;			// 刷新黑市商品的请求 MSGID_ZONE_UPDATEBLACKMARKET_REQUEST
+	optional Zone_UpdateBlackMarket_Response m_stZone_UpdateBlackMarket_Response = 558;			// 刷新黑市商人的请求 MSGID_ZONE_UPDATEBLACKMARKET_RESPONSE
+	optional Zone_UpdateBlackMarket_Notify m_stZone_UpdateBlackMarket_Notify = 559;				// 刷新黑市商品的通知 MSGID_ZONE_UPDATEBLACKMARKET_NOTIFY
+	optional Zone_GMCreateMail_Request m_stZone_GMCreateMail_Request = 560;						//GM创建邮件
+	optional World_FetchOrder_Request m_stWorld_FetchOrder_Request = 561;						//请求删档订单
+	optional World_FetchOrder_Response m_stWorld_FetchOrder_Response = 562;						//获取订单返回
+	optional World_UpdateCharge_Notify m_stWorld_UpdateCharge_Notify = 563;					//更新表格状态并且不用回复
+	optional Zone_ReloginServer_Request m_stZone_ReloginServer_Request = 564;					//重新登录请求
+	optional Zone_ReloginServer_Response m_stZone_ReloginServer_Response = 565;					//重新登录返回
+	optional Zone_FreshMasterFightList_Request m_stZone_FreshMasterFightList_Request = 566;		//刷新战斗大师挑战列表
+	optional Zone_ClearPVPCD_Request m_stZone_ClearPVPCD_Request = 567;							// 清除CD的请求 对应 MSGID_ZONE_CLEARPVPCD_REQUEST
+	optional Zone_ClearPVPCD_Response m_stZone_ClearPVPCD_Response = 568;						// 清除CD的反馈 对应 MSGID_ZONE_CLEARPVPCD_RESPONSE
+	optional Zone_FetchMailTable_Response m_stZone_FetchMailTable_Response = 569;				//拉取定时邮件回复 MSGID_ZONE_FETCHMAILTABLE_RESPONSE
+	optional Zone_FetchOneMail_Request m_stZone_FetchOneMail_Request = 56170;						//定时邮件触发请求 MSGID_ZONE_FETCHONEMAIL_REQUEST
+	optional Zone_FetchOneMail_Response m_stZone_FetchOneMail_Response = 5671;					//定时邮件获取返回 MSGID_ZONE_FETCHONEMAIL_RESPONSE
+	optional Zone_UpdateMailStatu_Request m_stZone_UpdateMailStatu_Request = 572;				//更新邮件状态 MSGID_ZONE_UPDATEMAILSTATU_REQUEST
+	optional World_FetchLevelUin_Request m_stWorld_FetchLevelUin_Request = 573;					//拉取对应帐号的等级请求 MSGID_WORLD_FETCHLEVELUIN_REQUEST
+	optional World_FetchLevelUin_Response m_stWorld_FetchLevelUin_Response = 574;				//拉取对应帐号等级的返回 MSGID_WORLD_FETCHLEVELUIN_RESPONSE
+	optional World_UpdateLevelStatu_Notify m_stWorld_UpdateLevelStatu_Notify = 575;				//更新对应帐号等级回馈状态 MSGID_WORLD_UPDATELEVELSTATU_NOTIFY
+	optional Zone_AddNewMail_Request m_stZone_AddNewMail_Request = 576;							//GM添加定时邮件请求	MSGID_WORLD_ADDNEWMAIL_REQUEST
+	optional Zone_FetchMailTable_Request m_stZone_FetchMailTable_Request = 577;					//拉取定时邮件请求 MSGID_ZONE_FETCHMAILTABLE_REQUEST
+	optional Zone_RevokeMail_Request m_stZone_RevokeMail_Request = 578;							//撤回邮件 MSGID_ZONE_REVOKEMAIL_REQUEST
+	optional Mail_RevokeMail_Request m_stMail_RevokeMail_Request = 579;							//Mail撤回通知 MSGID_MAIL_REVOKEMAIL_REQUEST
+	optional Zone_ImdtCompose_Request m_stZone_ImdtCompose_Request = 580;						//合成立即完成
+	optional Zone_ImdtCompose_Response m_stZone_ImdtCompose_Response = 581;						//合成立即完成
+	optional Zone_FinCompose_Notify m_stZone_FinCompose_Notify = 582;							//合成时间结束通知
+	optional Zone_PveCrossReset_Notify m_stZone_PveCrossReset_Notify = 583;						//pve次数重置 对应 MSGID_ZONE_PVECROSSRESET_NOTIFY
+	optional Zone_ClearFunBuyRecord_Notify m_stZone_ClearFunBuyRecord_Notify = 584;				//清除功能记录 对应 MSGID_ZONE_CLEARFUNCBUYRECORD_NOTIFY
+	optional Zone_AllRoleMail_Request m_stZone_AllRoleMail_Request = 585;						//发放全服邮件通过后台
+	optional Zone_AchievementUpdate_Notify m_stZone_AchievementUpdate_Notify = 586;				//成就更新的通知 	 对应 MSGID_ZONE_ACHIEVEMENTUPDATE_NOTIFY
+	optional Zone_GetAchievementReward_Request m_stZone_GetAchievementReward_Request = 587;		//获取成就奖励的请求 对应 MSGID_ZONE_GETACHIEVEMENTREWARD_REQUEST
+	optional Zone_GetAchievementReward_Response m_stZone_GetAchievementReward_Response = 588;	//获取成就奖励的反馈 对应 MSGID_ZONE_GETACHIEVEMENTREWARD_RESPONSE
+	optional Zone_ActiveAchievement_Notify m_stZone_ActiveAchievement_Notify = 589;				//成就通知           对应 MSGID_ZONE_ACTIVEACHIEVEMENT_NOTIFY
+	optional Zone_RevokeMail_Notify	m_stZone_RevokeMail_Notify = 590;							//撤回邮件通知客户端
+	optional Zone_ResetAnabasis_Response m_stZone_ResetAnabasis_Response = 591;					//重置燃烧远征挑战列表
+	optional Zone_StartAnabasis_Request m_stZone_StartAnabasis_Request = 592;					//开始挑战
+	optional Zone_StartAnabasis_Response m_stZone_StartAnabasis_Response = 593;					//开始挑战
+	optional Zone_FinAnabasis_Request m_stZone_FinAnabasis_Request = 594;						//结束战斗
+	optional Zone_FinAnabasis_Response m_stZone_FinAnabasis_Response = 595;						//结束战斗
+	optional Zone_GetAnabasisAward_Response m_stZone_GetAnabasisAward_Response = 596;			//领取奖励
+	optional Zone_AnabasisStore_Buy_Request m_stZone_AnabasisStore_Buy_Request = 597;			//燃烧远征商城购买请求
+	optional Zone_AnabasisStore_Buy_Response m_stZone_AnabasisStore_Buy_Response = 598;			//燃烧远征购买回复
+	optional Zone_AnabasisStore_Fresh_Response m_stZone_AnabasisStore_Fresh_Response = 599;		//燃烧远征商城刷新
+	optional RegAuth_GMNotice_Request m_stRegAuth_GMNotice_Request = 600;						//平台公告
+	optional RegAuth_Notice_Notify  m_stRegAuth_Notice_Notify = 601;							//平台登录公告推送
+	optional RegAuth_LoadNotice_Request m_RegAuth_LoadNotice_Request = 602;						//初始化平台登录公告
+	optional RegAuth_LoadNotice_Response m_stRegAuth_LoadNotice_Response = 603;					//平台登录公告加载回复
+	optional Zone_ActivityInfo_Notify m_stZone_ActivityInfo_Notify = 604;						//通知活动参与进度变更 MSGID_ZONE_ACTIVITYINFO_NOTIFY
+	optional Zone_NewEquipRefine_Request m_stZone_NewEquipRefine_Request = 605;					//装备新精炼请求 MSGID_ZONE_NEWEQUIPREFINE_REQUEST
+	optional Zone_NewEquipRefine_Response m_stZone_NewEquipRefine_Response = 606;				//装备新精炼反馈 MSGID_ZONE_NEWEQUIPREFINE_RESPONSE
+	optional Zone_GM_ActivityList_Request m_stZone_GM_ActivityList_Request = 607;               //GM活动列表请求 MSGID_ZONE_GM_ACTIVITYLIST_REQUEST  GM查看活动列表
+	optional Zone_GM_ActivityList_Response m_stZone_GM_ActivityList_Response = 608;				//GM活动列表反馈 MSGID_ZONE_GM_ACTIVITYLIST_RESPONSE  GM查看活动列表的反馈
+	optional Zone_GM_ChangeActivity_Notify m_stZone_GM_ChangeActivity_Notify = 609;				//GM修改活动的通知 MSGID_ZONE_GM_CHANGEACTIVITY_NOTIFY GM更新活动数据
+	optional Zone_GM_AddActivity_Notify m_stZone_GM_AddActivity_Notify = 610;					//GM增加活动的通知 MSGID_ZONE_GM_ADDACTIVITY_NOTIFY 添加活动的通知 协商ID为日期+活动类型 以防止重复添加
+	optional Zone_RedPointAll_Notify m_stZone_RedPointAll_Notify = 611;							//红点提醒
+	optional Zone_GuildFightValueRank_Request m_stZone_GuildFightValueRank_Request = 612;		//公会战斗力排行榜请求 MSGID_ZONE_GUILDFIGHTVALUERANK_REQUEST
+	optional Zone_GuildFightValueRank_Response m_stZone_GuildFightValueRank_Response = 613;		//公会战斗力排行榜反馈 MSGID_ZONE_GUILDFIGHTVALUERANK_RESPONSE
+	optional Zone_ActScoreRank_Request m_stZone_ActScoreRank_Request = 614;						//活动积分排行榜的请求 MSGID_ZONE_ACTSCORERANK_REQUEST
+	optional Zone_ActScoreRank_Response m_stZone_ActScoreRank_Response = 615;					//活动积分排行榜的反馈 MSGID_ZONE_ACTSCORERANK_RESPONSE
+	optional Zone_ActExtractReward_Request m_stZone_ActExtractReward_Request = 616;				//抽取活动奖励的请求 MSGID_ZONE_ACTEXTRACTREWARD_REQUEST
+	optional Zone_ActExtractReward_Response m_stZone_ActExtractReward_Response = 617;			//抽取活动奖励的反馈 MSGID_ZONE_ACTEXTRACTREWARD_RESPONSE
+	optional Zone_GetActRankReward_Request m_stZone_GetActRankReward_Request = 618;				//获取活动排名奖励的请求 MSGID_ZONE_GETACTRANKREWARD_REQUEST
+	optional Zone_GetActRankReward_Response m_stZone_GetActRankReward_Response = 619;			//获取活动排名奖励的反馈 MSGID_ZONE_GETACTRANKREWARD_RESPONSE
+	optional Zone_ActExchange_Request m_stZone_ActExchange_Request = 620;						//活动兑换的请求 MSGID_ZONE_ACTEXCHANGE_REQUEST
+	optional Zone_ActExchange_Response m_stZone_ActExchange_Response = 621;						//活动兑换的反馈 MSGID_ZONE_ACTEXCHANGE_RESPONSE
+	optional Zone_FirstTag_Notify m_stZone_FirstTag_Notify = 622;								//首次的标记更新 MSGID_ZONE_FIRST_NOTIFY
+	optional Zone_ActExchangeInfo_Notify m_stZone_ActExchangeInfo_Notify = 623;					//活动兑换记录 MSGID_ZONE_ACTEXCHANGEINFO_NOTIFY
+	optional Zone_ArchaeologyInfo_Notify m_stZone_ArchaeologyInfo_Notify = 624;					//考古数据通知
+	optional Zone_ArchExtract_Request m_stZone_ArchExtract_Request = 625;						//考古抽取
+	optional Zone_ArchExtract_Response m_stZone_ArchExtract_Response = 626;						//考古抽取返回
+	optional Zone_SetAttackForm_Request m_stZone_SetAttackForm_Request = 627;					//设计攻击阵容的请求 对应 MSGID_ZONE_SETATTACKFORM_REQUEST
+	optional Zone_SetAttackForm_Response m_stZone_SetAttackForm_Response = 628;					//设计攻击阵容的反馈 对应 MSGID_ZONE_SETATTACKFORM_RESPONSE
+	optional Zone_LineUpInfo_Notify m_stZone_LineUpInfo_Notify = 629;							//排队信息更新 对应 MSGID_ZONE_LINEUPINFO_NOTIFY
+	optional Zone_CancelLineUp_Request m_stZone_CancelLineUp_Request = 630;						//取消排队的请求 对应 MSGID_ZONE_CANCELLINEUP_REQUEST
+	optional Zone_CancelLineUp_Response m_stZone_CancelLineUp_Response = 631;					//取消排队的反馈 对应 MSGID_ZONE_CANCELLINEUP_RESPONSE
+	
+	optional Zone_QueryUin_Request   m_stZone_QueryUin_Request = 632;							//查询玩家累积天数 MSGID_ZONE_QUERY_UIN_REQUEST 					
+	optional Zone_QueryUin_Response m_stZone_QueryUin_Response = 633;							//返回查询玩家累积天数 MSGID_ZONE_QUERY_UIN_RESPONSE 				
+	optional Zone_Update_LastDay_Notify m_stZone_Update_LastDay_Notify = 634;					//更新累加天数 MSGID_ZONE_UPDATE_LASTDAY 			
+	optional Zone_DailyFreeFMTimes_Notify m_stZone_DailyFreeFMTimes_Notify = 635;				//更新日常免费FM次数 MSGID_ZONE_DAILYFREEFMTIMES_NOTIFY	
+	optional Zone_WeekAwardState_Notify m_stZone_WeekAwardState_Notify = 636;					//更新周奖励状态
+	optional Zone_HeroBreach_Request m_stZone_HeroBreach_Request = 637;							//英雄突破请求
+	optional Zone_HeroBreach_Response m_stZone_HeroBreach_Response = 638;						//英雄突破反馈
+	optional Zone_StartFightFriend_Request m_stZone_StartFightFriend_Request = 639;				//好友切磋的请求 MSGID_ZONE_STARTFIGHTFRIEND_REQUEST
+	optional Zone_StartFightFriend_Response m_stZone_StartFightFriend_Response = 640;			//好友切磋的反馈 MSGID_ZONE_STARTFIGHTFRIEND_RESPONSE
+	optional Zone_AnabasisSweep_Request m_stZone_AnabasisSweep_Request = 641;					//英雄征途扫荡请求
+	optional Zone_AnabasisSweep_Response m_stZone_AnabasisSweep_Response = 642;					//英雄征途扫荡反馈
+	optional Zone_FinishFightFriend_Request m_stZone_FinishFightFriend_Request = 643;			// 结束好友切磋的请求
+	optional Zone_FinishFightFriend_Response m_stZone_FinishFightFriend_Response = 644;			// 结束好友切磋的请求
+	optional Zone_FetchGlobalMail_Response m_stZone_FetchGlobalMail_Response = 645;             //获取全服邮件的返回
+	optional Zone_RevokeGlobalMail_Notify m_stZone_RevokeGlobalMail_Notify = 646;				//撤回全服邮件
+	optional Zone_AddNewGlobalMail_Request m_stZone_AddNewGlobalMail_Request = 647;				//新建全服邮件
+	optional Zone_FetchGlobalMail_Request m_stZone_FetchGlobalMail_Request = 648;				//拉取全服邮件
+	optional Zone_FriendCombatTimes_Notify m_stZone_FriendCombatTimes_Notify = 649;				// 好友战斗次数通知 对应 MSGID_ZONE_FRIENDCOMBATTIMES_NOTIFY
+	optional Zone_NewCombatRecord_Notify m_stZone_NewCombatRecord_Notify = 650;					// 新战斗记录的通知 对应 MSGID_ZONE_NEWCOMBATRECORD_NOTIFY
+	optional Zone_FightVerify_Notify m_stZone_FightVerify_Notify = 651;							// 战斗验证
+	optional Zone_FriendList_Response m_stZone_FriendList_Response = 652;						// 好友列表 				MSGID_ZONE_FRIENDLIST_RESPONSE
+	optional Zone_FriendEvtList_Response m_stZone_FriendEvtList_Response = 653;					// 好友申请、体力索取、列表 MSGID_ZONE_FRIENDEVTLIST_RESPONSE
+	optional Zone_FriendCombatRecord_Response m_stZone_FriendCombatRecord_Response = 654;		// 好友战斗记录列表 		MSGID_ZONE_FRIENDCOMBATRECORDLIST_RESPONSE
+	optional Zone_SummaryList_Response m_stZone_SummaryList_Response = 655;						// 摘要信息列表				MSGID_ZONE_SUMMARYLIST_NOTIFY
+	optional World_FetchFriendCombat_Request m_stWorld_FetchFriendCombat_Request = 656;			// 摘要信息列表				MSGID_WORLD_FETCHFRIENDCOMBAT_REQUEST
+	optional World_FetchFriendCombat_Response m_stWorld_FetchFriendCombat_Response = 657;		// 摘要信息列表				MSGID_WORLD_FETCHFRIENDCOMBAT_RESPONSE
+	optional World_CreateFriendCombat_Request m_stWorld_CreateFriendCombat_Request = 658;		// 摘要信息列表				MSGID_WORLD_CREATEFRIENDCOMBAT_REQUEST
+	optional World_CreateFriendCombat_Response m_stWorld_CreateFriendCombat_Response = 659;		// 摘要信息列表				MSGID_WORLD_CREATEFRIENDCOMBAT_RESPONSE
+
+	optional World_FetchFriendList_Request m_stWorld_FetchFriendList_Request = 660;				// 请求拉取好友列表			MSGID_WORLD_FETCHFRIENDLIST_REQUEST
+	optional World_FetchFriendList_Response m_stWorld_FetchFriendList_Response = 661;			// 请求拉取好友列表			MSGID_WORLD_FETCHFRIENDLIST_RESPONSE
+	optional World_CreateFriend_Request m_stWorld_CreateFriend_Request = 662;					// 请求创建好友的请求		MSGID_WORLD_CREATEFRIEND_REQUEST
+	optional World_CreateFriend_Response m_stWorld_CreateFriend_Response = 663;					// 请求创建好友的反馈		MSGID_WORLD_CREATEFRIEND_RESPONSE
+	optional World_DeleteFriend_Request m_stWorld_DeleteFriend_Request = 664;					// 请求删除好友的请求		MSGID_WORLD_DELETEFRIEND_REQUEST
+	optional World_DeleteFriend_Response m_stWorld_DeleteFriend_Response = 665;					// 请求删除好友的反馈		MSGID_WORLD_DELETEFRIEND_RESPONSE
+	optional World_CreateFriendEvt_Request m_stWorld_CreateFriendEvt_Request = 666;				// 请求创建好友事件的请求	MSGID_WORLD_CREATEFRIENDEVT_REQUEST
+	optional World_CreateFriendEvt_Response m_stWorld_CreateFriendEvt_Response = 667;			// 请求创建好友事件的反馈	MSGID_WORLD_CREATEFRIENDEVT_RESPONSE
+	optional World_DeleteFriendEvt_Request m_stWorld_DeleteFriendEvt_Request = 668;				// 请求删除好友事件的请求	MSGID_WORLD_DELETEFRIENDEVT_REQUEST
+	optional World_DeleteFriendEvt_Response m_stWorld_DeleteFriendEvt_Response = 669;			// 请求删除好友事件的反馈	MSGID_WORLD_DELETEFRIENDEVT_RESPONSE
+	
+	optional Zone_MineTreasure_Request m_stZone_MineTreasure_Request = 670;						// 开采宝藏
+	optional Zone_MineTreasure_Response m_stZone_MineTreasure_Response = 671;					// 开采宝藏
+	optional Zone_AckInviteTreasure_Request m_stZone_AckInviteTreasure_Request = 672;			// 接受邀请防守宝藏
+	optional Zone_AckInviteTreasure_Response m_stZone_AckInviteTreasure_Response = 673;			// 接受邀请防守宝藏
+	optional Zone_ChangeMineForm_Request m_stZone_ChangeMineForm_Request = 674;					// 修改采矿阵容
+	optional Zone_ChangeMineForm_Response m_stZone_ChangeMineForm_Response = 675;				// 修改采矿阵容
+	optional Zone_GetMineTreasureAward_Request m_stZone_GetMineTreasureAward_Request = 676;		// 收取宝藏
+	optional Zone_GetMineTreasureAward_Response m_stZone_GetMineTreasureAward_Response = 677;	// 收取宝藏
+	optional Zone_TreasureData_Notify m_stZone_TreasureData_Notify = 678;						// 地精宝藏相关数据通知（登录通知）
+	//optional Zone_DefHistory_Notify m_stZone_DefHistory_Notify = 679;							// 采矿防守记录
+	optional Zone_SearchTreasure_Request m_stZone_SearchTreasure_Request = 680;					// 搜索宝藏
+	optional Zone_SearchTreasure_Response m_stZone_SearchTreasure_Response = 681;				// 搜索宝藏
+	optional Zone_CheckTreasureForm_Request m_stZone_CheckTreasureForm_Request = 682;			// 查看宝藏防守阵容
+	optional Zone_CheckTreasureForm_Response m_stZone_CheckTreasureForm_Response = 683;			// 查看宝藏防守阵容
+	optional Zone_StartRobTreasure_Request m_stZone_StartRobTreasure_Request = 684;				// 抢夺宝藏
+	optional Zone_StartRobTreasure_Response m_stZone_StartRobTreasure_Response = 685;			// 抢夺宝藏
+	optional Zone_FinRobTreasure_Request m_stZone_FinRobTreasure_Request = 686;					// 抢夺宝藏结果
+	optional Zone_FinRobTreasure_Response m_stZone_FinRobTreasure_Response = 687;				// 抢夺宝藏结果
+	optional Zone_RobTreasure_Notify m_stZone_RobTreasure_Notify = 688;							// 成功抢夺宝藏通知
+	optional Zone_BeRobTreasure_Notify m_stZone_BeRobTreasure_Notify = 689;						// 宝藏被抢通知
+
+	optional Zone_Tailor_LevelUp_Request m_stZone_Tailor_LevelUp_Request = 690;					// 裁缝等级升级请求
+	optional Zone_Tailor_LevelUp_Response m_stZone_Tailor_LevelUp_Response = 691;				// 裁缝等级升级回复
+	optional Zone_InviteTreasure_Request m_stZone_InviteTreasure_Request = 692;					// 邀请防守宝藏
+	optional Zone_InviteTreasure_Response m_stZone_InviteTreasure_Response = 693;				// 邀请防守宝藏
+	// 公会副本
+	optional Zone_GuildCross_Request m_stZone_GuildCross_Request = 694;							// 公会副本数据的请求
+	optional Zone_GuildCross_Response m_stZone_GuildCross_Response = 695;						// 公会副本数据的反馈
+	optional Zone_GuildCross_Notify m_stZone_GuildCross_Notify = 696;							// 公会的关卡更新的通知
+	optional Zone_OpenGuildCross_Request m_stZone_OpenGuildCross_Request = 697;					// 公会开启关卡数据的请求
+	optional Zone_OpenGuildCross_Response m_stZone_OpenGuildCross_Response = 698;				// 公会开启关卡数据的反馈
+	optional Zone_GuildRes_Notify m_stZone_GuildRes_Notify = 699;								// 公会资源更新的下发通知
+	optional Zone_CrossHurt_Upload m_stZone_CrossHurt_Upload = 700;								// 公会关卡伤害数据上传
+	optional Zone_GuildCrossHurtRank_Request m_stZone_GuildCrossHurtRank_Request = 701;			// 公会某一副本伤害排行榜的请求
+	optional Zone_GuildCrossHurtRank_Response m_stZone_GuildCrossHurtRank_Response = 702;		// 公会某一副本伤害排行榜的反馈
+	optional Zone_GuildBootyList_Request m_stZone_GuildBootyList_Request = 703;					// 公会战利品列表的请求
+	optional Zone_GuildBootyList_Response m_stZone_GuildBootyList_Response = 704;				// 公会战利品列表的反馈
+	optional Zone_GuildBooty_Notify m_stZone_GuildBooty_Notify = 705;							// 公会战利品的更新
+	optional Zone_GuildAuction_Request m_stZone_GuildAuction_Request = 706;						// 公会战利品竞拍请求
+	optional Zone_GuildAuction_Response m_stZone_GuildAuction_Response = 707;					// 公会战利品竞拍反馈
+	// 公会副本数据库存储
+	optional World_CreateGuildCross_Request m_stWorld_CreateGuildCross_Request = 708;			// 创建公会副本的请求
+	optional World_CreateGuildCross_Response m_stWorld_CreateGuildCross_Response = 709;			// 创建公会副本的反馈
+	optional World_UpdateGuildCrossHurt_Request m_stWorld_UpdateGuildCrossHurt_Request = 710;	// 更新个人对副本造成的伤害的请求
+	optional World_UpdateGuildCrossHurt_Response m_stWorld_UpdateGuildCrossHurt_Response = 711;	// 更新个人对副本造成的伤害的反馈
+	optional World_CreateGuildBooty_Request m_stWorld_CreateGuildBooty_Request = 712;			// 创建战利品数据请求
+	optional World_CreateGuildBooty_Response m_stWorld_CreateGuildBooty_Response = 713;			// 创建战利品数据反馈
+	optional World_ClearGuildCrossRank_Request m_stWorld_ClearGuildCrossRank_Request = 714;		// 清除公会关卡排行榜
+	optional World_ClearGuildCrossRank_Response m_stWorld_ClearGuildCrossRank_Response = 715;	// 清除公会关卡排行榜
+	optional World_DeleteGuildAuction_Request m_stWorld_DeleteGuildAuction_Request = 716;		// 删除公会竞拍商品
+	optional World_DeleteGuildAuction_Response m_stWorld_DeleteGuildAuction_Response = 717;		// 删除公会竞拍商品
+	optional World_UpdateGuildBooty_Request m_stWorld_UpdateGuildBooty_Request = 718;			// 更新战利品数据请求
+	optional World_UpdateGuildBooty_Response m_stWorld_UpdateGuildBooty_Response = 719;			// 更新战利品数据反馈
+	optional World_DeleteGuildCross_Request m_stWorld_DeleteGuildCross_Request = 720;			// 删除公会副本
+	// ------------------
+	optional Zone_InvateTreasure_Notify m_stZone_InvateTreasure_Notify = 721;					// 邀请通知
+	optional Z2C_CreateRoom_Request m_stZ2C_CreateRoom_Request = 722;							// 申请创建房间
+	optional C2Z_CreateRoom_Response m_stC2Z_CreateRoom_Response = 723;							// 返回创建房间结果
+	optional Zone_CheckTreasure_Request m_stZone_CheckTreasure_Request = 724;					// 查看地精金矿信息
+	optional Zone_CheckTreasure_Response m_stZone_CheckTreasure_Response = 725;					// 查看地精金矿信息
+	optional Zone_ChangeTreasureState_Notify m_stZone_ChangeTreasureState_Notify = 726;			// 金矿状态更新
+	
+	optional Zone_Guild_ShopBuy_Request m_stZone_Guild_ShopBuy_Request = 727;					// 公会商店购买请求
+	optional Zone_Guild_ShopBuy_Response m_stZone_Guild_ShopBuy_Response = 728;					// 公会商店购买返回
+	optional Zone_Guild_ShopRefresh_Request m_stZone_Guild_ShopRefresh_Request = 729;			// 公会商店刷新请求
+	optional Zone_Guild_ShopLoad_Request m_stZone_Guild_ShopLoad_Request = 730;					// 公会商店加载界面请求
+	optional Zone_Guild_ShopLoad_Response m_stZone_Guild_ShopLoad_Response = 731;				// 公会商店加载界面返回
+	optional Z2C_EnterRoom_Notify m_stZ2C_EnterRoom_Notify = 732;								// 进入房间
+	optional Z2C_ChangeFightValue_Notify m_stZ2C_ChangeFightValue_Notify = 733;					// 房主战力变化通知
+	optional Z2C_SearchTreasure_Request m_stZ2C_SearchTreasure_Request = 734;					// 搜索金矿
+	optional C2Z_SearchTreasure_Response m_stC2Z_SearchTreasure_Response = 735;					// 搜索金矿返回
+	optional Z2C_BeRobTreasure_Notify m_stZ2C_BeRobTreasure_Notify = 736;						// ZONE to center 被抢通知
+	optional C2Z_TreasureBeRob_Notify m_stC2Z_TreasureBeRob_Notify = 737;						// center 同zone 被抢通知
+
+	//注册服服务器列表拉取
+	///////////////////////////////////
+	optional RegAuth_FetchServerList_Request m_stRegAuth_FetchServerList_Request = 738;			//客户端获取服务器列表请求
+	optional RegAuth_FetchServerList_Response m_stRegAuth_FetchServerList_Response = 739;		//客户端获取服务器列表回复
+	
+	optional Zone_ImpeachGuildPresident_Request m_stZone_ImpeachGuildPresident_Request = 740;   // 弹劾会长的请求
+	optional Zone_ImpeachGuildPresident_Response m_stZone_ImpeachGuildPresident_Response = 741; // 弹劾会长的反馈
+	optional Zone_GuildAuctionRecord_Request m_stZone_GuildAuctionRecord_Request = 742;			// 竞拍记录的请求
+	optional Zone_GuildAuctionRecord_Response m_stZone_GuildAuctionRecord_Response = 743;		// 竞拍记录的反馈
+	optional Zone_GuildKickOut_Notify m_stZone_GuildKickOut_Notify = 744;						// 被提出公会的通知
+	optional World_CreateGuildBootyRecord_Request m_stWorld_CreateGuildBootyRecord_Request = 745;	// 创建公会的战利品记录 
+	optional World_FetchGuildBootyRecord_Request m_stWorld_FetchGuildBootyRecord_Request = 746;		// 请求公会的战利品列表
+	optional World_FetchGuildBootyRecord_Response m_stWorld_FetchGuildBootyRecord_Response = 747;	// 请求拉取战利品的列表
+	optional World_FetchAllTreasure_Request m_stWorld_FetchAllTreasure_Request = 748;			//所有宝藏信息
+	optional World_FetchAllTreasure_Response m_stWorld_FetchAllTreasure_Response = 749;			//返回所有宝藏信息
+	optional World_UpdateAllTreasure_Request m_stWorld_UpdateAllTreasure_Request = 750;			//更新所有宝藏信息
+	optional World_FetchPlayerTreasure_Request m_stWorld_FetchPlayerTreasure_Request = 751;		//每个人身上宝藏信息
+	optional World_FetchPlayerTreasure_Response m_stWorld_FetchPlayerTreasure_Response = 752;	//返回每个人身上宝藏信息
+	optional World_UpdatePlayerTreasure_Request m_stWorld_UpdatePlayerTreasure_Request = 753;	//更新每个人身上宝藏信息
+	
+	
+	optional Zone_ExchangeTrinket_Request m_stZone_ExchangeTrinket_Request = 754;		//精华兑换请求
+	optional Zone_ExchangeTrinket_Respone m_stZone_ExchangeTrinket_Respone = 755;		//精华兑换回复
+	optional LoginHeroInfo_Notify m_stLoginHeroInfo_Notify = 756;						//上线英雄信息
+	optional LoginItemInfo_Notify m_stLoginItemInfo_Notify = 757;						//上线道具，装备信息
+	optional LoginFightInfo_Notify m_stLoginFightInfo_Notify = 758;						//上线战斗信息
+	optional LoginOtherInfo_Request m_stLoginOtherInfo_Request = 759;					//请求发送登录剩余数据
+	optional Zone_Grave_Request m_stZone_Grave_Request = 760;							//请求铭刻
+	optional Zone_Grave_Response m_stZone_Grave_Response = 761;							//返回铭刻结果
+	optional Zone_PosyCompose_Request m_stZone_PosyCompose_Request = 762;				//铭文合成请求
+	optional Zone_PosyCompose_Response m_stZone_PosyCompose_Response = 763;				//铭文合成返回
+	optional Zone_PosyChange_Request m_stZone_PosyChange_Request = 764;					//铭文变幻请求
+	optional Zone_PosyChange_Response m_stZone_PosyChange_Response = 765;				//铭文变幻返回
+	optional Zone_WearPosy_Request m_stZone_WearPosy_Request = 766;						//铭文穿戴请求
+	optional Zone_WearPosy_Response m_stZone_WearPosy_Response = 767;					//铭文穿戴返回
+	
+	// ---排位赛---
+	optional World_NewQualifyingReward_Notify m_stWorld_NewQualifyingReward_Notify = 963;					// 排位赛奖励的实时通知
+	optional World_WorldInfoNotify_Request m_stWorld_WorldInfoNotify_Request = 964;							// 通知worldid 分布的请求
+	optional World_WorldInfoNotify_Response m_stWorld_WorldInfoNotify_Response = 965;						// 通知worldid 分布的反馈
+	optional World_FetchQualifyingRecordVer_Request m_stm_stWorld_FetchQualifyingRecordVer_Request = 966;  // 拉取排位赛的请求 
+	optional World_FetchQualifyingRecordVer_Response m_stm_stWorld_FetchQualifyingRecordVer_Response = 967;// 拉取排位赛的反馈
+	optional World_UpdateQualifyingScore_Request m_stWorld_UpdateQualifyingScore_Request = 968;			// 更新积分的请求
+	optional World_UpdateQualifyingScore_Response m_stWorld_UpdateQualifyingScore_Response = 969;		// 更新积分的反馈
+	optional World_FetchQualifyingRecord_Request m_stWorld_FetchQualifyingRecord_Request = 970;		// 排位赛战斗记录的请求
+	optional World_FetchQualifyingRecord_Response m_stWorld_FetchQualifyingRecord_Response = 971;		// 排位赛战斗记录的反馈
+	optional World_FetchQualifyingPly_Request m_stWorld_FetchQualifyingPly_Request = 972;				// 排位赛请求查看某一个玩家数据
+	optional World_FetchQualifyingPly_Response m_stWorld_FetchQualifyingPly_Response = 973;				// 排位赛请求查看某一个玩家数据
+	optional World_QualifyingRank_Request m_stWorld_QualifyingRank_Request = 974;						// 排位赛排名的请求
+	optional World_QualifyingRank_Response m_stWorld_QualifyingRank_Response = 975;						// 排位赛排名的反馈
+	optional World_UpdateQualifyingReward_Request m_stWorld_UpdateQualifyingReward_Request = 976;		// 更新奖励状态的请求
+	optional World_UpdateQualifyingReward_Response m_stWorld_UpdateQualifyingReward_Response = 977;		// 更新奖励状态的请求	
+	optional World_FetchQualifyingReward_Request m_stWorld_FetchQualifyingReward_Request = 978;			// 拉取奖励的请求
+	optional World_FetchQualifyingReward_Response m_stWorld_FetchQualifyingReward_Response = 979;		// 拉取奖励的反馈
+	optional World_UpdateClusterPlayer_Request m_stWorld_UpdateClusterPlayer_Request = 980;				// 更新跨服信息
+	optional World_FetchSelfQualifyingInfo_Request m_stWorld_FetchSelfQualifyingInfo_Request = 981;		// 拉取个人的排位赛数据的请求
+	optional World_FetchSelfQualifyingInfo_Response m_stWorld_FetchSelfQualifyingInfo_Response = 982;	// 拉取个人的排位赛数据的反馈
+	optional World_UpdateQualifyingInfo_Request m_stWorld_UpdateQualifyingInfo_Request = 983;			// 更新排位赛数据
+	optional World_FetchQualifyingList_Request m_stWorld_FetchQualifyingList_Request = 984;				// 拉取匹配对手列表的请求
+	optional World_FetchQualifyingList_Response m_stWorld_FetchQualifyingList_Response = 985;			// 拉取匹配对手列表的反馈
+	optional Zone_QualifyingInfo_Request m_stZone_QualifyingInfo_Request = 986;							// 请求排位赛数据的请求
+	optional Zone_QualifyingInfo_Response m_stZone_QualifyingInfo_Response = 987;						// 请求排位赛数据的反馈
+	optional Zone_FetchQualifyingPly_Request m_stZone_FetchQualifyingPly_Request = 988;					// 拉取个人的排赛详情的请求
+	optional Zone_FetchQualifyingPly_Response m_stZone_FetchQualifyingPly_Response = 989;				// 拉取个人的排赛详情的反馈
+	optional Zone_StartQualifyingFight_Request m_stZone_StartQualifyingFight_Request = 990;				// 开始排位赛的请求
+	optional Zone_StartQualifyingFight_Response m_stZone_StartQualifyingFight_Response = 991;			// 开始排位赛的请求
+	optional Zone_FinQualifyingFight_Request m_stZone_FinQualifyingFight_Request = 992;		 			// 结束排位赛的请求
+	optional Zone_FinQualifyingFight_Response m_stZone_FinQualifyingFight_Response = 993;	 			// 结束排位赛的请求
+	optional Zone_ClearQualifyingFightCD_Request m_stZone_ClearQualifyingFightCD_Request = 994;			// 清除战斗CD的请求
+	optional Zone_ClearQualifyingFightCD_Response m_stZone_ClearQualifyingFightCD_Response = 995;		// 清除战斗CD的反馈
+	optional Zone_RefreshQualifyingInfo_Request m_stZone_RefreshQualifyingInfo_Request = 996;			// 刷新排位赛信息的请求
+	optional Zone_RefreshQualifyingInfo_Response m_stZone_RefreshQualifyingInfo_Response = 997;			// 刷新排位赛信息的反馈
+	optional Zone_QualifyingCombatRecord_Request m_stZone_QualifyingCombatRecord_Request = 998;			// 请求战斗记录的请求
+	optional Zone_QualifyingCombatRecord_Response m_stZone_QualifyingCombatRecord_Response = 999;		// 请求战斗记录的反馈
+
+	optional Zone_ClearUseScrollRecord_Notify m_stZone_ClearUseScrollRecord_Notify = 1000;				// 更新玩家消耗魔法卷轴使用记录信息
+	
+	// 公会跨服战 begin
+	optional Zone_GuildWarInfo_Request m_stZone_GuildWarInfo_Request = 1001;					// 请求本公会的跨服战信息的请求 MSGID_ZONE_GUILDWARINFO_REQUEST
+	optional Zone_GuildWarInfo_Response m_stZone_GuildWarInfo_Response = 1002;					// 请求本公会的跨服战信息的反馈 MSGID_ZONE_GUILDWARINFO_RESPONSE
+	optional Zone_FetchGuildWarForm_Request m_stZone_FetchGuildWarForm_Request = 1003;			// 拉取跨服战阵容的请求         MSGID_ZONE_FETCHGUILDWARFORM_REQUEST
+	optional Zone_FetchGuildWarForm_Response m_stZone_FetchGuildWarForm_Response = 1004;		// 拉取跨服战阵容的反馈         MSGID_ZONE_FETCHGUILDWARFORM_RESPONSE 
+	optional Zone_GuildWarSign_Request m_stZone_GuildWarSign_Request = 1005;					// 报名的请求                   MSGID_ZONE_GUILDWARSIGN_REQUEST
+	optional Zone_GuildWarSign_Response m_stZone_GuildWarSign_Response = 1006;					// 报名的反馈                   MSGID_ZONE_GUILDWARSIGN_RESPONSE
+	optional Zone_StartGuildWarCombat_Request m_stZone_StartGuildWarCombat_Request = 1007;		// 开始战斗的请求	MSGID_ZONE_STARTGUILDWAR_REQUEST		
+	optional Zone_StartGuildWarCombat_Response m_stZone_StartGuildWarCombat_Response = 1008;	// 开始战斗的反馈	MSGID_ZONE_STARTGUILDWAR_RESPONSE					
+	optional Zone_FinGuildWarCombat_Request m_stZone_FinGuildWarCombat_Request = 1009;			// 开始战斗的请求	MSGID_ZONE_STARTGUILDWAR_REQUEST		
+	optional Zone_FinGuildWarCombat_Response m_stZone_FinGuildWarCombat_Response = 1010;		// 开始战斗的反馈	MSGID_ZONE_STARTGUILDWAR_RESPONSE			
+	optional Zone_GuildWarRankList_Request m_stZone_GuildWarRankList_Request = 1011;			// 公会排名列表的请求 MSGID_ZONE_GUILDWARRANKLIST_REQUEST
+	optional Zone_GuildWarRankList_Response m_stZone_GuildWarRankList_Response = 1012;			// 公会排名列表的反馈 MSGID_ZONE_GUILDWARRANKLIST_RESPONSE
+	optional Zone_GuildWarSelfRank_Request m_stZone_GuildWarSelfRank_Request = 1013;			// 公会排名的请求	  MSGID_ZONE_GUILDWARSELFRANK_REQUEST
+	optional Zone_GuildWarSelfRank_Response m_stZone_GuildWarSelfRank_Response = 1014;			// 公会排名的反馈	  MSGID_ZONE_GUILDWARSELFRANK_RESPONSE
+	optional Zone_GuildWarTeamInfo_Request m_stZone_GuildWarTeamInfo_Request = 1015;			// 拉取公会战队伍详情 MSGID_ZONE_GUILDWARTEAMINFO_REQUEST 
+	optional Zone_GuildWarTeamInfo_Response m_stZone_GuildWarTeamInfo_Response = 1016;			// 拉取公会战队伍详情 MSGID_ZONE_GUILDWARTEAMINFO_RESPONSE
+	optional Zone_GuildWarTeamInfo_Notify m_stZone_GuildWarTeamInfo_Notify = 1017;				// 队伍状态变化通知   MSGID_ZONE_GUILDWARTEAMINFO_NOTIFY
+	optional Zone_GuildWarState_Notify m_stZone_GuildWarState_Notify = 1018;					// 赛程状态变化通知   MSGID_ZONE_GUILDWARINFO_NOTIFY
+	optional Zone_GuildWarAgainstInfo_Notify m_stZone_GuildWarAgainstInfo_Notify = 1019;		// 对战状态的变化通知 MSGID_ZONE_GUILDWARAGAINSTINFO_NOTIFY
+	optional Zone_GuildWarGuildInfo_Notify m_stZone_GuildWarGuildInfo_Notify = 1020;			// 公会战公会信息通知 MSGID_ZONE_GUILDWARGUILDINFO_NOTIFY
+	optional Zone_GuildWarTeamGrp_Notify m_stZone_GuildWarTeamGrp_Notify = 1021;				// 公会战公会信息通知 MSGID_ZONE_GUILDWARTEAMGRP_NOTIFY
+	optional Zone_GuildWarCombatRecord_Request m_stZone_GuildWarCombatRecord_Request = 1022;	// 请求公会战斗记录   MSGID_ZONE_GUILDWARCOMBATRECORD_REQUEST 
+	optional Zone_GuildWarCombatRecord_Response m_stZone_GuildWarCombatRecord_Response = 1023;	// 请求公会战斗记录   MSGID_ZONE_GUILDWARCOMBATRECORD_RESPONSE
+	optional Zone_GuildWarPlyInfo_Notify m_stZone_GuildWarPlyInfo_Notify = 1024;				// 请求公会战玩家的通知 MSGID_ZONE_GUILDWARPLYINFO_NOTIFY
+	
+	//----内部消息----
+	optional World_GuildWarSign_Request m_stWorld_GuildWarSign_Request = 1050;					// 报名的请求           MSGID_WORLD_GUILDWARSIGN_REQUEST
+	optional World_GuildWarSign_Response m_stWorld_GuildWarSign_Response = 1051;				// 报名的反馈           MSGID_WORLD_GUILDWARSIGN_RESPONSE
+	optional World_UpdateGuildWarForm_Request m_stWorld_UpdateGuildWarForm_Request = 1052;		// 更新公会战的请求     MSGID_WORLD_UPDATEGUILDWARFORM_REQUEST
+	optional World_UpdateGuildWarForm_Response m_stWorld_UpdateGuildWarForm_Response = 1053;	// 更新公会战的反馈     MSGID_WORLD_UPDATEGUILDWARFORM_RESPONSE 
+	optional World_FetchGuildWarInfo_Request m_stWorld_FetchGuildWarInfo_Request = 1056;		// 拉取公会战信息的请求 MSGID_WORLD_FETCHGUILDWARINFO_REQUEST
+	optional World_FetchGuildWarInfo_Response m_stWorld_FetchGuildWarInfo_Response = 1057;		// 拉取公会战信息的反馈	MSGID_WORLD_FETCHGUILDWARINFO_RESPONSE 
+	optional World_StartGuildWarCombat_Request m_stWorld_StartGuildWarCombat_Request = 1058;	// 开始战斗的请求	MSGID_WORLD_STARTGUILDWAR_REQUEST		
+	optional World_StartGuildWarCombat_Response m_stWorld_StartGuildWarCombat_Response = 1059;	// 开始战斗的反馈	MSGID_WORLD_STARTGUILDWAR_RESPONSE					
+	optional World_FinGuildWarCombat_Request m_stWorld_FinGuildWarCombat_Request = 1060;		// 结束战斗的请求	MSGID_WORLD_FINGUILDWAR_REQUEST		
+	optional World_FinGuildWarCombat_Response m_stWorld_FinGuildWarCombat_Response = 1061;		// 结束战斗的反馈	MSGID_WORLD_FINGUILDWAR_RESPONSE	
+	optional World_GuildWarRankList_Request m_stWorld_GuildWarRankList_Request = 1062;			// 公会排名列表的请求 MSGID_WORLD_GUILDWARRANKLIST_REQUEST
+	optional World_GuildWarRankList_Response m_stWorld_GuildWarRankList_Response = 1063;		// 公会排名列表的反馈 MSGID_WORLD_GUILDWARRANKLIST_RESPONSE
+	optional World_GuildWarSelfRank_Request m_stWorld_GuildWarSelfRank_Request = 1064;			// 公会排名的请求	  MSGID_WORLD_GUILDWARSELFRANK_REQUEST
+	optional World_GuildWarSelfRank_Response m_stWorld_GuildWarSelfRank_Response = 1065;		// 公会排名的反馈	  MSGID_WORLD_GUILDWARSELFRANK_RESPONSE
+	optional World_GuildWarTeamInfo_Request m_stWorld_GuildWarTeamInfo_Request = 1066;			// 公会战信息请求 MSGID_WORLD_GUILDWARTEAMINFO_REQUEST
+	optional World_GuildWarTeamInfo_Response m_stWorld_GuildWarTeamInfo_Response = 1067;		// 公会战信息请求 MSGID_WORLD_GUILDWARTEAMINFO_RESPONSE
+	optional World_GuildWarRecordList_Request m_stWorld_GuildWarRecordList_Request = 1068;      // 公会战的战斗记录 MSGID_WORLD_GUILDWARCOMBATRECORD_REQUEST 
+	optional World_GuildWarRecordList_Response m_stWorld_GuildWarRecordList_Response = 1069;    // 公会战的战斗记录 MSGID_WORLD_GUILDWARCOMBATRECORD_RESPONSE
+	optional World_GuildWarReward_Request m_stWorld_GuildWarReward_Request = 1070;				// 公会战的奖励请求 MSGID_WORLD_GUILDWARREWARD_REQUEST
+	optional World_GuildWarReward_Response m_stWorld_GuildWarReward_Response = 1071;			// 公会战的奖励反馈 MSGID_WORLD_GUILDWARREWARD_RESPONSE
+	
+}
+
+//客户端服务器通信的消息头
+message CSMsgHead
+{
+	optional uint32 m_uiSessionFd = 1;			//玩家的Session ID
+	optional ProtocolMsgID m_uiMsgID = 2		[default=MSGID_PROTOCOL_INVALID_MSG];		
+												//消息的类型编号，用于解析消息结构体
+	optional uint32 m_uin = 3;					//玩家的帐号
+	optional string m_strSessionKey = 4;		//玩家当前的session key
+}
+
+//客户端和服务器通信的协议
+message ProtocolCSMsg
+{
+	optional CSMsgHead m_stMsgHead = 1;			//协议头
+	optional CSMsgBody m_stMsgBody = 2;			//协议的结构体
+}
+
+
+
+

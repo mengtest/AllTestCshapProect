@@ -1,0 +1,21 @@
+//本文件中主要定义Account Server相关的通信协议
+
+// import "GameProtocol.Common.proto";
+
+//登陆
+message Login_Request
+{
+	optional uint32 uid = 1;			//创建角色所在的世界
+	optional string userName = 2;		//创建角色的职业
+	optional string passWord = 3;			//创建角色的性别
+}
+
+//创建角色的返回
+message Login_Response
+{
+	optional int32 ret = 1;				//操作的返回值
+	optional uint32 sex = 2;			//创建角色的性别
+	optional string nick = 3;			//创建角色的昵称
+	optional uint32 uid = 6;			//角色ID
+	optional string token = 7;		//密钥
+}

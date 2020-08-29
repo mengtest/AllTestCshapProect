@@ -1,0 +1,257 @@
+//该文件用于存放一些通用的结构体定义和变量定义
+
+//单个区服务器的信息
+message ZoneInfo
+{
+	optional uint32 uZoneID = 1;			//区服务器的ID
+	optional string strZoneName = 2;		//区服务器的名字
+	optional uint32 uZoneState = 3;			//区服务器的繁忙状态
+	optional string strZoneIP = 4;			//区服务器的IP
+	optional uint32 uZonePort = 5;			//区服务器的端口
+}
+
+//名字服务器中存储的名字类型
+enum enNameType
+{
+	EN_NAME_TYPE_INVALID = 0;				//非法的添加名字类型
+	EN_NAME_TYPE_ROLE = 1;					//玩家角色的名字
+	EN_NAME_TYPE_GUILD = 2;					//公会的名字
+	EN_NAME_TYPE_MAX = 3;					//最大的名字类型
+}
+
+//区服务器列表信息
+message ZoneList
+{
+	repeated ZoneInfo stZoneInfos = 1;		//拉取到的分区信息
+}
+
+//玩家角色数据的摘要信息
+message RoleSummary
+{
+	optional uint32 uRoleId = 1;			//玩家的RoleId
+	optional uint32 uProf = 2;				//玩家的角色的职业
+	optional uint32 uGender = 3;			//玩家的性别
+	optional string strNickName = 4;		//玩家的昵称
+	optional uint32 uLevel = 5;				//玩家的角色的等级
+	optional int32 iWorldId = 6;			//世界ID
+}
+
+//登出服务器的请求
+message LogoutServer_Request
+{
+	optional uint32 uin = 1;				//登出的玩家的uin
+	optional uint32 uReason = 2;			//玩家登出的原因
+}
+
+//登出服务器的返回
+message LogoutServer_Response
+{
+	optional int32 iResult = 1;				//登出服务器请求的结果
+	optional int32 iReason = 2;				//玩家登出的原因
+}
+
+// 增加名字类型
+enum AddNameType{
+	AddNameType_NewRole = 0;		//新角色
+	AddNameType_ChangeName = 1;		//改名字
+	AddNameType_NewGuild = 2;		//新帮派
+}
+//新增名字的请求
+message AddNewName_Request
+{
+	optional string strName = 1;			//新增加的名字
+	optional int32 iType = 2;				//新增加名字的类型,角色的名字还是公会的名字
+	optional uint32 name_id = 3;			//名字对应的ID，为角色UIN或者公会ID
+	optional string name_key = 4;			//玩家输入的字符串
+	optional int32 uin = 5;					//帐号的uin
+	optional int32 iAddType = 6;			//创建账户 和修改昵称  
+	optional int32 iReqAddZone = 7;			//创建账户 和修改昵称  
+}
+
+//新增名字的返回
+message AddNewName_Response
+{
+	optional int32 iResult = 1;				//新增名字的处理返回结果
+	optional int32 iType = 2;				//增加的名字的类型
+	optional uint32 name_id = 3;			//名字对应的ID，为角色的UIN或者公会ID
+	optional string strName = 4;			//新增加的名字
+	optional string namekey = 5;			//客户端输入的字符
+	optional int32 uin = 6;					//帐号的uin
+	optional int32 iAddType = 7;			//创建账户 和修改昵称  
+	optional int32 iReqAddZone = 8;			//创建账户 和修改昵称  
+}
+
+//删除名字的请求
+message DeleteName_Request
+{
+	optional string strName = 1;			//要删除的名字
+	optional int32 iType = 2;				//要删除的名字类型
+}
+
+//删除名字的返回
+message DeleteName_Response
+{
+	optional int32 iResult = 1;				//删除名字的处理返回结果
+}
+
+//通用错误码
+enum eErrResult
+{
+	EN_ERR_INVALID = 0;				//非法的错误类型
+	EN_ERR_AUTH_EXISIT = 1;			//帐号已存在
+	EN_ERR_AUTH_BADNAME = 2;		//帐号名不合法
+	EN_ERR_AUTH_LOGIN = 3;			//登录帐号密码不匹配
+	EN_ERR_ACTIVECODE_USED = 4;		//激活码已使用
+	EN_ERR_ACTIVECODE_ERROR = 5;	//激活码错误
+	EN_ERR_MAX = 6;					//最大错误类型
+}
+
+enum eWorldBossType
+{
+	EN_LAST_KA = 1;
+	EN_LAST_KAI = 2;
+	EN_CURRENT_BOSS = 3;
+}
+
+//worldboss基础数据
+message WorldBossBase
+{
+	optional int32 iType = 1;			//eWorldBossType
+	optional int32 iActiveType = 2;		//活动类型
+	optional int32 iBossBlood = 3;		//boss血量
+	optional int32 iCurBossBlood = 4;	//boss当前血量
+	optional int32 iBossAttr = 5;		//boss攻击
+	optional int32 iStartTime = 6;		//开始时间
+	optional int32 iKillTime = 7;		//击杀时间
+	optional int32 iBossLv = 8;			//boss等级
+	optional int32 iKillerRoleid = 9;	//击杀者id
+	optional int32 iUpdate = 10;		//1=有更新，0=没有更新
+}
+//worldboss排行数据
+message WorldBossRank
+{
+	optional int32 iIdx = 1;
+	optional int32 iRoleid = 2;
+	optional string strName = 3;
+	optional int32 iRoleLv = 4;
+	optional int32 iFightValue = 5;	//战斗力
+	optional int32 iPicid = 6;		//头像id
+	optional int32 iVipLv = 7;		//vip等级
+	optional int32 iTalian = 8;		//天赋
+	optional int32 iTotalHurt = 9;
+	optional int32 iUpdate = 10;		//1=有更新，0=没有更新
+}
+
+//钻石记录到日志服务器项目
+enum SourceLogType
+{
+	LOG_VAILED_TYPE = 0;
+	LOG_TALENT_OPEN = 1; //天赋开启
+	LOG_CHANGE_NAME = 2; //修改名字
+	LOG_REFINE_EQUIP = 3; //精炼装备
+	LOG_DECOMPOSE_EQUIP = 4;//重生装备
+	LOG_DECOMPOSE_TRINKET = 5; //饰品重生
+	LOG_EXTRACT_HERO = 6;//抽英雄
+	LOG_GRADEUPSKILL_HERO = 7;//英雄升级技能
+	LOG_EXTRACT_SOUL = 8; //抽魂
+	LOG_GRADEUP_HERO = 9;//英雄升级
+	LOG_RECIV_HERO = 10; //英雄重生
+	LOG_EMPLOY_HERO = 11;//招募英雄
+	LOG_CHARFGE_ROLE = 12;//散充值
+	LOG_RESETCROSS = 13;//重置关卡
+	LOG_CLEAR_CROSSCD = 14;//清除cd
+	LOG_PVP = 15;		//竞技场
+	LOG_CHARGE_SYS = 16;//充值
+	LOG_FIRSTCHARGE_SYS = 17;//首次充值
+	LOG_FETCH_REGIN = 18;//签到
+	LOG_REFINE_DAY = 19;//炼金
+	LOG_MAL_BUY = 20;//商城购买
+	LOG_SHOP_BUY = 21;//神秘商店
+	LOG_UPDATESHOP_BUY = 22;//刷新神秘商店
+	LOG_BLOCK_BAG = 23;//扩充背包
+	LOG_USE_THING = 24;//应用类型物品
+	LOG_STREANGEEQUIP = 25;//强化装备
+	LOG_STRANGE_TRINKET = 26;//强化饰品
+	LOG_REFINE_TRINKET = 27;//精炼饰品
+	LOG_GRADE_SKILL = 28;//升级技能
+	LOG_EXTRA_SOUL = 29;//抽魂
+	LOG_OPEN_MINE = 30;//开启采矿
+	LOG_SPEED_MINE = 31;//加速采矿
+	LOG_MINE_QUALITY = 32;//采矿品质升级
+	LOG_UPDATESTEP_HERO = 33;//英雄升阶
+	LOG_PVPSHOP = 34;//PVP商店购买
+	LOG_FRESH_MATRIAL = 35; //裁缝刷新材料
+	LOG_FRESH_REWARD = 36;//裁缝刷新奖励
+	LOG_DOUBLE_REWARD = 37;//好钻成双奖励 	
+	LOG_WORLD_BOSS = 38;	//世界boss
+	LOG_MINE_GOLD = 39;		//地精金矿
+	LOG_TRINKET_BOX = 40;	//饰品宝库
+	LOG_SOUL_ALTARS = 41;	//灵魂祭坛
+	LOG_MASTER_RESULT = 42;	//战斗大师
+	LOG_TREASURE = 43;	//夺宝
+	LOG_DRAGON = 44;	//巨龙巢穴
+	LOG_TOWER = 45;		//征服之塔
+	LOG_COURAGE = 46;	//勇气试练
+	LOG_GUILD_RECORD = 47; //公会膜拜
+	LOG_ACHIEVEMENT = 48;	//成就
+	LOG_TASKEVERYDAY = 49;	//每日任务
+	LOG_MELTER = 50;		//熔炼
+	LOG_ENERGY_BUY = 51;	//体力购买
+	LOG_TREASURE_BUY = 52;	//宝箱购买
+	LOG_RESETBOSS = 53;		//重置boss关卡
+	LOG_BLACKMARKET = 54;	//黑市商人
+	LOG_HEROCOMPSITE_RECORDE = 55; //英雄合成记录
+	LOG_TRINKETCOMPSITE_RECORDE = 56; //饰品合成记录
+	LOG_TREASURE_COUNT = 57; //购买夺宝的耐力
+	LOG_REWARD_LEVEL = 58;	//等级奖励
+	LOG_REWARD_BACK = 59;	//奖励回馈
+	LOG_LOGIN_REWARD = 60;	//登录奖励
+	LOG_BLACKMARKET_FRESH = 61;	//刷新黑市商人
+	LOG_RESETCONQTOWER = 62;	//重置征服之塔
+	LOG_SWEEPCONQTOWER = 63;	//购买扫荡征服之塔
+	LOG_SWEEPCROSS = 64;		//购买扫荡关卡
+	LOG_MASTER_SORCE = 65;		//战斗大师积分
+	LOG_MASTER_RANK = 67;		//战斗大师排名
+	LOG_TREASURE_RESULT = 68;   //夺宝结果
+	LOG_TREASURE_CHIPS = 69;   //抢到碎片
+	LOG_TREASURE_CHIPSEXCHANGE = 70; //碎片合成
+	LOG_MASTER_ADD = 71;			 //增加战斗大师次数
+	LOG_GROP_PLAN = 72;				 //成长计划
+	LOG_GROP_GETREWARD = 73;		 //领取成长计划
+	LOG_ACTEXCHANGE = 74;			 //限时兑换
+	LOG_ARCHFUNC = 75;				 //考古
+	LOG_EXTRACTBESTHERO_ONE = 76;    //限时神将
+	LOG_RechargeFeedBack = 77; 		 //累积充值回馈
+	LOG_CostFeedBack = 78; 		  	//消费回馈
+	LOG_EXTRACTBESTHERO_TEN = 79; 	//限时神将
+	LOG_PINSTANCE_STARREWARD = 80;  //副本星级奖励
+	LOG_HERO_STEPUP = 81;			//英雄进阶
+	LOG_GETREWARD_TAILOR = 82;	    //领取裁缝奖励
+	LOG_GETREWARD_MAIL = 83;	    //领取邮件附件
+	LOG_LIMIT_BUY = 84;	   			//限时购买
+	LOG_CHEESE_BUY = 85;			//购买奶酪
+	LOG_FIGHT_CHEAT = 86;			//战斗作弊
+	LOG_BUY_QUALIFYINGTIMES = 87;	//排位赛购买次数
+	LOG_POSY_SYSTEM_Common = 88;	//普通铭文消费
+	LOG_POSY_SYSTEM_Diamond = 89;	//钻石铭文消费
+	LOG_POSY_SYSTEM_Compose = 90;	//钻石合成消费
+	LOG_POSY_SYSTEM_Change = 91;	//钻石变幻消费
+}
+
+enum PINSTANCETYPE
+{
+	PINSTANCETYPE_START = 1; //开始副本
+	PINSTANCETYPE_SUCCESS = 2;//副本通过
+	PINSTANCETYPE_FAILED = 3; //副本失败
+	PINSTANCE_GIVEUP = 4; //放弃副本
+	PINSTANCE_SWEEP = 5; //副本扫荡	
+}
+
+enum NODERECODE
+{
+	LOGTYPE_REGISTERUSER = 1;	//注册成功玩家
+	LOGTYPE_REGISTERFAIL = 2;	//注册失败玩家
+	LOGTYPE_CREATEROLE  = 3;	//创建角色成功
+}
+
+

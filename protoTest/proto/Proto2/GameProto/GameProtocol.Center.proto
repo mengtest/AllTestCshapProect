@@ -1,0 +1,134 @@
+
+import "GameProtocol.Common.proto";
+import "GameProtocol.USERDB.proto";
+import "GameProtocol.Zone.proto";
+
+enum RoomType
+{
+	enMineTreasure = 1;		//地精金矿
+}
+message SearchCross
+{
+	optional int32 iCrossid = 1;
+	optional RoleFightInfo stInfo = 2;		//关卡数据
+	optional FightInfo stRoleInfo = 3;		//角色数据
+	optional DropInfoList stDropList = 4;	//奖励
+}
+message MineTreasureInfo
+{
+	optional int32 iTreasureType = 1;			//宝藏类型
+	optional int32 iFightValue = 2;				//开矿人战力值
+	optional SearchCross stFightInfo = 3;		//战斗阵容数据
+};
+//申请创建房间
+message Z2C_CreateRoom_Request
+{
+	optional int32 iType = 1;			//房间类型	RoomType
+	optional int32 iRoleid = 2;			//角色id
+	optional int32 iServiceArea = 3;	//创建者所在区服
+	optional MineTreasureInfo stMineTreasure = 4;	//地精金矿信息
+}
+message C2Z_CreateRoom_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iRoomid = 2;
+	optional int32 iRoleid = 3;			//角色id
+	optional int32 iCreateTime = 4;		//房间创建时间
+	optional int32 iEndTime = 5;		//结束时间
+}
+
+//进入房间
+message Z2C_EnterRoom_Notify
+{
+	optional int32 iRoleid = 1;		//角色id
+	optional int32 iRoomid = 2;		//房间id
+	optional SearchCross stFightInfo = 3;		//战斗阵容数据
+}
+
+//房主战力变化通知
+message Z2C_ChangeFightValue_Notify
+{
+	repeated Z2C_EnterRoom_Notify stInfo = 1;	
+}
+
+//搜索金矿
+message Z2C_SearchTreasure_Request
+{
+	optional int32 iRoleid = 1;			//搜索人角色id
+	optional int32 iFightValue = 2;		//搜索人战力
+}
+
+message C2Z_SearchTreasure_Response
+{
+	optional int32 iRoomid = 1;
+	repeated SearchCross CrossList = 2;
+	optional int32 iRoleid = 3;			//搜索人角色id
+	optional int32 iTreasureType = 4;	//搜索宝藏的type
+	optional int32 iEndTime = 5;		//结束时间
+	optional int32 iWorldid = 6;		//搜索worldid
+}
+
+//宝藏被抢通知
+message SingleRob
+{
+	optional string strAttackName = 1;		//攻击方名字
+	optional int32 iResult = 2;				//战斗结果，1=胜利，2=失败
+	optional int32 iAttackTime = 3;			//攻击时间
+	optional int32 iAttackLv = 4;			//对方等级
+	optional int32 iPicid = 5;				//头像id
+	optional int32 iRoleid = 6;				//角色id
+	optional int32 iVipLv = 7;				//vip等级
+	optional int32 iTalent = 8;				//天赋
+	optional DropInfoList stLostList = 9;   //损失
+	optional int32 iSucCount = 10;			//防守次数
+	optional int32 iTreasureType = 11;		//宝藏类型
+	optional int32 iWorldid = 12;			//攻击方worldid
+}
+message Z2C_BeRobTreasure_Notify
+{
+	optional int32 iRoomid = 1;				//
+	repeated SingleRob RobList = 2;			//被抢列表
+}
+
+message C2Z_TreasureBeRob_Notify
+{
+	optional int32 iRoomid = 1;				//
+	repeated SingleRob RobList = 2;			//被抢列表
+}
+
+//拉取房间信息
+message Center_FetchRoom_Request
+{
+}
+
+message CenterSingleTreasureCross
+{
+	optional int32 iRoleid = 1;
+	optional SearchCross stCross = 2;
+}
+message CenterTreasure
+{
+	optional int32 iTreasureType = 1;
+	optional int32 iEndTime = 2;
+	optional int32 iFightValue = 3;
+	optional int32 iLastBeSearchTime = 4;
+	optional int32 iProtectTime = 5;
+	repeated CenterSingleTreasureCross stCrossList = 6; 
+}
+message CenterSingleRoom
+{
+	optional int32 iRoomid = 1;
+	optional int32 iRoomType = 2;
+	optional int32 iRoleid = 3;
+	optional int32 iServerArea = 4;
+	optional bytes strTreasure = 5;		//CenterTreasure
+}
+message Center_FetchRoom_Response
+{
+	repeated CenterSingleRoom stList = 1;
+}
+//更新房间信息
+message Center_UpdateRoom_Request
+{
+	repeated CenterSingleRoom stList = 1;
+}

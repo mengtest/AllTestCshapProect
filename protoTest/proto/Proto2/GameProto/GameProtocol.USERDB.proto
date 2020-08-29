@@ -1,0 +1,1452 @@
+
+//本文件用于定义服务器数据存储的格式
+
+//DB中实际保存的玩家数据格式为protobuf序列化后的数据再进行lz4压缩，可以大幅减少存储的数据
+
+//玩家背包中道具的类型
+enum enItemType
+{
+	EN_ITEM_TYPE_INVALID = 0;					//非法的物品类型
+	EN_ITEM_TYPE_EQUIP = 1;						//玩家的装备类型
+	EN_ITEM_TYPE_PROPS = 2;						//玩家的道具类型
+	EN_ITEM_TYPE_POSY = 3;						//玩家的铭文类型
+}
+enum enPropsSub
+{
+	EN_ITEM_TYPE_COMMON = 0;					//普通道具类型
+	EN_ITEM_TYPE_EQUIPCHIPS = 1;				//装备的碎片类型
+	EN_ITEM_TYPE_HEROCHIPS = 2;					//英雄的碎片类型
+	EN_ITEM_TYPE_TRINKETCHIPS = 3;				//饰品的碎片类型
+	EN_ITEM_TYPE_MATRIAL = 4;					//材料类型
+	EN_ITEM_TYPE_MATRIALCHIPS = 5;				//材料碎片类型
+}
+
+//英雄身上装备槽的位置
+enum enHeroEquipType
+{
+	EN_HERO_EQUIP_TYPE_WEAPON = 0;				//英雄的武器槽
+	EN_HERO_EQUIP_TYPE_HELMET = 1;				//英雄的头盔槽
+	EN_HERO_EQUIP_TYPE_COAT   = 2;				//英雄的上衣
+	EN_HERO_EQUIP_TYPE_PANTS  = 3;				//英雄的下衣
+	EN_HERO_EQUIP_TYPE_TREASURE1 = 4;			//英雄的饰品1
+	EN_HERO_EQUIP_TYPE_TREASURE2 = 5;			//英雄的饰品2
+	EN_HERO_EQUIP_TYPE_MAX = 6;					//英雄装备槽的上限
+}
+
+//玩家数据在服务器中存储的格式
+//经过protobuf序列化再lz4压缩后的数据
+message GameUserInfo
+{
+	optional uint32 uin = 1;					//玩家的uin
+	optional string nameKey = 2;
+	optional uint32 worldID = 3;				// 玩家所在的世界的ID，和uin一起作为主键，方便后面合服
+	optional uint32 iLevel = 4;					// 等级
+	optional uint32 iFightValue = 5;			// 战斗力
+	optional uint32 iMaxCrossId = 6;			// 通关最大副本
+	optional uint32 iCrossStar = 7;				// 通关副本的星级
+	optional int32 iGuildId = 8;				// 公会ID
+	optional string strGuildName = 9;			// 公会名称
+	optional bytes strBaseSummaryInfo = 10;		// 玩家的摘要数据
+	optional bytes strBaseInfo = 11;			// 玩家的基础数据
+	optional bytes strFormSummaryInfo = 12;		// 玩家阵形摘要
+	optional bytes strHeroInfo = 13;			// 玩家拥有的英雄信息
+	optional bytes strItemInfo = 14;			// 玩家拥有的所有道具信息
+	optional bytes strFightInfo = 15;			// 玩家的战斗信息，包括PVE、好友PK等
+	optional bytes strFriendInfo = 16;			// 玩家的好友基本信息
+	optional bytes strReserved1 = 17;			// 保留BLOB字段，为后面功能扩充使用
+	optional bytes strReserved2 = 18;			// 保留BLOB字段，充值 图鉴
+	optional string strChips = 19;				// 拥有碎片信息
+	optional bytes strWrestHistory = 20;		// 夺宝历史信息
+	optional int32 iProtectTime = 21;			// 夺宝保护时间
+	optional bytes strPartner =  22;			// 角色的小伙伴id
+	optional bytes strRecharge = 23;			// 充值数据
+	optional bytes strHandBook = 24;			// 图鉴手册
+	optional bytes strOffLintData = 25;			// 离线事件
+	optional bytes strAccountStatu = 26;		//玩家帐号状态
+}
+enum EMSTATU
+{
+	STATU_PERMANNET = 1; //永久封号
+	STATU_COMMON	= 2;//一般封号
+	STATU_TEMPORARY = 3;//临时封号
+}
+//玩家封号时间
+message ACCOUNTSTATU
+{
+	optional int32 iBeginTime = 1;	//封号起始时间
+	optional int32 iEndTime = 2;	//封号结束时间
+	optional int32 iStatu = 3;		//封号开关
+}
+
+message GameUserInfo_Part2
+{
+	optional uint32 uin = 1;					// 玩家的uin
+	optional uint32 worldID = 2;				// 玩家所在的世界的ID，和uin一起作为主键，方便后面合服
+	optional bytes strHandBook = 3;				// 手册
+}
+
+// 离线数据
+message OffLineGameUserInfo{
+	optional bool iRoleId = 1;			 // 要拉取的角色ID
+	optional bool bFetchBasicSummary = 2;// 拉取摘要
+	optional bool bHeroFormSummary = 3;	 // 拉取阵形摘要
+}
+//英雄装备栏数据
+message HeroEquipData
+{
+	repeated ItemInfo stItems = 1;	//身上装备信息
+	repeated ItemInfo stPosys = 2;	//身上装备的铭文信息
+}
+// 英雄摘要
+message HeroSummaryInfo{
+	optional int32 iHeroIndex = 1;	// 英雄索引
+	optional int32 iHeroId = 2;		// 英雄ID
+	optional int32 iHeroFosterLv = 3;// 英雄培养等级
+	optional int32 iHeroStepLv = 4;	// 英雄升阶等级
+	optional HeroEquipData stEquips = 5;//身上装备信息
+	optional int32 iStarLv = 6;			// 英雄星级
+	repeated HeroSkill stSkills = 7;	//英雄的技能信息,一共有12个技能
+	optional int32 iBlood = 8;			//英雄血量
+}
+// 角色摘要基本信息
+message BasicPlayerSummary{
+	optional uint32 iRoleId = 1;					//角色ID
+	optional uint32 iRoleLevel = 2;					//角色等级
+	optional string strNickName = 3;				//角色昵称
+	optional uint32 iCrossStars = 4;				//副本通关星数
+	optional uint32 iLastLogOutTime = 5;			//登出时间 0表示在线
+	optional uint32 iFriendsNum = 6;				//好友数量
+	optional uint32 iHeadImgId = 7;					//头像ID
+	optional int32  iViplv = 8;						//vip等级
+	optional int32  iIsOnLine = 9;					//是否在线0不在线1在线
+	optional uint32 iMaxCrossID = 10;				//最大通关副本ID
+	optional uint32 iFightValue = 11;				//战斗力排行榜
+	optional uint32 iTalent = 12;					//天赋
+	optional uint32 iUin = 13;						//Uin
+	optional uint32 iPvpNotify = 14;				//pvp排名降低推送
+	optional uint32 iMasterNotify = 15;				//大师排名降低推送
+	optional uint32 iWrestNotify = 16;				//碎片被抢推送
+	optional int32 iGuildID = 17;					//公会ID
+	optional string strGuildName = 18;				//公会昵称
+	optional int32 iDefFightValue = 19;				//防守阵容战力
+	optional int32 iQualifyingScore = 20;			//排位赛积分
+	optional int32 iWorldId = 21;					//区服ID
+	optional int32 iQualifyingRank = 22;			//排位赛排名
+	optional int32 iGuildPos = 23;				//公会职位
+}
+//	optional string strGuildPos = 23;				//公会职位
+// 离线事件数据
+message ProtoOffLineEvt{
+	optional uint32 iRoleId = 1;					//角色ID
+	optional uint32 iTime = 2;						//发生时间
+	optional uint32 iEvtType = 3;					//事件类型
+	optional int32 iParam = 4;						//离线参数
+}
+// 离线数据
+message ProtoOffLineData{
+	repeated ProtoOffLineEvt stOffLineEvtList = 1;				//角色ID
+}
+// 英雄摘要基本信息
+message HeroFormSummary{
+	optional HeroFormGame stForms = 1;				//英雄出战的阵形信息
+	repeated HeroSummaryInfo stHerosSummary = 2;	//上阵的英雄的摘要
+	optional int32 iPower = 3;						//战斗力
+	repeated OneHeroInfo stHeroList = 4;			//英雄列表
+	repeated ItemInfo stItems = 5;					//装备列表
+	optional TALENTINFO stTalentInfo = 6;			//天赋数据
+	optional LITTLEBUDDYINFO stLittleBuddyInfo = 7;	// 小伙伴数据
+}
+// 角色摘要
+message PlayerSummaryInfo{
+	optional BasicPlayerSummary stBasicPlySummary = 1;	// 基本摘要
+	optional HeroFormSummary stHeroFormSummary = 2;		// 阵形摘要
+}
+// 解锁头像
+message UNLOCKHEADIMG{
+	repeated int32 iHeadImgIds = 1;
+}
+// GuildWorship
+message GUILDWORSHIP{
+	repeated int32 iWorshipIds = 1;
+}
+
+//铭文师幸运值
+message GraverLucky
+{
+	optional int32 iGraverLv = 1;		//铭刻师等级
+	optional int32 iGraverLucky = 2;	//铭刻师升级幸运值
+	optional int32 iPosyLucky = 3;		//指定铭文幸运值
+	optional int32 iDiamondPosyLucky = 4;		//钻石铭刻指定铭文幸运值
+}
+
+//玩家主要数据在DB中存储的结构
+message BASEDBINFO
+{
+	optional string szNickName = 1;				//玩家的昵称
+	optional int32 iLevel = 3;					//玩家的队伍等级
+	optional int32 iExp = 4;					//玩家当前的队伍经验
+	optional int32 iCO = 5;						//玩家的游戏内货币
+	optional int32 iCA = 6;						//玩家的充值货币
+	optional int32 iTalentPoints = 7;			//玩家的天赋点数
+	optional int32 iEnergy = 8;					//玩家的当前体力值
+	optional uint32 uStatus = 9;				//玩家的当前的状态
+	optional int32 iGender = 10;				//玩家的性别
+	optional int32 iLastLogin = 11;				//玩家上次登录的时间
+	optional int32 iLastLogout = 12;			//玩家上次登出的时间
+	optional int32 iCreateTime = 13;			//玩家帐号创建的时间
+	optional int32 iOnlineTime = 14;			//玩家的总在线时长
+	optional int32 iLoginCount = 15;			//玩家总的游戏登录次数
+	optional int32 iForbidTalkingTime = 16;		//玩家被禁止聊天的时间
+	optional int32 iLoginTime = 17;				//玩家本次登录的时间
+	optional int32 iLogoutTime = 18;			//玩家本次登出游戏的时间
+	optional int32 iLastRecoverTime = 19;		//上次体力恢复时间
+	optional int32 iBeginnerGuideStep = 20;		//玩家当前新手教程所在的步骤
+	optional int32 iFineSoul = 21;				//优秀战魂数量
+	optional int32 iExcellentSoul = 22;			//精良战魂
+	optional int32 iEpicSoul = 23;				//史诗战魂
+	optional int32 iLegendSoul = 24;			//传说战魂
+	optional int32 iCurExtractCount = 25;		//当前今天抽取的次数
+	optional int32 iRefineGoldDayCount = 26;	//玩家炼金次数
+	optional int32 iVIPLevel = 27;				//玩家VIP
+	optional int32 iBuyCount = 28;              //玩家已经购买体力次数
+    optional int32 iLunchGetEnergy = 29;        //玩家上午领取体力开启
+    optional int32 iDinnerGetEnergy = 30;       //玩家下午领取体力开启
+    optional int32 iContinueLoginBeginTime = 31;//连续登录的开始时间
+	optional int32 iFirstLoginInit = 32;		//是否初始化过 默认为0 未为初始化过 兼容之前的内容 增加新建角色携带物品
+	optional int32 iGameFunctionGuideStep = 33;	//新手的功能引导
+	optional int32 iXZExtractHeroCount = 34;	//勋章抽英雄总次数
+	optional int32 iZSExtractHeroCount = 35;	//砖石抽英雄总次数
+	optional int32 iSoulJadeAmt = 36;			//魂石
+	optional int32 iCurFightCount = 37;			//今日pvp挑战次数
+	optional int32 iIsGetFightAward = 38;     	//是否领取进入奖励，0=没有领取，1=已经领取
+	optional int32 iHonorValue = 39;			//荣誉值
+	optional PVPSTORE	stpvpinfo = 40;			//pvp商城数据
+	optional int32 iRemainPVPCount = 41;		//pvp剩余挑战次数
+	optional int32 iCrossStars = 42;			//副本星数	
+	optional int32 iMaxCrossId = 43;			//副本最大ID
+	optional int32 iFightValue = 44;			//战斗力
+	optional int32 iHeadImgId = 45;				//当前使用头像的
+	optional UNLOCKHEADIMG stHeadImg = 46;		//解锁头像列表
+	optional int32 iPvpIdx = 47;				//pvp历史最高排名
+	optional int32 iWrestCount = 48;			//夺宝次数
+	optional int32 iWrestRemainCount = 49;		//夺宝剩余次数
+	optional int32 iWrestLucky = 50;			//夺宝幸运值
+	optional int32 iMaxRewardPvpIdx = 51;		//最大的奖励过的pvp排名
+	optional int32 iFirstPvp = 52;				//是否首次pvp 1=是，0=否
+	optional int32 iFirstWrest = 53;			//是否首次夺宝 1=是，0=否
+	optional int32 iPvpLastTimes = 54;			//PVP连胜次数
+	optional int32 iWorldChannalCount = 55;		//世界频道发言次数
+	optional int32 iFirstRecharge = 56;			//首次充值0=没有充值，1=已经充值
+	optional int32 iDailySendAmt = 57;		    //日常赠送体力计数
+	optional int32 iDailyGetAmt = 58;		    //日常获取体力计数
+	optional int32 iDailyFreeSweepTimes = 59;	//日常免费扫荡的次数
+	optional int32 iDailyBuySweepTimes = 60;	//日常购买扫荡的次数
+	optional int32 iAddSweepTimes = 61;			//够过购买等增加的扫荡次数不清空
+	optional int32 iNightsnack = 62;			//夜宵档领取体力
+	optional int32 iWorldBClearCD = 63;			//worldboss 清空cd次数
+	optional int32 iEquipSoulJade = 64;			//装备魂石
+	optional int32 iPvpStoreFreshCount = 65;	//pvp商城刷新次数
+	optional int32 iPvpNotify = 66;				 //pvp排名降低推送
+	optional int32 iMasterNotify = 67;		//大师排名降低推送
+	optional int32 iWrestNotify = 68;		//碎片被抢推送
+	optional int32 iWrestBuyCount = 69;		//夺宝购买次数
+	optional int32 iWrestRecoverCount = 70;	// 夺宝上次恢复时间
+	optional int32 iPrestige = 71;			// 声望
+	optional int32 iActiveVal = 72;			// 活跃度
+	optional int32 iPVPCDTime = 73;			// PVPCD
+	optional int32 iMasterRemainCount = 74; // 战斗大师剩余挑战次数
+	optional int32 iFirstTag = 75;			// 第一次标记 对应FIRST_TAG
+	optional GUILDWORSHIP stGuildWorship = 76;// 公会膜拜
+	optional int32 iArchHeroCount = 77;		//考古英雄抽取次数
+	optional int32 iArchEquipCount = 78;	//考古装备抽取次数
+	optional int32 iCurAnabasisResetCount = 79;	//英雄征途当前重置次数
+	optional int32 iAnabasisCross = 80;			//英雄征途当前关卡
+	optional int32 iAnabasisAwardState = 81;	//英雄征途当前奖励状态,0=未通关，未领奖, 1=已通关，未领奖
+	optional int32 iAnabasisFirst = 82;			//英雄征途是否开启 0=未开启，1=已开启
+	optional int32 iAnabasisStoreFreshCount = 83; //英雄征途商城刷新次数
+	optional int32 iAnabasisCoin = 84; 			//征途币
+	optional int32 iAnabasisMaxCross = 85; 		//英雄征途最大关卡
+	optional int32 iMailVersion = 86;			//全服邮件同步版本号
+	optional int32 iMaxFightvalue = 87;			//曾经最大战斗力
+	optional int32 iFriendCombatTimes = 88;		//日常好友切磋战斗总次数
+	optional int32 iDefFightValue = 89;			//防守阵容战力
+	optional int32 iTailorLevel = 90;			//玩家裁缝等级
+	optional int32 iTailorExp = 91;				//玩家裁缝经验
+	optional int32 iTailorBoolean = 92;			//老玩家裁缝等级返还标志
+	optional int32 iGetConTowerTimes = 93;		//征服之塔套装碎片领取次数 
+	optional int32 iGuildBadge = 94;			//公会勋章
+	optional int32 iCheeseCount = 95;			//地精宝藏奶酪
+	optional int32 iSearchCount = 96;			//地精宝藏已搜索次数
+	optional int32 iLastCheeseRecivery = 97;	//奶酪上次恢复时间
+	optional int32 iFirstMineTreasure = 98;		//首次开启地精宝藏状态 0=第一次开启，1=已经开启过
+	optional int32 iAnabasisLucky = 99;			//英雄征途幸运值
+	optional int32 iGraverLv = 100;				//铭刻师等级
+	repeated GraverLucky GraverLuckyList = 101;	//铭刻师幸运值
+	optional int32 iUpgradePosyCount = 102;		//钻石铭刻次数	
+	optional int32 iQualifyingFightTimes = 103;	// 排位赛挑战次数
+	optional int32 iQualifyingFightCD = 104;	// 排位赛挑战CD
+	optional int32 iQualifyingRefreshCD = 105;	// 排位赛刷新CD
+	optional int32 iQualifyingCoin_w = 106;		// 排位赛货币
+	optional int32 iScrollHeroCount = 107;		// 魔法卷轴当日使用次数
+	optional int32 iTenScrollHeroCount = 108;	// 十连魔法卷轴当日使用次数
+	optional int32 iQualifyingAddTimes = 109;	// 排位赛购买增加的次数
+	optional int32 iMaxQualifyingScore = 110;	// 历史最高积分
+	optional int32 iMaxQualifyingRank = 111;	// 历史最高排名
+	optional int32 iQualifyingRecordVer = 112;	// 排位赛拉取过的最大的战斗记录ID
+	optional int32 iTimeZone = 113;				// 服务端时区
+	optional int32 iQualifyingCoin = 114;		// 排位赛货币
+}
+
+// 第一次枚举
+enum FIRST_TAG{
+	FITRST_BUY_MYS_SHOPITEM = 0x1;	// 第一次购买神秘商店
+	FITRST_RESET_PVPCD = 0x2;		// 第一次重置PVP CD
+	FITRST_OPEN_ACHIIEVEMENT = 0x4; // 开启成就
+	FITRST_EXTRACTDIAMOND = 0x8;  // 首次钻石抽
+	FITRST_EXTRACTDIAMOND10 = 0x10;  // 首次十连抽
+	FITRST_EXTRACTSCROLL = 0x20;	 //卷轴首抽
+	FITRST_EXTRACTSCROLL10 = 0x40;	//十连卷轴首抽
+}
+
+//英雄拥有的技能信息
+message HeroSkill
+{
+	optional int32 iSkillID = 1;				//英雄技能的当前ID,需要存储在DB中
+
+	//以下不需要存储DB，仅供客户端使用
+	optional int32 iUnlockQuality = 3;			//技能解锁的英雄品质
+}
+
+//玩家拥有的每个英雄的数据结构定义
+message OneHeroInfo
+{
+	optional uint32 uHeroID = 1;				//英雄的ID
+	optional uint32 uLevel = 2;					//英雄的等级
+	optional uint32 uExp = 3;					//英雄的当前经验值
+	optional int32 iHeroIndex = 4;				//英雄的全局index
+	repeated HeroSkill stSkills = 5;			//英雄的技能信息,一共有12个技能
+	repeated int32 iEquipSlot = 6;				//英雄身上的装备槽位,总共有6个装备槽位，与enHeroEquipType对应,存储装备的槽位,-1表示没有装备
+	optional uint32 uStarGrade = 7;             //英雄星级的ID
+	optional int32 iHeroQuality = 8;			//英雄的品质
+	optional int32 iFosterLevel = 9;			//培养等级
+	optional int32 iFosterExp	= 10;			//培养经验
+	optional int32 iStep = 11;					//等阶
+	optional int32 iBlessValue = 12;			//祝福值
+	optional int32 iBlood = 13;					//当前血量
+	optional int32 iMineBlood = 14;				//对应地精金矿血量
+}
+
+//玩家拥有的所有英雄的结构定义
+message AllHeroInfo
+{
+	repeated OneHeroInfo stHeros = 1;			//玩家拥有的所有英雄的数据
+}
+
+message OneHeroFormGame
+{
+	optional int32 iHeroIndex = 1;				//英雄的阵形信息，存储的是英雄的index, -1 表示非法的index
+	repeated int32 iEquipSlot = 2;				//装备槽
+	repeated int32 iPosySlot = 3;				//装备铭文对应的slot，-2=未解锁，-1=已解锁且是空的
+}
+
+//玩家的阵形信息,阵形中存储的是每一个英雄的GID
+message AttackFormGame{
+	repeated int32 iAttackFormIndex = 1;			//进攻阵容	
+}
+message HeroFormGame
+{
+	repeated int32 iFormIndex = 1;					//英雄的阵形信息，存储的是英雄的index, -1 表示非法的index
+	repeated OneHeroFormGame stHeroFormInfos = 2;   //英雄阵形信息
+	repeated int32 iAttackFormIndex = 3;			//防守阵容
+	repeated AttackFormGame stAttackForms = 4;		//进攻阵容序列
+	repeated AttackFormGame stDefForms = 5;			//防守阵容序列
+}
+
+//玩家拥有的英雄的基本信息
+message HERODBINFO
+{
+	optional AllHeroInfo stAllHeros = 1;			//玩家拥有的所有英雄的信息
+	optional HeroFormGame stForms = 2;				//玩家的英雄出战的阵形信息
+	optional int32 m_iFreeMetalTime = 3;			//此时间之后可以免费勋章抽取一次
+	optional int32 m_iFreeDiamondTime = 4;			//此时间之后可以免费钻石抽取一次
+	repeated int32 stCashPurpleHeroRecord = 5;		//上次随机抽到的紫色英雄的计数
+    repeated int32 stMetalPurpleHeroRecord = 6;		//上次勋章抽到紫色英雄的计数
+	repeated int32 stArchExtractHeroRecord = 7;		//上次考古随机到紫色英雄的次数
+	repeated int32 stArchExtractEquipRecord = 8;	//上次考古随机到紫色装备的次数
+	optional int32 m_iDailyFMExtTimes = 9;		    //每日勋章免费勋章抽取次数
+	repeated int32 stCashHeroRecord = 10;			//钻石抽取的英雄记录
+    repeated int32 stMetalHeroRecord = 11;			//勋章抽取的英雄记录
+	repeated int32 stScrollPurpleHeroRecord = 12;	//上次卷轴随机抽到的紫色英雄的计数
+	repeated int32 stScrollHeroRecord = 13;			//卷轴抽取的英雄记录
+	repeated uint32 iHeroIDList = 14;				//不同英雄的ID记录
+}
+
+// 装备强化相关
+message EQUIPSTRENGTHEN{
+	optional int32 iLevel = 1;// 强化等级
+	optional int32 iCostGoldAmt = 2;// 强化消耗金币总数
+	optional int32 iExp = 3;		// 强化累积的经验值
+}
+// 附加属性
+message EQUIPATTACHATTR{
+	optional int32 iAttrType = 1;
+	optional int32 iAttrValue = 2;
+}
+// 装备精炼相关
+message EQUIPREFINE{
+	repeated EQUIPATTACHATTR stEquipAttr = 1;// 装备精炼附加属性
+	repeated EQUIPATTACHATTR stTmpEquipAttr = 2;// 未应用的装备精炼附加属性
+}
+//装备的道具信息
+message EquipDetail
+{
+	optional int32 iLevel = 1;						//装备的等级
+	optional int32 iExp  = 2;						//装备的经验
+	optional int32 iSaturation = 3;					//装备的饱和度
+	optional int32 iEquipHeroIdx_W = 4;				//穿上该装备英雄的index，-1表示没有穿戴上
+	optional EQUIPSTRENGTHEN stEquipStrengthen = 5;
+	optional EQUIPREFINE stEquipRefine = 6;			// 强化相关数据	
+	optional int32 iRefineStage = 7;				// 精炼的阶段
+	// 装备子类型冗余数据 老装备没有 服务端只在创建时做添加，暂时不使用该值
+	optional int32 iEquipSubType = 8;				// 装备部位装备(SUB_WEAPON、SUB_HELMET、SUB_COAT、SUB_TROUSER) 饰品为(SUB_TRINKET、SUB_RING)
+	optional int32 iEquipFormIdx = 9;				// 装备的位置信息
+	optional int32 iRefineLevel = 10;				// 精炼等级
+}
+//道具信息暂时为空
+message PropDetail
+{
+}
+//道具的详细信息，部分道具会有
+message ItemDetail
+{
+	optional EquipDetail stEquipDetail = 1;			//装备的详细信息
+	optional PropDetail stPropDetail = 2;			//道具的详细信息
+}
+
+//存储的玩家单个道具的信息
+message ItemInfo
+{
+	optional int32 iItemID = 1;						//Item道具ID
+	optional enItemType eType = 2;					//Item道具的类型
+	optional int32 iItemNum = 3;					//Item道具的数量，对于可叠加的道具有意义
+	optional ItemDetail stDetail = 4;				//Item道具的详细信息
+	optional uint32 iGetTime = 5;					//获得时间
+	optional uint32 iSlot = 6;						//所在槽位
+}
+//存储的玩家背包信息
+message BAGINFO
+{
+	optional int32 iBagType = 1;					//背包类型
+	optional int32 iMaxCapacity = 2;				//最大容量
+	optional int32 iBuyTimes = 3;					//购买次数
+}
+// 道具使用记录
+message ItemDailyUsedInfo{
+	optional int32 iItemId = 1;					// 物品ID
+	optional int32 iCount = 2;					// 使用计数
+}
+//玩家拥有的道具信息
+message ITEMDBINFO
+{
+	optional int32 iItemSlotNum = 1;				//当前已开启的道具槽的数量
+	repeated ItemInfo stItems = 2;					//所有的Item道具的信息,这个里面依次与道具槽位置对应，可能有空的槽位
+	optional int32 iBuyTimes = 3;					//当前已经购买背包格子的次数
+	repeated BAGINFO stBags = 4;					//背包
+	repeated ItemDailyUsedInfo stItemDailyRecords = 5;// 日常使用记录
+}
+
+//玩家战斗相关的数据，包括PVE推图数据、好友PK数据、战斗排行榜数据等
+
+//单个PVE副本关卡信息
+message OneCrossInfo
+{
+	optional uint32 uCrossID = 1;				//已经通关的PVE关卡ID
+	optional int32 iLuckyPoint = 2;				//已经通关的PVE关卡的运气值
+	optional uint32 uPveStar = 3;               //副本的评星
+	optional uint32 iCurFightCount_W = 4;		//关卡当前挑战次数 废弃
+	optional uint32 iCurResetCount_W = 5;		//关卡当前重置次数 废弃
+	optional bool 	bIsPassed = 6;				//关卡是否已通	
+	repeated int32 iLuckyPoints = 7;			//关卡的固定掉落的奖励的幸运值
+}
+message SingleStarRewardInfo{
+	optional int32 iRewardIndex = 1;						// 已经领取的
+}
+// 已经领取的奖励信息
+message StarRewardInfo{
+	repeated SingleStarRewardInfo stStarRewards = 1;		//已经领取的奖励
+}
+//PVE副本通关关卡信息
+message PassedCrossInfo
+{
+	optional bool bIsPassed = 1;				//PVE副本所有关卡是否已经通
+	repeated OneCrossInfo stDetails = 2;		//已经通关的PVE副本关卡信息	
+}
+// 关卡通关子计数
+message OneCrossGrpInfo{
+	optional int32 iGrpId = 1;
+	optional int32 iCurFightCount = 2;
+	optional int32 iCurResetCount = 3;
+	optional int32 iBuyCount = 4;		// 购买的次数
+	optional int32 iBuyAddTimes = 5;	// 购买增加次数
+}
+message CrossGrpInfo{
+	repeated OneCrossGrpInfo stCrossGrpInfo = 1;
+}
+//PVE的副本在DB中存储的信息
+message PINSTANCEDBINFO
+{
+	optional uint32 pinstanceID = 1;				//PVE副本的ID
+	optional int32 iUnlockLevel = 2;				//解锁的队伍等级，如果为0表示副本已经解锁
+	optional OneCrossInfo stCurCross_W = 3;			//当前可战斗但是未通过的关卡信息 废弃
+	optional PassedCrossInfo stCrossInfo = 4;		//已经通过的普通副本关卡信息
+	optional PassedCrossInfo stEliteCrossInfo_W = 5;//已经通过的精英副本关卡信息 废弃
+	optional StarRewardInfo stStarRewardInfo = 6;	//已经领取的奖励
+	optional int32 iPveStars = 7;					//获取的总星星数 虽然能算出来但是这样处理比较好
+}
+
+//PVE在DB中存储的信息
+message PVEDBINFO
+{
+	repeated PINSTANCEDBINFO stPinstances = 1;		//所有的PVE副本信息
+	optional CrossGrpInfo stCrossGrpInfo = 2;		//通关关卡组的统计
+	optional int32 iNextSweepTime = 3;				//下次可扫荡时间
+	optional int32 iDailyClearCdTimes = 4;			//日常清除CD次数
+}
+
+//todo jasonxiong 后续等有实际需求后再添加
+message FIGHTDBINFO
+{
+	optional PVEDBINFO stPveInfos = 1;				//PVE推图数据库存储相关信息
+}
+
+//玩家拥有的好友基本信息
+//todo jasonxiong 后续等有实际需求后再添加
+// 好友信息、赠送流程、索取流程、获取流程
+message ONEFRIENDINFO{
+	optional int32 iRoleId = 1;
+	optional int32 iLastSendTime = 2;              // 上次赠送体力的时间 
+	optional int32 iLastAskTime = 3;			   // 上次索取体力的时间
+	optional BasicPlayerSummary stBasicSummary = 4;// 好友摘要信息
+	optional int32 iCombatTimes = 5;			   // 战斗计数
+}
+//返回pvp战报
+enum emSocialType		//PVP战报类型
+{
+	emSocialType_Apply = 1;		// 好友申请
+	emSocialType_AskEnergy = 2;	// 索取精力
+	emSocialType_SendEnergy = 3;// 赠送精力
+}
+// 社交
+message FRIENDSOCIAL{
+	optional int32 iSocialType = 1;// 好友申请 索取精力 赠送精力
+	optional int32 iRoleId = 2;
+	optional int32 iTime = 3;
+	optional BasicPlayerSummary stBasicSummary = 4;
+}
+// 社交
+message FRIENDEVT{
+	optional int32 iEvtId = 1;			// 事件ID
+	optional int32 iFriendRoledId = 2;	// 好友ID
+	optional int32 iEvtType = 3;		// 事件类型
+	optional int32 iTime = 4;			// 发生事件
+}
+// 申请公会的信息
+message APPLYGUILDINFO{
+	optional int32 iGuildId = 1;
+}
+// 好友切磋记录
+message FRIEND_COMBAT_RECORD{
+	optional int32 iRoleId = 1;
+	optional int32 iCombatResult = 2;
+	optional int32 iCombatTime = 3;
+	optional BasicPlayerSummary stBasicPlySummary = 4;
+}
+// 好友数据
+message FRIENDDBINFO
+{
+	repeated ONEFRIENDINFO stFriendsList = 1;	// 好友列表
+	repeated FRIENDSOCIAL stSocialList = 2;		// 社交事件  好友申请 索取精力 赠送精力
+	optional int32 iDailySendAmt = 3;		   // 日常赠送体力计数
+	optional int32 iDailyGetAmt = 4;		   // 日常获取体力计数
+	optional int32 iMaxFriendNum = 5;		   //  好友数量上限
+	optional int32 iLastSetTime = 6;		   //  上次重置时间
+	optional int32 iCombatTimes = 7;		   //  好友切磋计数
+	repeated FRIEND_COMBAT_RECORD stCombatRecordList = 8;// 战斗记录列表
+}
+// CombatTime
+message CombatRecordTimes
+{
+	optional int32 iRoleID = 1;
+	optional int32 iCombatTimes = 2;
+}
+message SocialData{
+	repeated int32 iSendEnergyRoleList = 1;
+	repeated int32 iAskEnergyRoleList = 2;
+	repeated CombatRecordTimes stCombatRecordTimes =3;
+}
+//商城抽奖的数据库数据结构
+message LOTTERYDBINFO
+{
+	optional int32 iNormalRemainTimes = 1;				//普通抽奖剩余的抽奖次数
+	optional int32 iNormalNextTime = 2;					//普通抽奖下次可抽时间
+	optional int32 iExcellentSaturation = 3;			//精良抽奖的饱和值
+	optional int32 iExcellentNextTime = 4;				//精良抽奖下次可抽的时间
+	optional int32 iEpicSaturation = 5;					//史诗抽奖的饱和值
+	optional int32 iEpicNextTime = 6;					//史诗抽奖下次可抽的时间
+	optional int32 iNormalNextRecoverTime = 7;			//普通抽奖次数的下次回复时间
+}
+// 单个矿 而是有总上限的概念
+message ONESINGLEMINE{
+	optional int32 iId = 1;		  			// 矿场ID
+	optional int32 iQuality = 2;	  		// 品质
+	optional int32 iLevel_W = 3;	 		// 等级 废弃掉的字段
+	optional int32 iGoldGainAmount_W = 4;	// 金币总收获 废弃掉的字段
+	optional int32 iLevelUpCostGoldExp_W = 5;// 升级总消耗金币经验 废弃掉的字段
+	optional int32 iGoldGainLeft = 6;  		// 因升级 等剩余未领取的金币
+	optional int32 iLastGainTime = 7;  		// 上次收获时间
+	optional int32 iSpeedUpEndTime = 8;	  	// 上次使用加速的结束时间 时间长度从配置读取
+	// 4 - 5 得升级剩余经验
+	// 普通收益金币 =
+	// 当前可领金币 = min( (curTime - iLastGainTime)*上限/(24*3600)+加速时间断U(curTime - iLastGainTime)*加速收益(倍数-1)*上限/(24*3600),上限 )
+}
+// 总矿
+message MINECRAFTDBINFO{
+	repeated ONESINGLEMINE stMines = 1;	// 所有的拥有的矿
+	optional int32 iLevel = 2;	 		// 等级
+	optional int32 iGoldGainAmount = 3;	// 金币总收获
+	optional int32 iLevelUpCostGoldExp = 4;	// 升级总消耗金币经验
+}
+// 奖励领取记录
+message SINGLEREWARDRECORD{
+	optional int32 iRewardId = 1;
+	optional int32 iGetRewardTime = 2;
+}
+// 奖励
+message REWARDRECORD{
+	optional int32 iLastGetRewardTime = 1;
+	repeated SINGLEREWARDRECORD stRewards = 2;
+}
+message ONECDKRECORD{
+	optional int32 iCdkId = 1;
+	optional int32 iCdkNum = 2;
+}
+message CDKRECORD{
+	repeated ONECDKRECORD stCdkRecords = 1;
+	repeated ONECDKRECORD stBatchRecords = 2;
+}
+message ALLREWARDRECORD{
+	optional REWARDRECORD stLoginRewardInfo = 1;		// 登录奖励 废弃
+	optional REWARDRECORD stScoreRewardInfo = 2;		// 任务奖励
+	optional REWARDRECORD stLevelRewardInfo = 3;		// 等级奖励
+	optional int32 iSignDays = 4;						// 签到累计
+	optional int32 iLastSignTime = 5;					// 上次签到时间
+	optional int32 iLoginDays = 6;					// 签到累计
+	optional int32 iLastLoginTime = 7;				// 上次登录奖励的时间
+	repeated string strCdkBatchs = 8;				// 已经领取过的CDK批号
+	optional CDKRECORD stCdkRecord = 9;				// cdk礼包领取记录
+	optional int32 iReSignDays = 10;				// 连续签到累计
+	optional REWARDRECORD stDailyRewardInfo = 11;		// 签到奖励
+	optional REWARDRECORD stLastSignRewardInfo = 12;	// 连续签到奖励	
+	optional REWARDRECORD stVipLevelRewardInfo = 13;	// vip等级奖励
+}
+// 幸运值宝箱领取记录
+message LUCKYCHEST{
+	optional int32 iChestId = 1;	// 宝箱ID
+	optional int32 iLuckyPoint = 2; // 累积幸运值
+	optional int32 iLuckyPointB = 3; // 累积幸运值
+}
+message ALLLUCKYCHEST{
+	repeated LUCKYCHEST stLuckyChests = 1; // 所有的宝箱幸运值
+}
+// 物品购买记录
+message MALLITEMBUYRECORD{
+	optional int32 iShopItemId = 1;
+	optional int32 iDailyBuyAmt = 2;// 日累计
+	optional int32 iLastBuyTime = 3;// 上次购买时间
+	optional int32 iBuyAmt = 4;		// 总累计
+}
+// 次数购买记录
+message FUNCBUYRECORD{
+	optional int32 iFuncType = 1;	// 商品ID
+	optional int32 iDailyBuyAmt = 2;// 日累计
+	optional int32 iLastBuyTime = 3;// 上次购买时间
+	optional int32 iBuyAmt = 4;		// 总累计
+}
+
+// 商店记录
+message SHOPINFO{
+	repeated MALLITEMBUYRECORD stMallItemBuyRecords = 1; // 商城的购买记录
+	repeated FUNCBUYRECORD stFuncBuyRecord = 2;			 // 功能购买记录
+}
+// 神秘商店物品项
+message MYSTERIOUS_SHOPITEM{
+	optional int32 iShopItemId = 1;	// 商品ID
+	optional int32 iBuyTimes = 2;	// 商品购买次数
+}
+// 神秘商店信息
+message MYSTERIOUS_SHOP{
+	repeated MYSTERIOUS_SHOPITEM stShopItems = 1;	// 商品信息
+	optional int32 iHasCoinUpdatedTimes = 2;	// 货币刷新次数
+	optional int32 iCanFreeUpdateTimes = 3;	// 可免费刷新次数
+	optional int32 iShowTime = 4;	// 出现时间
+	optional int32 iMissTime = 5;	// 消失时间 -1 表示永久开启
+	optional int32 iLuckyPoint = 6;	// 幸运值
+}
+// 小伙伴栏位信息
+message LITTLEBUDDYSLOT{
+	repeated int32 stLittleBuddyIndex = 1;
+}
+// 小伙伴总信息
+message LITTLEBUDDYINFO{
+	optional LITTLEBUDDYSLOT stLittleBuddySlot = 1;
+}
+message ONETASK{
+	optional int32 iTaskId = 1;		// 任务ID
+	optional int32 iSchedule = 2;	// 进度
+	optional int32 iGetTag = 3;
+}
+message TASK{
+	optional int32 iScore = 1;		// 进度积分
+	repeated ONETASK stTasks = 2;	// 任务
+}
+
+//保留字段1的结构，方便后续功能扩充
+message RESERVEDBINFO1
+{
+	optional TASK stTask = 1;							// 任务
+	optional MINECRAFTDBINFO stMineCraftInfo = 2;		// 采矿的信息
+	optional ALLREWARDRECORD stAllRewardRecord = 3;		// 所有的奖励
+	optional ALLLUCKYCHEST stAllLuckyChest = 4;			// 幸运值宝箱记录
+	optional SHOPINFO stShopInfo = 5;					// 商店购买记录
+	optional MYSTERIOUS_SHOP stMysterious_shop = 6;		// 神秘商店
+	optional LITTLEBUDDYINFO stLittleBuddyInfo = 7;		// 小伙伴数据
+	optional MYSTERIOUS_SHOP stBlackMarketShop = 8;		// 黑市商人
+	optional MYSTERIOUS_SHOP stMysterious_shopEx = 9;	// 神秘商店 
+	optional SocialData stSocialData = 10;				// 社交数据
+	optional GuildShopInfo stGuildShopInfo = 11;		// 公会商店信息
+	optional GuildShopInfo stQualifyingShopInfo = 12;	// 排位赛商店
+}
+
+// 单个充值记录
+message ONERECHARGE_INFO{
+	optional int32 iItemId = 1; // 商品ID
+	optional int32 iItemAmt = 2;// 购买次数
+	optional int32 iEndTime = 3;// 效果结束时间
+	optional int32 iLastGetTime = 4;// 上次领取奖励时间
+}
+// 充值记录
+message RECHARGE_RECORD{
+	optional int32 iRechargeAmt = 1; // 充值数据
+	optional int32 iRechargeTime = 2;// 充值时间
+}
+// 成长计划
+message GrowPlan{
+	optional int32 iPlanId = 1; 		 // 商品ID
+	repeated int32 stRecords = 2;		 // 领取记录
+}
+// 单个掉落项
+message ONE_REWARD_ITEM{
+	optional int32 iDropType = 1;
+	optional int32 iDropId = 2;
+	optional int32 iDropAmt = 3;
+}
+// 活动奖励
+message ACTIVITY_REWARD{
+	optional int32 iRewardId = 1;
+	optional int32 iGetTag = 2;	// 是否领取 0 表示未领取
+	repeated ONE_REWARD_ITEM stRewardList = 3;
+	optional int32 iConditonType = 4;		// 条件类型
+	optional int32 iConditonParam = 5;		// 条件参数
+	optional string strTitle = 6;			// 活动内容
+}
+// 限时神将
+message BESTHEROINFO{
+	optional int32 iNextFreeTime = 1;	// 下次免费抽取时间
+	optional int32 iExtractCount = 2;	// 抽取次数5次免费一次 10次必得紫色英雄
+	optional int32 iScore = 3;			// 得分
+}
+
+// 单向充值记录
+message ONE_ACTIVITY_RECORD{
+	optional int32 iBatchId = 1;
+	optional int32 iStartTime = 2;
+	optional int32 iEndTime = 3;
+	optional int32 iActType = 4;
+	optional int32 iActId = 5;
+	optional int32 iAmount = 6;
+	repeated ACTIVITY_REWARD stRewardRecord = 7;
+	optional BESTHEROINFO stBestHeroInfo = 8;
+}
+// 充值活动
+message ACTIVITY_RECORD{
+	repeated ONE_ACTIVITY_RECORD stRechargeCostActRecords = 1;
+}
+// 活动信息
+message ACTIVITY_INFO{
+	optional int32 iBatchId = 1;
+	optional int32 iConditonType = 2;   // 条件类型
+	optional int32 iRewardParam = 3;    // 奖励参数
+	optional int32 iCurTime = 4;		// 时间
+	optional int32 iParamA = 5;		 	// 活动期间累积数值
+	optional int32 iParamB = 6;		 	// 每日累积数值
+	optional int32 iParamC = 7;		 	// 
+}
+// 兑换记录
+message ACT_EXCHANGE_INFO{
+	optional int32 iBatchId = 1;		// 批次ID
+	optional int32 iExchangeId = 2;		// 兑换ID
+	optional int32 iExchangeAmt = 3;	// 兑换数量
+}
+// 所有活动的信息
+message ALL_ACTIVITY_INFO{
+	repeated ACTIVITY_INFO stActivityList = 1;			// 活动列表
+	repeated ACT_EXCHANGE_INFO stExchangeList = 2;		// 兑换列表 
+}
+// 所有充值记录
+message ALL_RECHARGE_RECORD{
+	repeated RECHARGE_RECORD stRechargeRecords = 1;
+}
+// 充值数据
+message RRCHARGEINFO{
+	optional int32 iRechargetamt = 1;					// 充值累计
+	repeated ONERECHARGE_INFO stRechargeRecord = 2;		// 单项充值项记录
+	optional GrowPlan stGrowPlan = 3;					// 成长计划
+	optional ACTIVITY_RECORD stActivityRecords_WWW = 4;	// 活动记录 消耗掉的字段
+	optional ALL_ACTIVITY_INFO stAllActInfos = 5;		// 活动记录
+	optional ALL_RECHARGE_RECORD stAllRechargeRecord = 6;// 所有充值记录 
+}
+// 图鉴 饰品 装备 英雄
+message HANDBOOK{
+	repeated int32 stHeroIdList = 1;
+	repeated int32 stEquipIdList = 2;
+}
+
+// 天赋数据
+message TALENTINFO{
+	optional int32 iCurTanlentId = 1;
+}
+
+// 图纸材料
+message TAILORMATRIAL{
+	optional int32 iMatrialId = 1;	// 材料ID
+	optional int32 iMatrialNum = 2;	// 拥有数量
+}
+// 一个裁缝奖励
+message ONETAILORREWARD{
+	optional int32 iScore = 1;			// 奖励ID
+	optional int32 iDropType = 2;		// 掉落类型
+	optional int32 iDropID = 3;			// 掉落ID
+	optional int32 iDropAmt = 4;		// 掉落数量
+	optional int32 iRewardTag = 5;		// 奖励标致
+}
+// 裁缝奖励
+message TAILORREWARD{
+	repeated ONETAILORREWARD stReward = 1;  // 当前拥有的所有奖励
+}
+// 图纸
+message TAILORBLUEPRINT{
+	repeated TAILORMATRIAL stBluePrintMatrials = 1;	// 当前图纸
+}
+// 裁缝数据
+message TAILORINFO{
+	optional int32 iScore = 1; 						// 积分
+	optional int32 iBluePrintNum = 2; 				// 已使用的图纸数量
+	optional int32 iGetMatrialNum = 3; 				// 已获取材料的次数
+	optional TAILORBLUEPRINT stTailorBluePrint = 4; // 图纸
+	repeated TAILORMATRIAL stMatrials = 5;			// 当前材料库材料
+	optional TAILORREWARD stTailorReward = 6;		// 裁缝奖励
+	optional int32 iLuckyPoint = 7;					// 幸运值
+	optional int32 iAwardFreshCount = 8;			// 奖励刷新次数
+	optional int32 iRewardLuckyPoint = 9;	    // 奖励幸运值
+}
+
+//征服之塔数据
+message TowerLayer
+{
+	optional int32 iLayer = 1;		//层数
+	optional int32 iCrossid = 2;	//关卡id
+	optional int32 iCount = 3;		//挑战次数
+}
+
+message TowerAward
+{
+	repeated int32 iBoxid = 1;
+}
+message ConqTowerInfo
+{
+	optional int32 iCurLayer = 1;		//当前挑战层数
+	optional int32 iSweepTime = 2;		//扫荡开始时间 0=不在扫荡状态
+	optional int32 iMaxSweepLayer = 3;	//扫荡最高层
+	optional int32 iResetCount = 4;		//重置次数
+	optional int32 iBuyCount = 5;		//购买次数
+	repeated SpecialLayer stSpecialLayer = 6;	//神秘层
+	repeated TowerLayer stLayer = 7;		// 征服之塔层(手动打过的)
+	optional TowerAward stTowerAward = 8;	// 征服之塔奖励
+	optional int32 iBuyResetCount = 9;		// 购买重置次数的次数
+}
+
+message TalkInfo
+{
+	optional int32 iChannal = 1;		//频道
+	optional string strSenderName = 2;	//发送者名字
+	optional int32 iSenderPic = 3;		//发送者头像
+	optional int32 iSenderLv = 4;		//发送者等级
+	optional int32 iSenderId = 5;		//发送者id
+	optional string strRecieverName = 6;//接收者名字
+	optional int32 iRecieverId = 7;		//接收者id
+	optional string strMsg = 8;			//说话内容
+	optional int32 iSendTime = 9;		//发送时间
+	optional int32 iSenderTalent = 10;	//发送者天赋id
+	optional int32 iRecieverTalent = 11;//接收者天赋id
+	optional int32 iSenderVip = 12;		//发送者vip
+	optional int32 iRecieverVip = 13;	//接收者vip
+	optional int32 iSoundid = 14;		//语音id
+	optional int32 iSoundTime = 15;		//语音时长
+	optional int32 iIsRead = 16;		//是否已读，1=已读，0=未读
+	optional string strHttp = 17;		//语音网址
+}
+
+message SoundChat
+{
+	optional int32 iSoundid = 1;		//语音id
+	optional bytes strSound = 2;		//语音内容
+}
+
+message WorldChatMsg
+{
+	optional TalkInfo stInfo = 1;
+	optional SoundChat stSound = 2;
+}
+
+message TalkMsgList
+{
+	repeated TalkInfo stInfo = 1;		//聊天内容列表
+	repeated SoundChat strSound = 2;	//语音内容
+}
+
+//pvp商城数据
+message SinglePvpStoreInfo
+{
+	optional int32 iStoreid = 1;
+	optional int32 iIsBuy = 2;	//1=已经购买过，0=没有购买过
+	optional int32 iSlotid = 3;	//位置信息
+}
+message PvpStoreInfo
+{
+	repeated SinglePvpStoreInfo stInfo = 1; 
+}
+
+message HeroData
+{
+	optional OneHeroInfo stHeroInfo = 1;		//英雄信息(包括技能)
+	repeated ItemInfo stItems = 2;				//身上装备信息
+	optional int32 iSlot = 3;					//英雄站位
+	repeated ItemInfo stPosys = 4;				//身上装备的铭文信息
+}
+
+message RoleFightInfo
+{
+	repeated HeroData stHeroInfo = 1;		//对方英雄信息
+	repeated int32 iPartnerID = 2;			//小伙伴id
+	repeated int32 HeroForm = 3;			//英雄站位
+	optional int32 iTalian = 4;				//天赋
+}
+
+message FightInfo
+{
+	optional int32 iIndex = 1;		//排名
+	optional string strName = 2;	//名字
+	optional int32 iFightValue = 3;	//战斗力
+	optional int32 iRoleLv = 4;		//玩家等级
+	optional int32 iRoleID = 5;		//角色id
+	optional int32 iPicid = 6;		//头像id
+	optional int32 iVipLv = 7;		//vip等级
+	optional int32 iTalian = 8;		//天赋
+	optional int32 iScore = 9;		//战斗大师积分 
+	optional string strGuildName = 10;// 公会名称
+}
+
+//英雄征途数据
+message AnabasisSingleCross
+{
+	optional int32 iCrossid = 1;				//关卡id
+	optional RoleFightInfo stInfo = 2;			//关卡数据
+	optional FightInfo stRoleInfo = 3;			//角色数据
+}
+message AnabasisCrossInfo
+{
+	repeated AnabasisSingleCross stList = 1;	//关卡列表 
+}
+message AnabasisData
+{
+	optional AnabasisCrossInfo stCross = 1;		//关卡数据
+	optional PvpStoreInfo stAnabasisStore = 2;	//英雄征途商城数据
+}
+
+message ArchDBInfo
+{
+	optional int32 iDays = 1;				//开服天数
+}
+
+message WeekAwardData
+{
+	optional int32 iDay = 1;	//周几
+	optional int32 iState = 2;	//领奖状态，0=未领奖，1=已经领取
+}
+message WeekAwardDataList
+{
+	repeated WeekAwardData stList = 1;
+}
+
+//保留字段2的结构，方便后续功能扩充
+message RESERVEDBINFO2
+{
+	optional RRCHARGEINFO stRechargeInfo = 1;		//充值数据
+	optional HANDBOOK stHandBook = 2;				//图鉴数据
+	optional TALENTINFO stTalentInfo = 3;			//天赋数据
+	optional TAILORINFO stTailorInfo = 4;			//裁缝数据
+	optional ConqTowerInfo stConqTower = 5;			//征服之塔数据
+	optional TalkMsgList stTalk = 6;				//聊天数据
+	optional PvpStoreInfo stPvpStore = 7;			// pvp商城数据
+	optional ACHIEVEMENTINFO stAchievementInfo = 8;	// 成就
+	optional AnabasisData stAnabasisInfo = 9;		//英雄征途数据
+	optional WeekAwardDataList stWeekAwardData = 10;//周登录奖励数据
+}
+
+// 成就
+message ACHIEVEMENT{
+	optional int32 iId = 1;				// 成就ID
+	optional int32 iFinishTag = 2;		// 奖励领取标识    最多32个子成就 按照未来与或
+	optional int32 iRewardTag = 3;		// 奖励完成标识	 
+	optional int32 iParam = 4;			// 完成度参数
+}
+// 成就信息
+message ACHIEVEMENTINFO{
+	repeated ACHIEVEMENT stAchievement = 1;// 所有成就数据
+}
+//pvp商城数据
+message PVPStoreItem
+{
+	optional int32 itemid = 1;
+	optional int32 buycount = 2;
+}
+message PVPSTORE
+{
+	repeated PVPStoreItem stItemList = 1;
+	optional PVPStoreSlot1Info stSlot1Info = 2;
+}
+
+message SpecialLayer
+{
+	optional int32 iCrossid = 1;		//关卡id
+	optional int32 iRemainCount = 2;	//剩余挑战次数
+	optional int32 iRemainTime = 3;		//开始时间
+}
+
+message SpecialLayerArray
+{
+	repeated SpecialLayer stOne = 1;
+}
+// 限时英雄
+message BESTHEORDBINFO
+{
+	optional int32 iRoleId = 1;
+	optional int32 iUin = 2;
+	optional int32 iScore = 3;
+	optional string strName = 4;
+	optional int32 iTalent = 5;
+}
+// 活动排名数据
+message ACTSCORERANKINFO
+{
+	optional int32 iRoleId = 1;
+	optional int32 iUin = 2;
+	optional int32 iScore = 3;
+	optional string strName = 4;
+	optional int32 iTalent = 5;
+}
+// 机器人
+message BESTHERO_ROBET{
+	optional int32 iRoleId = 1;
+	optional int32 iScore = 5;
+	optional int32 iAddScore = 6;
+	optional int32 iLastAddTime = 7;
+	optional int32 iAddInterval = 8;	
+	optional int32 iTalentID = 9;	
+	optional string strName = 10;
+}
+// 限时神将功能
+message ACTIVITY_BESTHERO{
+	repeated BESTHEORDBINFO stRankList = 1;	// 前100名列表
+	repeated BESTHERO_ROBET stRobetList	= 2;// 机器人列表
+}
+// 活动详细内容
+message ACTIVITY_DETIAL{
+	optional ACTIVITY_BESTHERO stBestHero = 1;// 限时神将
+	// 充值回馈 消费回馈 连续充值 每日充值
+	repeated ACTIVITY_REWARD stReward = 2;	  // 活动奖励
+}
+// 活动数据
+message ACTIVITY_DATA{
+	optional int32 iBatchid = 1;	// 活动ID
+	optional int32 iBatchType = 2;	// 活动类型
+	optional int32 iActId = 3;		// 活动模版ID
+	optional int32 iStartTime = 4;	// 活动开始时间
+	optional int32 iEndTime = 5;	// 活动结束时间	
+	optional ACTIVITY_DETIAL stDetial = 6;// 活动的详细内容
+	optional string strTitle = 7;		  // 活动标题
+	optional string strContent = 8;		  // 活动内容
+}
+
+
+
+enum LABLE
+{
+	LABLE_DEFAULT = 0 ;//无，默认
+	LABLE_NEW = 1; //最新
+	LABLE_HOT = 2;  //最热
+}
+enum ACTIVITY_LINK
+{
+	LINK_DEFAULT = 0;	//无跳转
+	LINK_CHARGE = 1;	//充值
+	LINK_SHOP = 2;		//商店
+	LINK_MYSHOP = 3;	//神秘商店
+	LINK_PVP = 4;		//竞技场
+	LINK_GROPSHOP = 5;	//酒馆
+	LINK_BOSS = 6;		//boss
+	LINK_HYPERLINK = 7;	//超链接
+	LINK_LIMITBOSS = 8;	//限时神将
+	LINK_CHARGEBACK = 9; //充值回馈
+	LINK_CONSUMEBACK = 10;//消费回馈
+}
+message ONEBOARD
+{
+	optional int32 iBoardID = 1;	//每个公告ID
+	optional int32 iStartTime = 2;	//生效时间
+	optional int32 iEndTime = 3;	//失效时间
+	optional int32 iLable = 4;		//活动标签(对应LABLE的枚举)
+	optional int32 isBnt = 5;		//是否有按钮
+	optional bytes strTitle = 6;	//标题
+	optional bytes strContext = 7;	//内容
+	optional bytes strBtnText = 8;  //按钮文字
+	optional int32 iLink = 9;		//跳转的页面
+	optional bytes strLinkText = 10;//超链接的地址
+}
+
+// 膜拜记录
+message WORSHIPRECORD{
+	optional int32 iRoleId = 1;			// 膜拜人ID
+	optional int32 iRoleUin = 2;		// 膜拜人Uin
+	optional string strName = 3;		// 膜拜人的名字
+	optional int32 iWorshipType = 4;	// 膜拜方式
+	optional int32 iRewardType = 5;		// 奖励类型
+	optional int32 iRewardAmt = 6;		// 奖励数量
+	optional int32 iWorshipTime = 7;	// 膜拜时间
+	optional int32 iTalentId = 8;		// 天赋
+}
+// 帮派成员	
+message GUILD_MEMBER{
+	optional int32 iUin = 1; 				// 成员Uin
+	optional int32 iRoleId = 2;				// 成员ID
+	optional string strName = 3;			// 成员名
+	optional int32 iPosition = 4;			// 职位
+	optional int32 iDailyWorshipTimes = 5;	// 今日膜拜别人次数
+	optional int32 iDailyWorshipedTimes = 6;// 今日被膜拜次数
+	optional int32 iWorshipedGoldAmt = 7;	// 被膜拜累计金币
+	optional int32 iWorshipRecordNum = 8;	// 被膜拜记录数量
+	repeated WORSHIPRECORD stWorshipRecord = 9;	// 被膜拜记录
+	optional int32 iActiveVal = 10;			   	// 活跃度    
+	optional uint32 iRoleLevel = 11;			// 角色等级 
+	optional uint32 iHeadImgId = 12;			// 头像ID 
+	optional uint32 iTalent = 13;				// 天赋 
+	optional uint32 iLastLogOutTime = 14;		// 登出时间 0表示在线
+	optional uint32 iVipLevel = 15;				// VIP等级         
+	repeated int32 iWorshipRoldIds = 16;		// 膜拜别人的RoldId
+	repeated int32 stActiveVals = 17;			// 活跃度
+	optional bool bJoinRedPoint = 18;			// 红点 默认false 为没有红点 ，首次加入红会后设置为true,任意请求一次公会信息后，变为false
+	optional int32 iWorshipedBadgeAmt = 19;		// 今日被膜拜次数
+}
+// 加入申请
+message GUILD_APPLY{
+	optional int32 m_iRoleId = 1;		// 角色ID
+	optional int32 m_iUin = 2;			// 角色Uin
+	optional string m_strName = 3;		// 角色名
+}
+// 帮派事件	
+message GUILD_EVENT{
+	optional int32 m_iEvtType = 1;		// 事件类型
+	optional int32 m_iRoleId = 2;		// 角色ID
+	optional int32 m_iUin = 3;			// 角色Uin
+	optional string m_strName = 4;		// 角色名
+	optional int32 m_iTargetRoleId = 5; // 目标角色ID
+	optional int32 m_iTargetUin = 6;	// 目标角色Uin
+	optional string m_strTargetName = 7;// 目标角色名
+	optional int32 m_iEvtParamA = 8;	// 事件参数A
+	optional int32 m_iEvtParamB = 9;	// 事件参数B
+	optional int32 m_iEvtTime = 10;		// 时间发生时间
+	optional int32 m_iTalentId = 11;	// 天赋
+	optional int32 m_iTargetTalentId = 12;// 天赋
+}
+message ALL_GUILD_MEMBER{
+	repeated GUILD_MEMBER stGuildMembers = 1;// 帮派成员
+}
+message ALL_GUILD_APPLY{
+	repeated GUILD_APPLY stGuildApplys = 1;  // 帮派申请
+}
+message ALL_GUILD_EVENT{
+	repeated GUILD_EVENT stGuildEvents = 1;	  // 帮派事件
+}
+// 帮派数据
+message GUILD_DATA{
+	optional int32 iId = 1;				// 帮派ID
+	optional string strName = 2;		// 公会名
+	optional int32 iPresidentUin = 3;	// 会长Uin
+	optional int32 iPresidentRoleId = 4;// 会长ID
+	optional string strPresidentName = 5;// 会长名
+	optional int32 iFlag = 6;			 // 旗帜
+	optional int32 iActiveVal = 7;		 // 活跃度数值
+	optional string strDeclaration = 8;	 // 宣言
+	optional string strNotice = 9;		 // 公告
+	optional ALL_GUILD_MEMBER stAllMember = 10;// 帮派成员
+	optional ALL_GUILD_APPLY stAllApply = 11;  // 加入申请
+	optional ALL_GUILD_EVENT stAllEvent = 12;  // 帮派事件
+	optional int32 iFightValue = 13;		   // 战斗力
+	optional int32 iWorldId = 14;			   // WorldID
+}
+// 公会的个人数据	
+message SELFGUILDINFO{
+	optional int32 iGuildId = 1;						// 公会
+	optional string strGuildName = 2;					// 公会名
+	repeated APPLYGUILDINFO stApplyGuildList = 3;		// 申请公会列表
+	optional int32 iForbidTime = 4;						// 此时间内禁止申请
+}
+
+// 帮会信息
+message GuildInfo{
+	optional int32 iId = 1;					// 公会ID
+	optional string strName = 2;			// 公会名
+	optional int32 iPresidentUin = 3;		// 会长Uin
+	optional int32 iPresidentRoleId = 4;	// 会长ID
+	optional string strPresidentName = 5;	// 会长昵称
+	optional string strDeclaration = 6;		// 宣言
+	optional int32 iFlag = 7;				// 旗帜
+	optional int32 iActiveVal = 8;			// 活跃度
+	optional int32 iGuildMemberAmt = 9;		// 公会成员数量
+	optional int32 iFightValue = 10;		// 战斗力
+}
+// 帮会摘要
+message GuildSummary{
+	optional int32 iId = 1;					// 公会ID
+	optional string strName = 2;			// 公会名
+	optional int32 iFlag = 3;				// 旗帜
+	optional int32 iMemberAmt = 4;			// 成员数量
+	optional int32 iMemberMax = 5;			// 成员上限	
+	optional int32 iFightValue = 6;			// 战斗力
+}
+// 单个公会副本数据
+message OneGuildCross{
+	optional int32 iCrossId = 1;	// 关卡ID
+	optional int32 iHurt = 2;		// 总伤害
+	optional int32 iBlood = 3;		// 总血量
+	optional int32 iPassed = 4;		// 非0为已通关
+	optional string strKiller = 5;	// 杀手 
+}
+
+// 申请公会的信息
+message ApplyGuildInfo{
+	optional int32 iId = 1;					// 公会ID
+	optional string strGuildName = 2;		// 公会名
+	optional string strDeclaration = 3;		// 宣言
+	optional string strPresidentName = 4;	// 会长名 
+	optional int32 iPresidentTanletId = 5;	// 会长天赋ID
+	optional int32 iFlag = 6;				// 旗帜
+	optional int32 iGuildMemberAmt = 7; 	// 公会成员数
+	optional int32 iMaxGuildMemberAmt = 8; 	// 公会成员成员上限	
+	optional int32 iState = 9;				// 申请状态 参照 0可以申请 1已经申请过 
+}
+
+//饰品合成
+message SingleChips
+{
+	optional int32 iChipid = 1;
+	optional int32 iCount = 2;
+}
+message ChipsList
+{
+	repeated SingleChips stList = 1;
+}
+
+message SingleCompose
+{
+	optional int32 iComposeid = 1;		//饰品id
+	optional int32 iEndTime = 2;
+	optional int32 isDeal = 3;			//是否处理完毕，0=未处理，1=已处理完毕
+}
+// 合成列表
+message ComposeList
+{
+	repeated SingleCompose stList = 1;
+}
+
+// 战利品
+message GuildBooty{
+	optional int32 id = 1;			// 奖励ID
+	optional int32 RewardId = 2;	// 物品ID
+	optional int32 RewardType = 3;	// 奖励类型
+	optional int32 RewardNum = 4;	// 奖励数量
+	optional int32 iRoleId = 5;		// 竞拍者ID 
+	optional int32 iOfferPrice = 6;	// 提供价格
+	optional int32 iDropTime = 7;	// 掉落时间
+	optional string strName = 8;	// 竞拍者名字
+	optional int32 iTalentId = 9;	// 竞拍者天赋	
+	optional int32 iDealTime = 10;	// 成交时间
+}
+
+//公会商店物品栏位信息
+message GuildGoodInfo
+{
+	optional int32 iGoodId = 1;	//物品序号
+	optional int32 iHas = 2;	//是否已经卖完
+}
+
+//公会商店信息
+message GuildShopInfo
+{
+	repeated GuildGoodInfo stGoods = 1;				//界面显示的物品序号
+	optional int32 iRefreshCount = 2;		//已经刷新的次数
+}
+
+//竞技场商店slot1位置历史刷新信息
+message Slot1Info
+{
+	optional int32 iSlot1ItemId = 1;		//slot1位置出现的物品id
+	optional int32 iSlot1ItemNum = 2;		//slot1位置该物品出现的次数
+}
+
+//竞技场商店slot1位置历史刷新信息
+message PVPStoreSlot1Info
+{
+	optional int32 iIndex = 1;				//数组索引
+	repeated Slot1Info stSlots = 2;			//slot1出现的物品信息
+}
+// 随机商品
+message RandShopItem{
+	optional int32 iItemId = 1;			// 物品ID
+	optional int32 iItemType = 2;		// 物品类型
+	optional int32 iItemNum = 3;		// 物品数量
+	optional int32 iCoinType = 4;		// 货币类型
+	optional int32 iCoinNum = 5;		// 货币数量
+}
+
+// 随机商店
+message Shop{
+	optional int32 iShopType = 1;
+	repeated RandShopItem stItems = 2;
+}
+
+// 战斗记录
+enum CombatRecordType{
+	CombatRecord_DefenceWin = 1; 	// 防御胜利
+	CombatRecord_DefenceLose = 2; 	// 防御失败
+	CombatRecord_AttackWin = 3;		// 攻击胜利
+	CombatRecord_AttackLose = 4;	// 攻击失败
+}
+// 排位赛战斗记录
+message QualifyingRecord{
+	optional int32 iRecordType = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iWorldId = 3;
+	optional string strName = 4;
+	optional string strGuildName = 5;
+	optional int32 iLevel = 6;
+	optional int32 iHeadImgId = 7;
+	optional int32 iTalentId = 8;
+	optional int32 iVipLv = 9;
+	optional int32 iScore = 10;
+	optional int32 iTime = 11;
+	optional int32 iAddRank = 12;
+	optional int32 iAddScore = 13;
+	optional int32 id = 14;	// 记录的ID号
+}
+
+// 公会战轮次状态
+enum GuildCombatRound_State{
+    ROUND_UNSTART = 0;  // M赛季N轮未开始
+	ROUND_IDLE = 1;		// M赛季N轮内空闲(0-N)
+	ROUND_SIGN = 2; 	// M赛季N轮内报名(0-(N-1))
+	ROUND_VIEW = 3; 	// M赛季N轮内预览(0-(N-1))
+	ROUND_COMBAT = 4; 	// M赛季N轮内战斗(0-(N-1))
+	ROUND_END = 5;      // M赛季N轮结束
+}
+// 队伍状态
+enum GuildWarTeamState{
+	GUILDWAR_TEAM_ATKED = 0x1;	// 被攻击标志 左移 (teamid -1)*2 位置
+	GUILDWAR_TEAM_DEAD = 0x2;	// 死亡标志	  左移 (teamid -1)*2 位置
+}
+// 公会战轮次
+message GuildCombatRound{
+	optional int32 iSeasonId = 1;	// 
+	optional int32 iRoundId = 2;
+	optional int32 iState = 3;
+	optional int32 iStartTime = 4;
+}
+// 公会战队伍
+message GuildWarCombatPly{
+	optional int32 iSeasonId = 1;				// 赛季ID
+	optional int32 iTeamId = 2;					// 队伍ID
+	optional BasicPlayerSummary stPlyInfo = 3;	// 角色信息摘要 
+	optional int32 iState = 4;			  		// 状态
+	optional int32 iFightVal = 5;	  			// 战斗力
+	optional int32 iAtkTimes = 6;				// 攻击次数
+}
+// 公会队伍组
+message GuildWarTeamGrp{
+	optional int32 iSeasonId = 1;				// 赛季ID
+	optional int32 iRoundId = 2;				// 轮次
+	optional int32 iGuildId  = 3;				// 公会ID
+	optional int32 iWorldId  = 4;				// 区服ID
+	optional string strGuildName = 8;			// 对战公会名称
+	optional int32 iScore = 9;					// 积分
+	optional int32 iAtkTimes = 10;				// 出手总次数
+	repeated GuildWarCombatPly stTeamList = 12;	// 队伍信息 己方队伍
+}
+// 公会对战结果
+enum GuildWarResult{
+	GUILDWAR_WIN = 1;	// 胜利
+	GUILDWAR_LOSE = 2; 	// 失败
+	GUILDWAR_IDLE = 3; 	// 轮空
+	GUILDWAR_UNKNOWN = 4; // 未出结果
+}
+// 公会对战数据
+message GuildCombatAgainst{
+	optional int32 iSeasonId = 1;				// 赛季ID
+	optional int32 iRoundId = 2;				// 轮次
+	optional int32 iGuildId  = 3;				// 公会ID
+	optional int32 iWorldId  = 4;				// 区服ID
+	optional int32 iCombatGuildId = 5;			// 对战公会ID
+	optional int32 iCombatWorldId = 6;			// 对战区服ID
+	optional string strCombatGuildName = 7;		// 对战公会名称
+	optional int32 iResult = 8;					// 对战结果
+	optional int32 iRank = 9;					// 排名
+}
+// 公会战
+message GuildCombatInfo{
+    optional GuildCombatRound stCurRound = 1; // 
+	optional int32 iSeasonStartTime = 2; // 
+	optional bool currentSignState = 3;				// 当前的报名状态
+	repeated GuildCombatAgainst stAgainstList = 4;	// 战斗结果
+	optional GuildWarTeamGrp stSelfTeam = 5;		// 队伍信息 己方队伍
+	optional GuildWarTeamGrp stEnemyTeam = 6; 		// 队伍信息 敌方队伍
+}
+// 公会战参战公会
+message GuildWarGuildInfo{
+	optional int32 iWorldId = 1;
+	optional int32 iGuildId = 2;
+	optional string strGuildName = 3;
+	optional string strPresidentName = 4;
+	optional int32 iFightValue = 5;
+	optional int32 iFlag = 6;	
+	optional int32 iWinTimes = 7;
+	optional int32 iLoseTimes = 8;
+}

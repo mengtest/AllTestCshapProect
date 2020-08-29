@@ -1,0 +1,13 @@
+
+message BaseMessageData
+{
+	optional uint32 worldID = 1;			//创建角色所在的世界
+	optional uint32 uProfession = 2;		//创建角色的职业
+	optional uint32 uGender = 3;			//创建角色的性别
+	optional string szNickName = 4;			//创建角色的昵称
+	optional uint32 uPlatform = 5;			//登录的平台标志
+	optional uint32 uin = 6;				//创建角色的uin
+	optional string strName = 7;			//创建角色的strname	
+	optional string strSession = 8;			//帐号session
+	optional uint32 iHeadImgId = 9;			//选择的头像ID
+}

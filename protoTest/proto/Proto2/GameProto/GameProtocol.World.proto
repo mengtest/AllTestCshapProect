@@ -1,0 +1,1451 @@
+//World Server相关的协议
+
+import "GameProtocol.Common.proto";
+import "GameProtocol.USERDB.proto";
+import "GameProtocol.Zone.proto";
+
+//World Server通知分区信息发生改变
+message World_ZoneChanged_Notify
+{
+	optional uint32 worldID = 1;			//所在的世界的ID
+	optional ZoneList stZones = 2;			//世界的所有分区信息
+}
+
+//World Server创建角色的请求
+message World_CreateRole_Request
+{
+	optional uint32 uin = 1;					//创建角色的uin
+	optional uint32 world = 2;					//创建角色的玩家所在世界的ID
+	optional string szNickName = 3;				//创建角色的玩家的NickName
+	optional GameUserInfo stBirthData = 4;		//创建角色的玩家的基本信息
+	optional string namekey = 5;				//客户端输入的字符串
+	optional uint32 uRoleId = 6;				//角色ID
+	optional int32 iZoneid = 7;					//zoneid
+}
+
+//World Server创建角色请求的返回
+message World_CreateRole_Response
+{
+	optional int32 iResult = 1;				//创建角色的结果
+	optional uint32 uin = 2;				//玩家的uin
+	optional string szNickName = 3;			//玩家角色的昵称
+	optional uint32 uRoleId = 4;			// worldid
+	optional uint32 uWorldId = 5;			// worlidId
+	optional int32 iZoneid = 6;				//zoneid
+}
+
+//World Server拉取角色数据的请求
+message World_FetchRole_Request
+{
+	optional uint32 uin = 1;				//玩家的uin
+	optional uint32 worldID = 2;			//玩家所登录的世界的ID
+	optional bool bIsLogin = 3;				//是否玩家登录下拉数据的请求
+	optional int32 iReqID = 4;				//请求的Zone Server的ZoneID
+	optional uint32 uRoleId = 5;			//角色Id
+}
+
+//World Server拉取角色数据的返回
+message World_FetchRole_Response
+{
+	optional uint32 uin = 1;				//玩家的uin
+	optional uint32 uRoleId = 2;			//角色Id
+	optional int32 iResult = 3;				//数据查询返回的结果，0表示成功，其他表示失败
+	optional GameUserInfo stUserInfo = 4;	//从DB中下拉到的玩家的数据
+}
+
+//World Server更新玩家数据的请求
+message World_UpdateRole_Request
+{
+	optional uint32 uin = 1;				//玩家的uin
+	optional uint32 uRoleId = 2;			//角色的ID
+	optional uint32 world = 3;				//请求更新数据的worldID
+	optional int32 iReqID = 4;				//请求的Zone Server的ZoneID
+	optional GameUserInfo stUserInfo = 5;	//需要更新到DB中的数据
+	optional bool bNeedResponse = 6;		//是否需要回复
+	optional int32 iUpdateTime = 7;			//更新时间
+}
+
+//World Server更新玩家数据的返回
+message World_UpdateRole_Response
+{
+	optional uint32 uin = 1;				//玩家的uin
+	optional uint32 uRoleId = 2;			//角色的uRoleId
+	optional int32 iResult = 3;				//更新数据返回的结果
+}
+
+
+//World Server踢人的请求
+message World_KickRole_Request
+{
+	optional int32 iFromWorldID = 1;		//发出请求的World ID
+	optional int32 iFromZoneID = 2;			//发出请求的Zone ID
+	optional int32 iSessionID = 3;			//发出请求的FD
+	optional uint32 uKickedUin = 4;			//被踢者的UIN
+	optional bool bIsLogin = 5;				//是否是登录导致的踢人请求
+}
+
+//World Server踢人的返回
+message World_KickRole_Response
+{
+	optional int32 iResult = 1;				//踢人请求的结果
+	optional int32 iFromWorldID = 2;		//发起踢人请求的世界ID
+	optional int32 iFromZoneID = 3;			//发起踢人请求的Zone ID
+	optional int32 iSessionID = 4;			//请求的FD
+	optional int32 uin = 5;					//被踢者的UIN
+	optional bool bIsLogin = 6;				//是否登录导致的踢人
+}
+
+//单个分线Zone的详细信息
+message ZoneOnlineInfo
+{
+	optional int32 iZoneID = 1;				//分线的ID
+	optional int32 iRoleNum = 2;			//分线在线的玩家数量
+}
+
+//单个World的详细信息
+message WorldOnlineInfo
+{
+	optional int32 iWorldID = 1;				//世界ID
+	optional int32 iOnlineRoleNum = 2;			//在线的玩家数量
+	optional int32 iRegisterNum = 3;			//注册玩家数量
+	optional int32 iMaxOnlineNum = 4;			//最大支持在线玩家数量
+	optional int32 iMaxRegisterNum = 5;			//最大支持的注册玩家数量
+	optional int32 iActiveZoneNum = 6;			//活跃的分线数量
+	repeated ZoneOnlineInfo stZoneInfos = 7;	//世界中所有的分线信息
+}
+
+//World向Cluster上报状态的请求
+message World_OnlineStat_Request
+{
+	optional int32 iWorldID = 1;				//上报的世界的ID
+	optional WorldOnlineInfo stWorldInfo = 2;	//上报的世界信息
+	optional int32 uRecordTime = 3;				//上报统计的时刻
+}
+
+//World向Cluster上报状态的返回
+message World_OnlineStat_Response
+{
+	optional int32 iWorldID = 1;				//上报的世界的ID
+	optional int32 iInstanceID = 2;				//Cluster Server的ID
+}
+enum FetchType{
+	FetchType_QueryCdk = 1;	// 查询Cdk
+	FetchType_UseCdk = 2;	// 使用CDK
+}
+
+message GiftCdkInfo{
+	optional string strCdk = 1;			// cdk
+	optional int32 iDropId = 2; 		// 掉落ID
+	optional string strBatch = 3;		// 批次
+	optional int32 iKeyStat = 4;		// 状态
+	optional int32 iStartTime = 5;		// 生效时间
+	optional int32 iEndTime = 6;		// 结束时间
+}
+// FetchCdk 的信息
+message World_FetchGiftCdk_Request{
+	optional int32 iWorldID = 1;		// 世界ID
+	optional int32 iZoneID = 2;			// ZoneID
+	optional string strCdk = 3;			// cdk
+	optional int32 iFetchType = 4;		// 1 查看 2使用
+	optional int32 iUin = 5;			// 谁在请求
+}
+// FetchCdk 的信息
+message World_FetchGiftCdk_Response{
+	optional int32 iResult = 1;
+	optional int32 iWorldID = 2;		// 世界ID
+	optional int32 iZoneID = 3;			// ZoneID
+	optional int32 iFetchType = 5;		// 1 查看 2使用
+	optional int32 iUin = 6;			// 
+	optional GiftCdkInfo stGiftCdkInfo = 7; // CDK信息
+}
+// UpdateCdk 的信息          
+message World_UpdateGiftCdk_Request{
+	optional int32 iWorldID = 1;		// 世界ID
+	optional int32 iZoneID = 2;			// ZoneID
+	optional int32 iUin = 3;			// 谁在请求
+	optional GiftCdkInfo stGiftCdkInfo = 4; // CDK信息
+}
+// UpdateCdl 的返回
+message World_UpdateGiftCdk_Response{
+	optional int32 iResult = 1;
+	optional int32 iWorldID = 2;		// 世界ID
+	optional int32 iZoneID = 3;			// ZoneID
+	optional int32 iUin = 4;			// 谁在请求
+	optional GiftCdkInfo stGiftCdkInfo = 5; // CDK信息
+}
+
+//请求pvplist
+message World_PVPList_Request
+{
+	optional int32 iZoneid = 1;
+}
+message SinglePVP
+{
+	optional int32 iIndex = 1;
+	optional int32 uin = 2;
+	optional string strname = 3;
+	optional int32 iRoleLv = 4;
+	optional int32 iFightValue = 5;
+	optional bytes history = 6;
+}
+message World_PVPList_Response
+{
+	repeated SinglePVP pvplist = 1;
+}
+
+// 拉取一个玩家的数据的请求
+message World_FetchOffLineRole_Request{
+	optional int32 iReqRoleId = 1;		 // 请求的角色ID
+	optional int32 iRoleId = 2;			 // 要拉取的角色ID
+	optional bool bFetchBasicSummary = 3;// 拉取摘要
+	optional bool bHeroFormSummary = 4;	 // 拉取阵形摘要
+	optional int32 iFetchReason = 5;     // 拉取原因
+	optional int32 iWorldId = 6;     	 // worldId
+}
+// 拉取一个玩家的数据的返回
+message World_FetchOffLineRole_Response{
+	optional int32 iResult = 1;				    // 请求的角色ID
+	optional int32 iReqRoleId = 2;				// 请求的角色ID
+	optional int32 iRoleId = 3;					// 要拉取的角色ID
+	optional bytes strFetchBasicSummary = 4;	// 角色摘要
+	optional bytes strHeroFormSummary = 5;	 	// 拉取阵形摘要
+	optional int32 iFetchReason = 6;     		// 拉取原因 
+	optional string strName = 7;     			// 角色名 
+	optional int32 iWorldId = 8;
+}
+// 拉取推荐好友
+message World_FetchRecommendFriends_Request{
+	optional int32 iRoleId = 1;					// 范围
+	optional int32 iUin = 2;					// 请求人的uin
+	optional int32 iLevel = 3;					// 范围
+	optional int32 iWorldID = 4;				// worldid
+	optional int32 iRecommendNum = 5;			// 推荐数量
+	repeated int32 iFilterRoleIds = 6;			// 过滤值
+}
+// 拉取推荐好友的返回
+message World_FetchRecommendFriends_Response{
+	optional int32 iResult = 1;					// 结果
+	optional int32 iUin = 2;					// 角色Uin
+	optional int32 iRoleId = 3;					// 角色ID
+	repeated int32 iFriendsIdLists = 4;			// 推荐角色ID列表
+	repeated bytes strBasicSummary = 5;			// 推荐好友角色摘要列表
+}
+//World请求更新离线数据的请求
+message World_UpdateOffLineData_Request{
+	optional uint32 iRoleId = 1;			// 数据ID
+	optional bytes strOffLineDatas = 2;		// 离线数据
+}
+//World请求更新离线数据的返回
+message World_UpdateOffLineData_Response{
+	optional int32 iResult = 1;		// 更新结果
+	optional int32 iWorldId = 2;		// 世界ID
+}
+
+//请求离线夺宝列表
+message World_WrestData_Request
+{
+	optional int32 iZoneid = 1;
+	repeated int32 iChipid = 2;
+	optional int32 iLimitCount = 3;
+	optional int32 iRoleid = 4;
+	optional int32 iLevel = 5;
+}
+
+message World_WrestData_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iZoneid = 2;
+	repeated int32 iRoleid = 3;
+	
+}
+
+//查找离线战斗数据
+message World_Offline_FightData_Req
+{
+	optional int32 iZoneid = 1;
+	optional int32 iRoleid = 2;
+	optional int32 iChipid = 3;
+	optional int32 iType = 4;	//拉取类型 1=夺宝，2=战斗大师,3=英雄征途，4=地精宝藏，5=地精宝藏抢夺
+	optional int32 iparam = 5;	//传参数
+}
+message World_Offline_FightData_Resp
+{
+	optional int32 iResult = 1;
+	optional int32 iZoneid = 2;
+	optional bytes heroinfo = 3;		//出战英雄信息
+	optional bytes partnerinfo = 4;		//出战伙伴信息
+	optional int32 iType = 5;			//拉取类型 1=夺宝，2=战斗大师,3=英雄征途，4=地精宝藏，5=地精宝藏抢夺
+	optional int32 iparam = 6;			//传参数
+}
+
+//修改夺宝碎片信息
+message World_UpdateChips_Req
+{
+	optional int32 iZoneid = 1;
+	optional int32 iRoleid = 2;
+	optional int32 iChipid = 3;
+}
+
+message World_UpdateChips_Resp
+{
+	optional int32 iResult = 1;
+	optional int32 iZoneid = 2;
+}
+
+message World_OffLineFormStateUpdate_Request
+{
+	optional string strOrderId = 1; //订单号
+	optional int32  iRoleId = 2;  //玩家iRoleId
+	optional string  iPlatform = 3; //平台ID
+	optional int32 iZoneID  = 4;
+	optional int32 iStatu = 5;	//更新订单状态
+}
+
+message World_OffLineFormStateUpdate_Response
+{
+	optional int32 iResult = 1; //更新状态结果
+	optional int32 iZoneID = 2;
+	optional string strOrderId = 3;//更新的订单
+}
+
+
+message World_AddOrder_Request
+{
+	optional string strOrderId = 1; //充值的订单号
+	optional float fMoney = 2; //充值金额
+	optional int32 iTime = 3; //充值时间
+	optional int32 iGameCoin = 4; //充值的游戏币
+	optional int32 iRoleID = 5; //角色id
+	optional string strItemId = 6; //商品ID
+	optional int32 iSid = 7;   //订单的区服
+	optional int32 iState = 8; //订单状态
+	optional int32 iZoneID = 9;
+}
+
+message World_AddOrder_Response
+{
+	optional int32 iResult = 1; //插入数据返回结果
+	optional string strOrderid = 2; //订单号
+	optional string strItemId = 3; //商品ID
+	optional int32 iZoneID = 4;
+}
+//更新worldboss数据
+message World_UpdateWorldBoss_Request
+{
+	repeated WorldBossBase stBase = 1;		//worldboss基础数据
+	repeated WorldBossRank stRank = 2;		//worldboss排行数据
+}
+
+//拉取worldboss数据
+message World_FetchWorldBoss_Request
+{
+	optional int32 iZoneid = 1;
+}
+message World_FetchWorldBoss_Response
+{
+	optional int32 iResult = 1;
+	repeated WorldBossBase stBase = 2;		//worldboss基础数据
+	repeated WorldBossRank stRank = 3;		//worldboss当前排行数据
+	optional int32 iZoneid = 4;
+}
+
+//清空上次worldboss数据
+message World_ClearWorldBoss_Request
+{
+	optional int32 iType = 1;		//类型
+}
+
+//更新好友数据的请求
+message World_UpdateFriendInfo_Request
+{
+	optional int32 iUin = 1;				//Uin
+	optional int32 iRoleId = 2;				//Uin
+	optional int32 iType = 3;				//UpdateDate类型
+	optional bytes strFriendsInfo = 4;		//类型
+	optional bytes strGuildInfo = 5;		//公会数据
+	optional int32 iGuildId = 6;			//公会ID
+}
+//更新好友数据的反馈
+message World_UpdateFriendInfo_Response
+{
+	optional int32 iResult = 1;				//iResult
+	optional int32 iUin = 2;				//Uin
+	optional int32 iType = 3;				//UpdateDate类型
+}
+// 拉取好友数据的原因
+enum FriendFetchType{
+	FriendFetchType_Self = 1;		// 自己拉取
+	FriendFetchType_AddReq = 2;		// 对目标好友申请
+	FriendFetchType_Add = 3;		// 对目标增加好友
+	FriendFetchType_Del = 4;		// 对目标删除好友
+	FriendFetchType_Send = 5;		// 对目标赠送体力
+	FriendFetchType_Ask = 6;		// 对目标索取体力
+	FriendFetchType_AddGuild = 7;	// 对目标同意公会申请
+	FriendFetchType_RefuseGuild = 8;// 对目标同意公会申请
+	FriendFetchType_KickGuild = 9;	// 对目标对方踢出公会
+	FriendFetchType_AllAddGuild = 10;	// 对目标同意公会申请
+	FriendFetchType_AllRefuseGuild = 11;// 对目标同意公会申请
+	FriendFetchType_AddCombatRecord = 12;// 增加战斗记录
+}
+// 拉取玩家信息的原因
+enum SummaryFetchType{
+	SummaryFetchType_Query = 1;		 // 查看
+	SummaryFetchType_FriendFight = 2;// 好友切磋
+	SummaryFetchType_GuildWarSign = 3;// 公会战报名
+}
+// 拉取好友数据的请求
+message World_FetchFriendInfo_Request{
+	optional int32 iReqUin = 1;				
+	optional int32 iReqRoleId = 2;				
+	optional int32 iUin = 3;
+	optional int32 iRoleId = 4;				
+	optional int32 iFetchType = 5;			// 拉取类型
+}
+// 拉取好友数据的反馈
+message World_FetchFriendInfo_Response{
+	optional int32 iResult = 1;				// 战斗结果
+	optional int32 iReqUin = 2;				// 请求uin
+	optional int32 iReqRoleId = 3;			// 请求RoleId
+	optional int32 iUin = 4;				// Uin
+	optional int32 iRoleId = 5;				// RoleId
+	optional int32 iFetchType = 6;			// 拉取类型
+	optional bytes strFriendsInfo = 7;		// 拉取到的好友信息
+	repeated int32 iFriendRoleId = 8;		// 好友列表
+	repeated FRIENDEVT stEvtList = 9;		// 事件列表
+}
+
+//更新世界聊天数据
+message World_UpdateWorldChat_Request
+{
+	optional int32 iType = 1;	//1=worldchat,2=privatechat,3=guildchat
+	optional int32 idx = 2;
+	optional bytes strChat = 3;
+	optional int32 iRoleid = 4;
+	optional int32 iGuildid = 5;
+}
+
+//拉取世界聊天数据
+message World_FetchWorldChat_Request
+{
+	optional int32 iType = 1;	//1=worldchat,2=privatechat,3=guildchat
+	optional int32 iZoneid = 2;
+	optional int32 iRoleid = 3;
+	optional int32 iGuildid = 4;
+}
+
+//返回世界聊天数据
+message World_FetchWorldChat_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iType = 2;	//1=worldchat,2=privatechat,3=guildchat
+	optional int32 iZoneid = 3;
+	optional int32 idx = 4;
+	optional bytes strChat = 5;
+	optional int32 iGuildid = 6;
+}
+
+message World_GMFetchRoleInfo_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iWorldID = 2; 
+	optional int32 iType = 3;	//拉取角色方式
+	optional string strParam = 4;	//需要的参数
+}
+
+//玩家登录游戏的返回
+message World_GMFetchRoleInfo_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional uint32 uin = 2;				//登录的Account的uin
+	optional int32 iZoneID = 3;				//玩家所登录的区ID
+	optional int32 iWorldID = 4;			//玩家所登录的世界ID
+	optional GameUserInfo stRoleInfo = 5;	//返回登录的玩家的数据
+	optional uint32 uRoleId = 6;			//登录的角色ID
+	optional int32 iupdatetime = 7;			//数据最近更新时间
+}
+
+message World_GMFetchPve_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iWorldID = 2; 
+	optional int32 iType = 3;	//拉取角色方式
+	optional string strParam = 4;	//需要的参数
+}
+//玩家登录游戏的返回
+message World_GMFetchPve_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional int32 iZoneID = 2;				//玩家所登录的区ID
+	optional bytes strBaseInfo = 3;	
+	optional bytes strFightInfo = 4;		// 玩家的战斗信息，包括PVE、好友PK等
+	optional int32	iUin = 5;
+}
+//GM请求对角色加锁
+message World_GMUpdateRoleStatu_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iWorldID = 2; 
+	optional int32 iType = 3;	//拉取角色方式
+	optional string strParam = 4;	//需要的参数
+	optional bytes strAccountStatu = 5; //加role锁
+	optional int32 isResponse = 6;		//是否需要回复
+}
+
+message World_GMUpdateRoleStatu_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional int32 iZoneID = 2;				//玩家所登录的区ID
+	optional int32 iUin = 3;
+	optional bytes strBaseInfo = 4;
+	optional bytes strFightInfo = 5;
+	optional bytes strHeroInfo = 6;			// 玩家拥有的英雄信息
+	optional bytes strItemInfo = 7;			// 玩家拥有的所有道具信息
+	optional bytes strReserve2 = 8;			// 玩家充值相关信息
+	optional int32 iWorldID = 9;			//worldID
+}
+//GM更新玩家基础信息
+message World_GMUpdateRoleBase_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iWorldID = 2; 
+	optional int32 iUin = 3;
+	optional bytes strBaseInfo = 4;//玩家基础信息
+	optional bytes strAccountStatu = 5; //解开role锁
+	optional int32 iLevel = 6;	
+	optional bytes strReserve2 = 7; // 玩家充值相关信息
+}
+
+message World_GMUpdateRoleBase_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional int32 iZoneID = 2;				//玩家所登录的区ID
+}
+
+//GM更新玩家道具
+message World_GMUpdateRoleItem_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iWorldID = 2; 
+	optional int32 iUin = 3;
+	optional bytes strItemInfo = 4;//玩家道具
+	optional bytes strAccountStatu = 5; //解开role锁
+}
+
+message World_GMUpdateRoleItem_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional int32 iZoneID = 2;				//玩家所登录的区ID
+}
+
+//GM更新解锁
+message World_UpdateRoleStatuOpen_Request
+{
+	optional int32 iWorldID = 1; 
+	optional int32 iUin = 2;
+	optional bytes strAccountStatu = 3; //解开role锁
+}
+
+//GM更新玩家新英雄
+message World_UpdateHeroInfo_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iWorldID = 2; 
+	optional int32 iUin = 3;
+	optional bytes strHeroInfo = 4;//玩家英雄
+	optional bytes strAccountStatu = 5; //解开role锁
+}
+message World_UpdateHeroInfo_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional int32 iZoneID = 2;				//玩家所登录的区ID
+}
+
+message World_GMUpdatePinstance_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iWorldID = 2; 
+	optional int32 iUin = 3;
+	optional bytes strFightInfo = 4;//副本信息
+	optional bytes strAccountStatu = 5; //解开role锁
+	optional bytes strBaseInfo = 6;		//基础信息
+	optional int32 iMaxCrossid = 7;
+	optional int32 iMaxStar = 8;
+}
+
+message World_GMUpdatePinstance_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional int32 iZoneID = 2;				//玩家所登录的区ID
+}
+
+// 更新数据的请求
+message World_UpdateActData_Request{
+	optional int32 iBatchId = 1;	// 数据类型
+	optional int32 iStartTime = 2;	// 活动开始时间
+	optional int32 iEndTime = 3;	// 活动结束时间
+	optional int32 iActType = 4;	// 活动类型
+	optional int32 iActID = 5;		// 活动ID
+	optional bytes strData = 6;		// 数据
+}
+// 更新数据的反馈
+message World_UpdateActData_Response{
+	optional int32 iResult = 1;		// 结果
+	optional int32 iBatchId = 2;	// 批次ID
+}
+// 创建数据的请求
+message World_CreateActData_Request{
+	optional int32 iBatchId = 1;	// 数据类型
+	optional int32 iStartTime = 2;	// 活动开始时间
+	optional int32 iEndTime = 3;	// 活动结束时间
+	optional int32 iActType = 4;	// 活动类型
+	optional int32 iActID = 5;		// 活动ID
+	optional bytes strData = 6;		// 数据
+}
+// 创建数据的反馈
+message World_CreateActData_Response{
+	optional int32 iResult = 1;		
+	optional int32 iBatchId = 2;
+}
+
+message UpdateMasterFight
+{
+	optional int32 iRoleid = 1;
+	optional int32 iScore = 2;
+	optional int32 iHonor = 3;
+	optional int32 iIdx = 4;
+	optional int32 iCount = 5;			//今日已经挑战次数
+	optional int32 iRemainCount = 6;	//今日剩余次数
+	optional int32 iBuyCount = 7;		//今日购买次数
+	optional bytes strInfo = 8;
+}
+
+//拉取战斗大师数据请求
+message World_FetchMasterFight_Request
+{
+	optional int32 iZoneid = 1;
+}
+//返回战斗大师数据
+message World_FetchMasterFight_Response
+{
+	optional int32 iResult = 1;
+	repeated UpdateMasterFight stInfo = 2;
+	optional int32 iZoneid = 3;
+}
+
+//更新战斗大师排行列表
+message World_UpdateMasterFight_Request
+{
+	repeated UpdateMasterFight stInfo = 1;
+}
+
+//清空战斗大师数据
+message World_ClearMasterRank_Request
+{
+}
+
+message SingleComposeData
+{
+	optional int32 iRoleid = 1;
+	optional int32 iLevel = 2;
+	optional int32 iProtectTime = 3;
+	optional bytes strCompose = 4;
+	optional bytes strChips = 5;
+}
+
+message WrestComposeList
+{
+	repeated SingleComposeData stData = 1;
+}
+
+//拉取饰品合成数据
+message World_FetchWrestCompose_Request
+{
+	optional int32 iZoneid = 1;
+}
+
+//返回饰品合成数据
+message World_FetchWrestCompose_Response
+{
+	optional int32 iResult = 1;
+	optional WrestComposeList stList = 2;
+	optional int32 iZoneid = 3;
+}
+
+//更新饰品合成数据
+message World_UpdateWrestCompose_Request
+{
+	optional WrestComposeList stList = 1;
+}
+
+// 拉取公会列表的请求
+message World_FetchGuildList_Request{
+	optional int32 iWorldId = 1;			// 拉取的WorldId
+	optional int32 iReqUin = 2;				// 请求者Uin
+	optional int32 iReqReason = 3;			// 请求原因
+}
+
+// 拉取公会列表的反馈
+message World_FetchGuildList_Response{
+	optional int32 iResult = 1;				// 拉取结果
+	optional int32 iWorldId = 2;			// 世界ID
+	optional int32 iReqUin = 3;				// 请求者Uin
+	repeated GuildInfo stGuildList = 4;		// 公会列表信息
+}
+
+// 查找公会的请求
+message World_SearchGuild_Request{
+	optional string strGuildName = 1;		// 搜索的公会名字
+}
+// 查找公会的反馈
+message World_SearchGuild_Response{
+	optional int32 iResult = 1;				// 搜索结果
+	repeated GuildInfo stGuildInfo = 4;		// 搜索到的公会信息
+}
+
+// 公会创建公会的请求
+message World_CreateGuild_Request{
+	optional GUILD_DATA stGuildData = 1;	// 公会数据
+}
+
+// 公会创建公会的反馈
+message World_CreateGuild_Response{
+	optional int32 iResult = 1;			  	// 创建结果
+	optional int32 iGuildId = 2;			// 公会ID
+	optional int32 iPresidentId = 3;		// 会长ID 
+	optional int32 iPresidentUin = 4;		// 会长Uin 
+	optional string strGuildName = 5;		// 公会名
+}
+
+// 拉取公会信息的请求
+message World_FetchGuild_Request{
+	optional int32 iWorldId = 1;			// 拉取世界ID
+	optional int32 iGuildId = 2;			// 拉取公会ID
+	optional int32 iReqUin = 3;				// 拉取的Uin
+	optional int32 iFetchReason = 4;		// 拉取原因
+}
+// 拉取世界信息的请求
+message World_FetchGuild_Response{
+	optional int32 iResult = 1;				// 拉取结果
+	optional int32 iWorldId = 2;			// 世界ID
+	optional int32 iGuildId = 3;			// 公会ID
+	optional int32 iFetchUin = 4;			// 拉取Uin
+	optional int32 iFetchReason = 5;		// 拉取原因
+	optional GUILD_DATA stGuildData = 6;	// 公会数据
+}
+// 公会数据的刷新
+message World_UpdateGuild_Request{
+	optional GUILD_DATA stGuildData = 1;	// 公会数据
+}
+
+// 公会数据的刷新
+message World_UpdateGuild_Response{
+	optional int32 iResult = 1;			  	// 创建结果
+	optional int32 iGuildId = 2;			// 公会ID
+}
+// 公会数据的刷新
+message World_UpdateSelfGuild_Request{
+	optional int32 iReqUin = 1;				// 请求者uin
+	optional int32 iReqRoleId = 2;			// 请求者RoleID
+	optional int32 iGuildId = 3;			// 公会ID	
+	optional SELFGUILDINFO stGuildInfo = 4;	// 公会数据
+}
+
+// 公会数据的刷新
+message World_UpdateSelfGuild_Response{
+	optional int32 iResult = 1;			  	// 创建结果
+	optional int32 iReqUin = 2;				// 请求的Uin
+	optional int32 iReqRoleId = 3;			// 请求的RoleId 
+	optional int32 iGuildId = 4;			// 请求的公会名字
+	optional SELFGUILDINFO stGuildInfo = 5;	// 公会数据
+}
+// 删除公会数据
+message World_DeleteGuild_Request{
+	optional int32 iReqUin = 1;				// 请求者uin
+	optional int32 iReqRoleId = 2;			// 请求者RoleID
+	optional int32 iGuildId = 3;			// 公会ID	
+}
+
+// 删除公会数据
+message World_DeleteGuild_Response{
+	optional int32 iResult = 1;			  	// 创建结果
+	optional int32 iReqUin = 2;				// 请求的Uin
+	optional int32 iReqRoleId = 3;			// 请求的RoleId 
+	optional int32 iGuildId = 4;			// 请求的公会名字
+}
+message World_UpdateTokenToDB_Request
+{
+	optional int32 iUin = 1;
+	optional string strToken = 2;	//信鸽token或者绑定帐号
+	optional int32 iLastTime = 3;	//下次体力恢复时间
+	optional string strRole = 4;	//角色名
+	optional int32 iRole = 5;		//角色ID
+	optional int32 ipvp = 6;		//各个开关按钮
+	optional int32 iwrest = 7;
+	optional int32 imaster = 8;
+	optional int32 ienergy = 9;
+}
+
+message World_FetchOrder_Request
+{
+	optional int32 iZoneID = 1;	//zoneid
+	optional int32 iUin = 2;	//被删档的uin
+}
+
+message World_FetchOrder_Response
+{
+	optional int32 iZoneID = 1;
+	optional int32 iCharge = 2;	//充值金额
+	optional int32 iResult = 3;	//查询结果
+	optional int32 iUin = 4;
+	optional int32 iRealCharge = 5; //实际充值金额
+}
+
+message World_UpdateCharge_Notify
+{
+	optional int32 iUin = 1;
+	optional int32 isResponse = 2;
+}
+
+message World_FetchLevelUin_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iUin = 2;
+}
+
+message World_FetchLevelUin_Response
+{
+	optional int32 iZoneID = 1;
+	optional int32 iResult = 2;
+	optional int32 iLevel = 3;
+	optional int32 iUin = 4;
+}
+
+message World_UpdateLevelStatu_Notify
+{
+	optional int32 iUin = 1;
+}
+
+message MsgFriendCombatRecord{
+	optional int32 iRoleId = 1;
+	optional int32 iTRoleId = 2;
+	optional int32 iTimes = 3;
+	optional int32 iResult = 4;
+}
+// 请求拉取好友战斗的请求
+message World_FetchFriendCombat_Request{
+	optional int32 iFetchNum = 1;	// 拉取数量 
+}
+// 请求拉取好友战斗的反馈
+message World_FetchFriendCombat_Response{
+	repeated MsgFriendCombatRecord stRecordList = 1; 
+}
+// 创建战斗记录的请求
+message World_CreateFriendCombat_Request{
+	optional MsgFriendCombatRecord stCombatRecord = 1;
+}
+// 添加战斗记录结束
+message World_CreateFriendCombat_Response{
+	optional int32 iResult = 1;
+}
+// 拉取好友列表的请求
+message World_FetchFriendList_Request{
+	optional int32 iFetchNum = 1;	// 拉取数量 
+}
+// 拉取好友列表的请求
+message World_FetchFriendList_Response{
+	optional int32 iResult = 1;
+	repeated int32 iFriendRoleId = 2;
+	repeated FRIENDEVT stEvtList = 3;
+}
+// 创建好友
+message World_CreateFriend_Request{
+	optional int32 iFriendId = 1;
+}
+// 创建好友的反馈
+message World_CreateFriend_Response{
+	optional int32 iResult = 1;
+	optional int32 iFriendId = 2;
+}
+// 删除好友
+message World_DeleteFriend_Request{
+	optional int32 iFriendId = 1;
+}
+// 删除好友的反馈
+message World_DeleteFriend_Response{
+	optional int32 iResult = 1;
+	optional int32 iFriendId = 2;
+}
+// 创建好友事件
+message World_CreateFriendEvt_Request{
+	optional int32 iFriendId = 1;
+	optional int32 iEvtType = 2;
+	optional int32 iTime = 3;
+}
+// 创建好友事件
+message World_CreateFriendEvt_Response{
+	optional int32 iResult = 1;
+	optional int32 iFriendId = 2;
+	optional int32 iEvtType = 3;
+	optional int32 iTime = 4;
+}
+
+// 创建好友事件
+message World_DeleteFriendEvt_Request{
+	optional int32 iFriendId = 1;
+	optional int32 iEvtType = 2;
+	optional int32 iTime = 3;
+}
+// 创建好友事件
+message World_DeleteFriendEvt_Response{
+	optional int32 iResult = 1;
+	optional int32 iFriendId = 2;
+	optional int32 iEvtType = 3;
+}
+// 创建公会副本
+message World_CreateGuildCross_Request{
+	optional int32 iGuildId = 1;
+	optional int32 iCrossId = 2;
+	optional int32 iHurt = 3;
+	optional int32 iBlood = 4;
+	optional int32 iIsPassed = 5;
+}
+// 创建公会副本
+message World_CreateGuildCross_Response{
+	optional int32 iResult = 1;
+}
+
+// 更新公会副本伤害请求
+message World_UpdateGuildCrossHurt_Request{
+	optional int32 iGuildId = 1;
+	optional int32 iCrossId = 2;
+	optional int32 iRoleId = 3;
+	optional int32 iHurt = 4;
+}
+// 更新公会副本伤害反馈
+message World_UpdateGuildCrossHurt_Response{
+	optional int32 iResult = 1;
+	optional int32 iGuildId = 2;
+	optional int32 iCrossId = 3;
+	optional int32 iRoleId = 4;
+	optional int32 iHurt = 5;
+}
+// 战利品数据的请求
+message World_CreateGuildBooty_Request{
+	optional GuildBooty stGuildBooty = 1;
+}
+// 战利品数据的反馈
+message World_CreateGuildBooty_Response{
+	optional int32 iResult = 1;
+	optional GuildBooty stGuildBooty = 2;
+}
+// 战利品数据的更新
+message World_UpdateGuildBooty_Request{
+	optional int32 iOffPrice = 1;			// 提供价格
+	optional int32 iRoleId = 2;				// 提供RoleId
+}
+// 战利品数据的反馈
+message World_UpdateGuildBooty_Response{
+	optional int32 iResult = 1;
+	optional int32 iOffPrice = 2;			// 提供价格
+	optional int32 iRoleId = 3;				// 提供RoleId
+}
+// 清除公会排行榜的请求
+message World_ClearGuildCrossRank_Request{
+	optional int32 iCrossId = 1;
+	optional int32 iGuildId = 2;
+	optional int32 iRoleId = 3;
+}
+// 清除公会排行榜的反馈
+message World_ClearGuildCrossRank_Response{
+	optional int32 iResult = 1;
+	optional int32 iCrossId = 2;
+	optional int32 iGuildId = 3;
+	optional int32 iRoleId = 4;
+}
+// 删除竞拍商品
+message World_DeleteGuildAuction_Request{
+	optional int32 id = 1;
+}
+// 删除竞拍商品
+message World_DeleteGuildAuction_Response{
+	optional int32 iResult = 1;
+	optional int32 id = 2;
+}
+// 删除公会副本
+message World_DeleteGuildCross_Request{
+	optional int32 iCrossid = 1;
+	optional int32 iGuildid = 2;
+}
+
+// 创建成交记录数据的请求
+message World_CreateGuildBootyRecord_Request{
+	optional GuildBooty stGuildBooty = 1;
+}
+
+// 拉取战利品记录数据的反馈
+message World_FetchGuildBootyRecord_Request{
+	optional int32 iReqUin = 1;
+}
+
+// 拉取战利品记录数据的反馈
+message World_FetchGuildBootyRecord_Response{
+	optional int32 iResult = 1;
+	optional int32 iReqUin = 2;
+	repeated GuildBooty stGuildBooty = 3;
+}
+
+message World_SingleTreasureCross
+{
+	optional int32 iRoleid = 1;
+	optional int32 iStartTime = 2;
+	optional int32 iFightValue = 3;
+	optional int32 iSpeed = 4;
+	optional DropInfoList stDropList = 5;
+	repeated int32 DefForm = 6;
+	optional int32 iProduceTime = 7;
+}
+message WorldTreasureCross
+{
+	repeated World_SingleTreasureCross stCrossList = 1;
+}
+message World_SingleTreasureInfo
+{
+	optional int32 iRoomid = 1;
+	optional int32 iTreasureType = 2;
+	optional int32 iCreateRoleid = 3;
+	optional int32 iStartTime = 4;
+	optional int32 iEndTime = 5;
+	optional int32 iTreasureState = 6;
+	optional bytes stCrossInfo = 7;		//WorldTreasureCross
+}
+//拉取所有宝藏信息
+message World_FetchAllTreasure_Request
+{
+	optional int32 iZoneid = 1;
+}
+message World_FetchAllTreasure_Response
+{
+	optional int32 iZoneid = 1;
+	repeated World_SingleTreasureInfo stList = 2;		
+}
+
+//更新所有宝藏信息
+message World_UpdateAllTreasure_Request
+{
+	optional int32 iType = 1;		//0=更新，1=删除
+	repeated World_SingleTreasureInfo stList = 2;	
+}
+//拉取每个人身上宝藏信息
+message World_SingleSummTreasure
+{
+	optional int32 iRoomid = 1;
+	optional int32 iTreasureType = 2;
+}
+message WorldSummTreasure
+{
+	repeated World_SingleSummTreasure stSummList = 1;
+}
+message World_SingleDefHistory
+{
+	optional int32 iRoleid = 1;
+	optional string strName = 2;
+	optional int32 iResult = 3;
+	optional int32 iRolelv = 4;
+	optional int32 iPicid = 5;
+	optional int32 iViplv = 6;
+	optional int32 iTalent = 7;
+	optional int32 iTreasureType = 8;
+	optional int32 iAttackTime = 9;
+	optional DropInfoList stLostList = 10;
+	optional DropInfoList stDropList = 11;
+	optional int32 iWorldid = 12;
+}
+message WorldDefHistory
+{
+	repeated World_SingleDefHistory stDefList = 1;
+}
+message World_SingleSearchCross
+{
+	optional int32 iCrossid = 1;
+	optional int32 iState = 2;
+	optional int32 iDefCount = 3;
+	optional RoleFightInfo stFightInfo = 4;
+	optional FightInfo stRoleInfo = 5;
+	optional DropInfoList stDropList = 6;
+}
+message World_SearchTreasure
+{
+	optional int32 iRoomid = 1;
+	optional int32 iTreasureType = 2;
+	optional int32 iSearchState = 3;
+	optional int32 iSearchEndTime = 4;
+	optional int32 iTreasureEndTime = 5;
+	repeated World_SingleSearchCross stCrossList = 6;
+	optional int32 iWorldid = 7;
+}
+
+message World_SingleInvite
+{
+	optional int32 iRoleid = 1;
+	optional int32 iTreasureIdx = 2;
+	optional int32 iTreasureType = 3;
+	optional int32 iTime = 4;
+}
+message WorldInvite
+{
+	repeated World_SingleInvite stInviteList = 1;
+}
+message World_SinglePlayerTreasure
+{
+	optional int32 iRoleid = 1;
+	optional bytes stSummList = 2;		//WorldSummTreasure
+	optional bytes stDefList = 3;		//WorldDefHistory
+	optional bytes stInviteList = 4;	//WorldInvite
+	optional bytes stSearch = 5;		//World_SearchTreasure
+}
+message World_FetchPlayerTreasure_Request
+{
+	optional int32 iZoneid = 1;
+}
+message World_FetchPlayerTreasure_Response
+{
+	optional int32 iZoneid = 1;
+	repeated World_SinglePlayerTreasure stList = 2;		
+}
+
+//更新每个人身上宝藏信息
+message World_UpdatePlayerTreasure_Request
+{
+	repeated World_SinglePlayerTreasure stList = 1;		
+}
+
+// 跨服数据的更新存储
+message World_UpdateClusterPlayer_Request{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+	optional PlayerSummaryInfo stPlySummaryInfo = 3;
+	optional int32 iScore = 4;
+	optional int32 iRank = 5;
+}
+// 跨服数据的更新存储
+message World_UpdateQualifyingInfo_Request{
+	optional PlayerSummaryInfo stPlySummaryInfo = 1;
+}
+// 请求拉取同步自身的 排位赛数据  
+message World_FetchSelfQualifyingInfo_Request{
+	optional int32 iWorldID = 1;	// 区服ID
+	optional int32 iRoleId = 2;		// 角色ID
+	optional int32 iFetchReason = 3;// 拉取原因
+}
+// 拉取自身排位赛数据的反馈
+message World_FetchSelfQualifyingInfo_Response{
+	optional int32 iWorldID = 1;	// 区服ID
+	optional int32 iRoleId = 2;		// 角色ID
+	optional int32 iScore = 3;		// 积分
+	optional int32 iRank = 4;		// 我的全服排名
+	optional int32 iZoneRank = 5;	// 我的本服排名
+	optional int32 iFetchReason = 6;// 拉取原因
+}
+
+// 拉取排位赛每日奖励的请求
+message World_FetchQualifyingReward_Request{
+	optional int32 iWorldID = 1;	// 区服ID
+	optional int32 iRoleId = 2;		// 角色ID
+}
+// 排位赛的每日奖励
+message QualifyingReward{
+	optional int32 id = 1;
+	optional int32 iScore = 2;
+	optional int32 iTime = 3;
+}
+// 拉取排位赛每日奖励的反馈
+message World_FetchQualifyingReward_Response{
+	optional int32 iResult = 1;		// 区服ID
+	optional int32 iWorldID = 2;	// 区服ID
+	optional int32 iRoleId = 3;		// 角色ID
+	repeated QualifyingReward stQualifyReward = 4;// 排位赛的奖励  
+}
+// 刷新排位赛的奖励
+message World_UpdateQualifyingReward_Request{
+	optional int32 id = 1;
+	optional int32 iScore = 2;
+	optional int32 iRoleId = 3;
+}
+// 刷新排位赛的奖励
+message World_UpdateQualifyingReward_Response{
+	optional int32 iResult = 1;
+	optional int32 id = 2;
+	optional int32 iScore = 3;
+	optional int32 iRoleId = 4;
+}
+
+// 请求打开界面的请求
+message World_FetchQualifyingList_Request{
+	optional int32 iWorldID = 1;	// 区服ID
+	optional int32 iRoleId = 2;		// 角色ID
+}
+// 请求打开界面的反馈
+message World_FetchQualifyingList_Response{
+	optional int32 iResult = 1;
+	optional int32 iWorldID = 2;
+	optional int32 iRoleId = 3;
+	repeated PlayerSummaryInfo stPlyInfo = 4; // 匹配到的人
+}
+// 更新积分
+message World_UpdateQualifyingScore_Request{
+	optional int32 iWorldID = 1;	// 区服ID
+	optional int32 iRoleId = 2;		// 角色ID
+	optional int32 iScore = 3;		// 更新积分
+	optional int32 iCombatRoleId = 4;// 区服ID 
+	optional int32 iCombatWorldId = 5;// 角色ID 
+	optional int32 iCombatScore = 6;//	更新积分
+	optional int32 iTime = 7;		// 参与时间 以游戏服时间为准
+}
+// 更新积分
+message World_UpdateQualifyingScore_Response{
+	optional int32 iResult = 1;
+	optional int32 iWorldID = 2;
+	optional int32 iRoleId = 3;
+	optional int32 iScore = 4;
+	optional int32 iRank = 5;
+}
+// 请求排位赛排名的请求
+message World_QualifyingRank_Request{
+	optional int32 iWorldID = 1;	// 区服ID
+	optional int32 iRoleId = 2;		// 请求的角色ID
+	optional int32 iRankType = 3;	// 本服排行榜、全服排行榜之分
+}
+// 排位赛排名
+message QualifyingRole{
+	optional int32 iRoleId = 1;
+	optional int32 iRank = 2;
+	optional int32 iScore = 3;
+	optional int32 iLevel = 4;
+	optional int32 iHeadImg = 5;
+	optional int32 iVipLv = 6;
+	optional int32 iTalent = 7;
+	optional int32 iWorldId = 8;
+	optional string strName = 9;
+	optional string strGuildName = 10;
+}
+// 请求排位赛排名的反馈
+message World_QualifyingRank_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;						// 请求的角色ID
+	optional int32 iRankType = 3;					// 本服排行榜、全服排行榜之分
+	repeated QualifyingRole stQualifyingRole = 4;	// 排位赛数据
+}
+// 查看玩家详细信息
+message World_FetchQualifyingPly_Request{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+	optional int32 iReqRoleId = 3;
+	optional int32 iReqWorldId = 4;
+}
+// 查看玩家详细信息
+message World_FetchQualifyingPly_Response{
+	optional int32 iResult = 1;
+	optional int32 iWorldID = 2;
+	optional int32 iRoleId = 3;
+	optional PlayerSummaryInfo stPlyInfo = 4; // 匹配到的人
+}
+// 查看战斗记录的请求
+message World_FetchQualifyingRecord_Request{
+	optional int32 iWorldID = 1;
+	optional int32 iRoleId = 2;
+}
+// 查看战斗记录的反馈
+message World_FetchQualifyingRecord_Response{
+	optional int32 iResult = 1;
+	optional int32 iWorldID = 2;
+	optional int32 iRoleId = 3;
+	repeated QualifyingRecord stRecordList = 4;
+}
+// 拉取排位赛记录版本号
+message World_FetchQualifyingRecordVer_Request{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldID = 2;
+	optional int32 iWorldIDList = 3;
+}
+// 拉取排位赛记录版本号 
+message World_FetchQualifyingRecordVer_Response{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldID = 2;
+	optional int32 iVer = 3;
+}
+// 通知合服的情况 
+message World_WorldInfoNotify_Request{
+}
+// 通知合服情况的反馈
+message World_WorldInfoNotify_Response{
+	repeated int32 worldidlist = 1;	
+}
+// 新奖励的通知
+message World_NewQualifyingReward_Notify{
+}
+message GuildWarSignInfo{
+	optional int32 iWorldId = 1;
+	optional int32 iRoleId = 2;
+	optional string strName = 3;
+	optional int32 iHeadImg = 4;// 头像
+	optional int32 iLevel = 5;	// 等级
+	optional int32 iVipLv = 6;	// vip等级
+	optional int32 iTalent = 7;	// 天赋
+	optional int32 iGuildPosition = 8;// 公会职位
+}
+// 公会跨服战报名 组团报名
+message World_GuildWarSign_Request{
+	optional int32 iSeasonId = 1;		// 赛季
+	optional int32 iRoundId = 2;		// 轮次
+	optional int32 iWorldId = 3;		// 区服ID
+	optional int32 iGuildId = 4;		// 公会ID
+	optional int32 iRoleId = 5;			// 请求的人的Id
+	optional string strGuildName = 6;	// 公会名字
+	optional int32 iFlags = 7;			// 旗帜
+	optional int32 iFightVal = 8;		// 战斗力
+	optional string strPresidentName = 9;// 会长名
+	repeated GuildWarSignInfo stList = 10;// 空队伍列表
+}
+// 公会跨服战报名
+message World_GuildWarSign_Response{
+	optional int32 iResult = 1;				// 结果
+	optional int32 iRoleId = 2;				// 报名的人
+	optional int32 iWorldId = 3;			// 区服ID
+	optional int32 iGuildId = 4;			// 报名的人
+	optional int32 strGuildName = 5;		// 公会名称
+}
+
+// 更新公会跨服战的请求
+message World_UpdateGuildWarForm_Request{
+	optional PlayerSummaryInfo stPlySummaryInfo = 1;
+	optional int32 iFightValue = 2;		// 战斗力1
+	optional int32 iTeamId = 3;
+}
+// 更新公会跨服战的反馈
+message World_UpdateGuildWarForm_Response{
+	optional int32 iReqRoleId = 1;
+	optional int32 iResult = 2;
+	optional int32 iTeamId = 3;
+}
+
+// 拉取赛季信息
+message World_FetchGuildWarInfo_Request{
+	optional int32 iWorldId = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iGuildId = 3;
+	optional int32 iGuildWorldId = 4;
+}
+// 拉取赛季信息
+message World_FetchGuildWarInfo_Response{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+	optional int32 iGuildId = 3;
+	optional int32 iGuildWorldId = 4;
+	optional GuildCombatInfo stGuildWarInfo = 5;// 公会战数据
+}
+// 出手战斗的请求
+message World_StartGuildWarCombat_Request{
+	optional int32 iReqWorldId = 1;
+	optional int32 iReqRoleId = 2;
+	optional int32 iAtkWorldId = 3;
+	optional int32 iAtkRoleId = 4;
+	optional int32 iAtkTeamId = 5;
+}
+// 出手战斗的反馈
+message World_StartGuildWarCombat_Response{
+	optional int32 iResult = 1;
+	optional int32 iReqRoleId = 2;
+	optional int32 iReqWorldId = 3;
+	optional int32 iAtkRoleId = 4;
+	optional int32 iAtkWorldId = 5;
+	optional int32 iAtkTeamId = 6;
+}
+// 结束战斗的请求
+message World_FinGuildWarCombat_Request{
+	optional int32 iReqWorldId = 1;
+	optional int32 iReqRoleId = 2;
+	optional int32 iAtkWorldId = 3;
+	optional int32 iAtkRoleId = 4;
+	optional int32 iAtkTeamId = 5;
+	optional int32 iCombatResult = 6;
+}
+// 结束战斗的反馈
+message World_FinGuildWarCombat_Response{
+	optional int32 iResult = 1;
+	optional int32 iReqWorldId = 2;
+	optional int32 iReqRoleId = 3;
+	optional int32 iAtkWorldId = 4;
+	optional int32 iAtkRoleId = 5;
+	optional int32 iAtkTeamId = 6;
+	optional int32 iCombatResult = 7;
+	optional int32 iRank = 8;
+}
+
+// 请求公会战总榜
+message World_GuildWarRankList_Request{
+	optional int32 iReqRoleId = 1;
+}
+// 公会战总榜反馈
+message World_GuildWarRankList_Response{
+	optional int32 iReqRoleId = 1;
+	optional int32 iResult = 2;
+	repeated GuildWarGuildInfo stGuildList = 3; 
+}
+// 请求公会战排名的请求
+message World_GuildWarSelfRank_Request{
+	optional int32 iReqRoleId = 1;
+	optional int32 iGuildId = 2;
+	optional int32 iWorldId = 3;
+}
+// 请求公会战排名的反馈
+message World_GuildWarSelfRank_Response{
+	optional int32 iReqRoleId = 1;
+	optional int32 iResult = 2;
+	optional int32 iWinTimes = 3;
+	optional int32 iLoseTimes = 4;
+	optional int32 iRank = 5;
+}
+// 请求队伍详情的请求
+message World_GuildWarTeamInfo_Request{
+	optional int32 iReqRoleId = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iWorldId = 3;
+}
+// 请求队伍详情的反馈
+message World_GuildWarTeamInfo_Response{
+	optional int32 iResult = 1;
+	optional int32 iReqRoleId = 2;
+	optional int32 iRoleId = 3;
+	optional int32 iWorldId = 4;
+	optional PlayerSummaryInfo stPlySummaryInfo = 5;
+	repeated int32 iFightValue = 6;
+}
+// 请求某一个公会的战斗记录
+message World_GuildWarRecordList_Request{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+}
+// 请求某一个公会的战斗记录
+message World_GuildWarRecordList_Response{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+	optional Zone_GuildWarCombatRecord_Response stZoneResp = 3;
+}
+// 请求未领取的公会战奖励
+message World_GuildWarReward_Request{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+}
+// 公会战奖励
+message GuildWarReward{
+	optional int32 iSeasonId = 1;// 赛季ID
+	optional int32 iRoundId = 2; // 回合ID
+	optional int32 iRewardType = 3;// 奖励类型 1 轮次结算奖励 2 赛季结算排行奖励
+	optional int32 iRank = 4;	 // 排名
+}
+// 请求未领取的公会战奖励的反馈
+message World_GuildWarReward_Response{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+	repeated GuildWarReward stRewardList = 3;
+}

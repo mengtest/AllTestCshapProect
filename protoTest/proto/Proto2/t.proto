@@ -1,0 +1,61 @@
+syntax = "proto3";//指定proto版本为3.0
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.helloworld";//生成API代码路径
+option java_outer_classname = "HelloWorldProto";//文件名称
+option objc_class_prefix = "HLW";
+
+package helloworld;
+
+// The greeting service definition.
+service Greeter {
+    // Sends a greeting
+    rpc SayHello (Test) returns (HelloReply) {}//API接口其中参数为Test返回值为HelloReply
+}
+
+//定义返回HelloReply实体
+message HelloReply {
+    string message = 1;
+}
+/**
+ *定义Test实体
+ */
+message Test{
+    string testStr = 1;//字段类型为String
+    repeated TestList testList = 2;//属性为TestList对象集合
+    map<string,TestMap> testMap = 3;//属性为map<string,TestMap>Map对象其中TestMap 包含集合属性
+    DocumentExtType type = 4;//枚举属性
+}
+
+
+message TestMap{
+    string testmap = 1;
+    repeated HelloReply helloReply = 2;
+}
+
+message TestList{
+    string testlist = 1;
+}
+
+enum DocumentExtType{
+    HTML = 0;
+    XML = 1;
+    JSON = 2;
+    PDF = 3;
+    IMAGETIFF = 4;
+    IMAGEGIF = 5;
+    IMAGEJPG = 6;
+    IMAGEJPEG = 7;
+    IMAGEPNG = 8;
+    MEDIAAU = 9;
+    MEDIAAIFF = 10;
+    MEDIAWAVE = 11;
+    MEDIAMIDI = 12;
+    MEDIAMP4 = 13;
+    MEDIAM4V = 14;
+    MEDIA3G2 = 15;
+    MEDIA3GP2 = 16;
+    MEDIA3GP = 17;
+    MEDIA3GPP = 18;
+    OTHER = 19;
+}

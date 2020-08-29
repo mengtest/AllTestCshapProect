@@ -1,0 +1,66 @@
+syntax = "proto3";
+package MsgData;
+
+// import "GameProtocol.Common.proto";
+
+message GIPEndPoint{
+	int32 Ip = 1;
+	string Port = 2;
+}
+
+message GVector3{
+	int32 X = 1;
+	int32 Y = 2;
+	int32 Z = 3;
+}
+
+message ReceiveMessageData{
+	GIPEndPoint ReceivePoint = 1;
+	int32 ReceiveLength = 2;
+	int32 ReceiveBytes = 3;
+}
+
+message HeadMsg{
+	int32 FlgHead = 1;
+	int32 Cmd = 2;
+	int32 SCmd = 3;
+	int32 MsgLen = 4;
+	int32 MsgOrder = 5;
+	int32 MsgUid = 6;
+	int32 MsgToken = 7;
+	int32 FlgEnd = 8;
+}
+
+message CS_LoginUser
+{
+	uint32 uid = 1;
+	string userName = 2;
+	string passWord = 3;
+}
+
+message SC_LoginUser
+{
+	int32 Ret = 1;
+	uint32 Sex = 2;
+	string Nick = 3;
+	uint32 Uid = 4;
+	string Token = 5;
+	repeated string Names = 6;
+}
+
+message MessageData{
+	HeadMsg Head = 1;
+	CS_LoginUser cs_LoginUser = 2;
+	SC_LoginUser sc_LoginUser = 3;
+	enum Corpus {		//必须有一个0作为值，以至于我们可是使用0作为默认值
+		UNIVERSAL = 0;	
+		WEB = 1;
+		IMAGES = 2;
+		LOCAL = 3;
+		NEWS = 4;
+		PRODUCTS = 5;
+		VIDEO = 6;
+	}
+	Corpus corpus = 4;
+	map<string, SC_LoginUser> projects = 5;	//字典格式
+}

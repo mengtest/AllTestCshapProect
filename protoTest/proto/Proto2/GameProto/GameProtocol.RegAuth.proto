@@ -1,0 +1,409 @@
+//本文件中主要定义Account Server相关的通信协议
+
+import "GameProtocol.Common.proto";
+enum enAccountType
+{
+	LOGIN_PLATFORM_INVALID = 0;		 //非法的登录渠道
+	LOGIN_PLATFORM_MAIN = 1;		 //游戏官方平台
+	LOGIN_PLATFORM_ACTIVECODE = 2;	 //激活码帐号
+	LOGIN_PLATFORM_37WAN =  3;       //37wan IOS渠道平台
+	LOGIN_PLATFORM_37WAN_ACTIVE = 4; //37wan 平台激活码帐号
+	LOGIN_PLATFORM_XY = 5;         	 //xy 助手平台
+	LOGIN_PLATFORM_37ANDROID = 6;    //37wan android 渠道
+	LOGIN_PLATFORM_37BAIDU = 7;      //37wan 91百度 渠道
+	LOGIN_PLATFORM_37TBP = 8; 		 //37wan 同步推 渠道
+	LOGIN_PLATFORM_37PP = 9; 		 //37wan pp助手 渠道
+	LOGIN_PLATFORM_37KY = 10; 		 //37wan 快用 渠道
+	LOGIN_PLATFORM_37ITOOLS = 11; 	 //37wan iTools 渠道
+	LOGIN_PLATFORM_37I4 = 12;		 //37wan I4 渠道
+	LOGIN_PLATFORM_37HAIMA = 13;	 //37wan 海马 渠道
+	LOGIN_PLATFORM_XIAOMI = 14;	 	 //小米 渠道
+	LOGIN_PLATFORM_ANDROID_TENCENTQQ = 15; //应用宝 QQ渠道
+	LOGIN_PLATFORM_ANDROID_TENCENTWX = 16;	//应用宝 微信渠道
+	LOGIN_PLATFORM_37APPSTORE = 17;			//37APPSTORE渠道
+	LOGIN_PLATFORM_37XX = 18;			//37叉叉助手渠道
+	LOGIN_PLATFORM_37IIAPPLE = 19;	    //37爱苹果
+	LOGIN_PLATFORM_XY_YOUNG = 20;	    //少年魔兽团XY版
+	LOGIN_PLATFORM_XY_ANDROID = 21;	    //少年魔兽团XY安卓版 
+	LOGIN_PLATFORM_DUODUO_IOS = 22;	    //多多苹果
+	LOGIN_PLATFORM_WINDOWPHONE  = 23;	//爱应用windowphone
+	LOGIN_PLATFORM_MALAYSI_ANDROID = 24;//新马泰安卓渠道
+	LOGIN_PLATFORM_MALAYSI_IOS = 25;	//新马泰ios渠道
+	LOGIN_PLATFORM_MALAYSI_ENGLISH = 26; //新马泰英文版
+	LOGIN_PLATFORM_MOREFUN_EN1 = 27; 	//新马泰英文版1
+	LOGIN_PLATFORM_MOREFUN_EN2 = 28; 	//新马泰英文版2
+	LOGIN_PLATFORM_MBT = 29; 			//MBT渠道
+}
+
+enum enPidType
+{
+	EN_PID_IOS_37PP = 3;
+	EN_PID_IOS_37ITOOLS = 6;
+	EN_PID_IOS_37TONGBUTUI = 8;
+	EN_PID_IOS_37KUAIYONG = 22;
+	EN_PID_IOS_37AISI = 23;
+	EN_PID_IOS_37HAIMA = 33;
+	EN_PID_IOS_37BAIDU = 43;
+	EN_PID_IOS_37XX = 65;
+	EN_PID_IOS_37DUODUO = 75;
+}
+enum enAddAccountType
+{
+	EN_ADD_ACCOUNT_INVALID = 0;		//非法类型
+	EN_ADD_ACCOUNT_GUEST = 1;		//游客注册
+	EN_ADD_ACCOUNT_REGISTER = 2;	//帐号注册
+	EN_ADD_ACCOUNT_BIND = 3;		//帐号绑定
+}
+
+//玩家帐号的唯一ID
+message AccountID
+{
+	optional string strAccount = 1;		//玩家的帐号
+	optional int32 iAccountType = 2;	//玩家帐号的类型
+	optional string strUid = 3;       	//XY平台认证时需要回传的用户ID
+}
+
+
+//----------------------------------------------------------------
+
+//注册平台帐号的请求,包括游客注册、帐号注册和帐号绑定
+message RegAuth_RegAccount_Request
+{
+	optional int32 iRegOpType = 1;			//注册的操作类型，游客注册、帐号注册和帐号绑定3种
+	optional AccountID stAccountID = 2;		//注册的帐号ID
+	optional string strPassword = 3;		//玩家注册帐号的密码
+	optional AccountID stNewAccountID = 4;	//如果是绑定帐号请求，则为绑定的新帐号
+}
+message ServerInfo
+{
+	optional int32 iWorld = 1;			//worldid
+	optional int32 isHaveRole = 2; 		//是否有角色
+}
+message RegAuth_AccountDB_ServerInfo
+{
+	repeated ServerInfo stServerinfo = 1;	//服务器信息
+}
+//注册平台帐号的返回
+message RegAuth_RegAccount_Response
+{
+	optional int32 iResult = 1;				//注册成功还是失败
+	repeated ServerInfo stServerinfo = 2;	//服务器信息
+}
+
+//激活码绑定帐号
+message RegAuth_BindActiveCode_Request
+{
+	optional string strAccount = 1;		//玩家的帐号
+	optional string strCode = 2;		//激活码
+}
+
+//返货绑定激活码结果
+message RegAuth_BindActiveCode_Response
+{
+	optional int32 iresult = 1;
+}
+
+//平台帐号的认证请求
+message RegAuth_AuthAccount_Request
+{
+	optional AccountID stAccountID = 1;		//登录认证的玩家帐号
+	optional string strPassword = 2;		//登录认证玩家的密码
+	optional string strToken = 3;           //验证平台的通讯令牌
+	optional string strLoginTime = 4;		//登录时间校验
+}
+
+//平台帐号的认证返回
+message RegAuth_AuthAccount_Response
+{
+	optional int32 iResult = 1;				//操作的返回结果
+	optional uint32 uin = 2;				//认证的返回的uin
+	optional int32 iLastWorldID = 3;		//上次登录的世界服ID
+	optional string strSessionKey = 4;		//认证返回的sessionkey
+	repeated ServerInfo stServerList_W = 5; //服务器是否有角色
+	optional bool bIsBindKey = 6;			//是否绑定激活码
+	repeated RegAuth_ServerInfo stServerList = 7;//服务器列表
+	optional int32 iServerNum = 8;			  //分页总参数
+}
+
+//平台帐号的更新请求
+message RegAuth_UpdateLastWorld_Request
+{
+	optional AccountID stAccountID = 1;		//玩家的AccountID
+	optional string strPassword = 2;		//玩家的帐号密码
+	optional int32 iNewWorldID = 3;			//更新玩家最近登录的世界服
+}
+
+//平台帐号更新请求的返回
+message RegAuth_UpdateLastWorld_Response
+{
+	optional int32 iResult = 1;				//操作返回的结果
+}
+// 更新服务器信息
+message RegAuth_UpdateServerInfo_Request
+{
+	optional ServerInfo stServerInfo = 1;
+}
+
+// 更新服务器的返回
+message RegAuth_UpdateServerInfo_Response
+{
+	optional int32 iResult = 1;
+}
+
+message RegAuth_ServerInfo{
+	optional int32 iWorldId = 1;			// 服务器ID
+	optional string strServerName  = 2;		// 服务器名称
+	optional string strRoleServerIp  = 3;	// 角色服IP
+	optional int32 iRoleServerPort  = 4;	// 角色服端口
+	optional string strZoneServerIp  = 7;	// 游戏服IP
+	optional int32 iZoneServerPort  = 8;	// 游戏服端口
+	optional int32 iZoneServerID  = 9;		// 游戏服ZoneId
+	optional int32 ishaverole = 10;
+	optional int32 iState = 11;				// 客户端标签
+	optional int32 iServerState = 12;		//服务器状态控制器
+	optional string strDesc = 13;			//关服描述
+	optional string strChatServerIp  = 14;	//聊天服IP
+	optional int32 iChatServerPort  = 15;	// 聊天服端口
+	optional int32 iShowID = 16;			//显示服务器的标识
+}
+//请求所有取列表
+message RegAuth_ServerList_Request
+{
+	optional int32 iState = 3;	//拉取服务列表类型
+	optional int32 iServerid = 1; //服务器ID
+	optional int32 iPlatformid = 2; //平台ID
+}
+message RegAuth_ServerList_Response
+{
+	optional int32 iResult = 1;
+	repeated RegAuth_ServerInfo stServerList = 2;
+	optional int32 iState = 3; //拉取类型
+}
+
+//拉取某区间的服务器
+message RegAuth_FetchServerList_Request
+{
+	optional int32 iMinId = 1;
+	optional int32 iMaxId = 2;
+}
+// 回复
+message RegAuth_FetchServerList_Response
+{
+	optional int32 iResult = 1;
+	repeated RegAuth_ServerInfo stServerList = 2;
+}
+
+//----------------------------------------------------------------
+
+//----------------------------------------------------------------
+
+//帐号数据库服务器相关的协议
+//----------------------------------------------------------------
+
+//增加新帐号记录的请求
+message AccountDB_AddAccount_Request
+{
+	optional AccountID stAccountID = 1;		//插入的帐号ID
+	optional uint32 uin = 2;				//如果是绑定帐号的操作，则有这个字段
+	optional int32 iLastWorldID = 3;		//如果是绑定帐号的操作，则有这个字段
+	optional string strPassword = 4;		//插入的帐号的密码，加密后的
+	optional int32 iAddType = 5;			//增加记录的类型，包括游客注册、帐号注册和帐号绑定
+	optional AccountID stOldAccountID = 6;	//如果是绑定操作，是老的帐号ID
+}
+
+//增加新帐号记录的返回
+message AccountDB_AddAccount_Response
+{
+	optional int32 iResult = 1;				//插入记录请求的处理结果
+	optional int32 iAddType = 2;			//插入记录的类型，区分游客注册、帐号注册和帐号绑定
+	optional AccountID stOldAccountID = 3;	//如果是帐号绑定操作，是老的帐号ID
+}
+
+//拉取帐号记录的请求
+message AccountDB_FetchAccount_Request
+{
+	optional AccountID stAccountID = 1;		//拉取的帐号ID
+	optional bool bIsBindAccount = 2;		//是否绑定帐号时拉取原帐号记录
+	optional AccountID stNewAccountID = 3;	//如果是绑定帐号的操作，此处为新的帐号ID
+	optional string strPassword = 4;		//帐号的密码，如果是绑定，则为新的帐号密码
+    optional int32  iFlag = 5;              //GM拉取标志位去除密码
+}
+
+//拉取帐号记录的返回
+message AccountDB_FetchAccount_Response
+{
+	optional int32 iResult = 1;				//拉取帐号请求的返回结果
+	optional AccountID stAccountID = 2;		//拉取的帐号ID
+	optional uint32 uin = 4;				//拉取的帐号的uin
+	optional int32 iLastWorldID = 5;		//上次登录的世界ID
+	optional bool bIsBinded = 6;			//是否是绑定的帐号
+	optional bool bIsBindAccount = 7;		//是否绑定帐号时拉取原帐号记录
+	optional AccountID stNewAccount = 8;	//如果是绑定帐号的操作，此处为新的帐号ID
+	optional string strNewPassword = 9;		//如果是绑定帐号的操作，此处为新的帐号密码
+	optional bytes stServerinfo = 10;		//服务器信息
+	optional bool bIsBindKey = 11;			//是否绑定激活码
+	optional int32 iState = 12;				//是否为白名单用户
+}
+
+//更新帐号记录的请求
+message AccountDB_UpdateAccount_Request
+{
+	optional int32 iAccountID = 1;		//更新的帐号ID
+	optional int32 iLastWorldID = 2;	//更新最近登录的世界的ID
+	optional bytes strServerInfo = 3;	//服务器信息
+}
+
+//更新帐号记录的返回
+message AccountDB_UpdateAccount_Response
+{
+	optional int32 iResult = 1;				//更新帐号请求的处理结果
+}
+
+//更新激活码请求
+message AccountDB_BindActiveCode_Request
+{
+	optional string strAccountID = 1;		//更新的帐号ID
+	optional string strCode = 2;			//激活码
+}
+
+//更新激活码的返回
+message AccountDB_BindActiveCode_Response
+{
+	optional int32 iResult = 1;				//更新激活码处理结果
+}
+
+//删除帐号记录的请求
+message AccountDB_DeleteAccount_Request
+{
+	optional AccountID stAccountID = 1;		//删除的帐号ID
+}
+
+//删除帐号记录的返回
+message AccountDB_DeleteAccount_Response
+{
+	optional int32 iResult = 1;				//删除帐号请求的处理结果
+}
+
+message RegAuth_GMAccountLogin_Request
+{
+    optional string stUserName = 1;    //GM用户名
+    optional string stPassword = 2;    //GM密码
+}
+
+
+
+message RegAuth_GMAccountLogin_Response
+{
+    optional int32 iResult = 1; //GM登录返回结果
+    optional string privileges = 2; //gm权限
+    optional string strBatch = 3; //平台
+    optional string  strSessionKey = 4;   //GM唯一标识
+    optional int32  iUin  = 5;
+}
+
+message RegAuth_AuthFetchRole_GM_Request
+{
+    optional string  strAccount = 1;
+    optional string   strIP = 2;
+}
+//添加GM帐号
+message RegAuth_AddGM_Request
+{
+    optional string stUserName = 1;    //GM用户名
+    optional string stPassword = 2;    //GM密码
+    optional string privileges = 3; //gm权限
+    optional string  batch = 4;     //渠道
+    optional string strAccount = 5; //操作人帐号
+    optional int32  uin = 6;   //GM唯一标识
+}
+message RegAuth_AddGM_Response
+{
+    optional int32 iResult = 1; //添加帐号返回结果
+    
+}
+
+//删除GM帐号
+message RegAuth_DelGM_Request
+{
+    optional string stUserName = 1;    //GM用户名
+    optional string stPassword = 2;    //GM密码 
+    optional string strAccount = 3;    //操作人帐号    
+}
+message RegAuth_DelGM_Response
+{
+    optional int32 iResult = 1; //添加帐号返回结果
+}
+
+//修改GM帐号
+message RegAuth_AlterGM_Request
+{
+    optional string stUserName = 1;    //GM用户名
+    optional string stPassword = 2;    //GM密码
+    optional string privileges = 3; //gm权限
+    optional string  batch = 4;     //渠道
+    optional string strAccount = 5; //操作人帐号
+}
+message RegAuth_AlterGM_Response
+{
+    optional int32 iResult = 1; //添加帐号返回结果
+}
+
+enum STATE
+{
+	WHITELIST = 1;	//白名单(默认)
+	OPENSERVER = 2;	//开服
+	CLOSESERVER = 3;//关服
+}
+enum CLIENTSTATE
+{
+	RECOMMEND_SERVER = 0;//推荐
+	CROWDED_SERVER = 1;	//爆满
+	DEFAULT_SERVER = 2; //默认
+}
+enum TYPESTATE
+{
+	TYPESTATE_ADDSERVER = 1;	//添加服务器
+	TYPESTATE_CHANGESTATE = 2;//变更服务器状态
+	TYPESTATE_UPDATEALLSERVER = 3; //更新所有服务器
+}
+message RegAuth_GMServer_Notify
+{
+	optional int32 iServerid = 1; //服务器
+	optional int32 iPlatformid = 2;//平台ID
+	optional int32 iType = 3;		//通知协议类型1=>添加服务器,2=>服务器状态更换
+}
+message RegAuth_AddWhite_Request
+{
+	optional int32 iUin = 1; //白名单的uin
+	optional int32 iState = 2;//添加为1 ，删除为0
+}
+
+message RegAuth_GMNotice_Request
+{
+	optional int32 iId = 1;
+	optional int32 iStarttime = 2;
+	optional int32 iEndtime = 3;
+	optional string strBtnText = 4;
+	optional string strTitle = 5;
+	optional bytes strContext = 6;
+}
+message RegAuth_Notice_Notify
+{
+	optional string strBtnText = 1;
+	optional string strTitle = 2;
+	optional bytes strContext = 3;
+}
+
+message RegAuth_LoadNotice_Request
+{
+}
+message RegAuth_LoadNotice_Response
+{
+	optional int32 iId = 1;
+	optional int32 iStarttime = 2;
+	optional int32 iEndtime = 3;
+	optional string strBtnText = 4;
+	optional string strTitle = 5;
+	optional bytes strContext = 6;
+	optional int32 iResult = 7;		//返回结果
+}

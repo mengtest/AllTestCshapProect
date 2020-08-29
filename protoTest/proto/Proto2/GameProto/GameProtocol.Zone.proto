@@ -1,0 +1,4460 @@
+//区服务器的相关协议
+
+import "GameProtocol.USERDB.proto";
+import "GameProtocol.Mail.proto";
+
+//登录时返回给客户端的数据
+message GameLoginInfo
+{
+	optional BASEDBINFO stBaseInfo = 1;				//玩家的基础数据
+	optional HERODBINFO stHeroInfo = 2;				//玩家的英雄数据
+	optional ITEMDBINFO stItemInfo = 3;				//玩家拥有的道具信息
+	optional FIGHTDBINFO stFightInfo = 4;			//玩家的战斗信息
+	optional FRIENDDBINFO stFriendInfo = 5;			//玩家的好友信息
+	optional RESERVEDBINFO1 stReserved1 = 6;		//保留的BLOB字段
+	optional int32 iEnergyMax = 7;					//玩家的体力上限
+	optional int32 iProtectTime = 8;				//夺宝保护时间
+	optional RRCHARGEINFO stRechargeInfo = 9;		//充值数据
+	optional HANDBOOK stHandBook = 10;				//图鉴数据
+	optional RESERVEDBINFO2 stReserved2 = 11;		//保留数据 天赋数据 充值数据 图鉴数据
+	optional int32 iMasterCount = 12;				//战斗大师的剩余挑战次数
+	optional MasterFightStore stMasterStore = 13;	//战斗大师商城数据
+	optional ComposeList stComposeList = 14;		//饰品合成列表
+}
+
+enum enLoginInfoType
+{
+	LOGIN_HEROINFO = 1;
+	LOGIN_ITEMINFO = 2;
+	LOGIN_FIGHTINFO = 3;
+} 
+//上线英雄信息
+message LoginHeroInfo_Notify
+{
+	optional HERODBINFO stHeroInfo = 1;				//玩家的英雄数据
+}
+
+//上线道具，装备信息
+message LoginItemInfo_Notify
+{
+	optional ITEMDBINFO stItemInfo = 1;				//玩家拥有的道具信息
+}
+
+//上线战斗信息
+message LoginFightInfo_Notify
+{
+	optional FIGHTDBINFO stFightInfo = 1;			//玩家的战斗信息
+}
+
+//请求发送登录剩余数据
+message LoginOtherInfo_Request
+{
+	optional int32 iLoginInfoType = 1;				//请求数据类型 enLoginInfoType
+}
+
+//玩家登录游戏的请求
+message Zone_LoginServer_Request
+{
+	optional uint32 uin = 1;				//请求登录的玩家的uin
+	optional int32 iWorldID = 2;			//请求登录的帐号世界ID
+	optional uint32 uLoginReason = 3;		//请求登录的原因
+	optional uint32 uClientVersion = 4;		//客户端版本号
+	optional string strSessionKey = 5;		//请求登录的session key，由帐号服务器生成
+	optional string namekey = 6;			//客户端输入字符串
+	optional string strSession = 7;			//帐号session
+	optional uint32 uRoleId = 8;			//RoleId
+}
+
+//玩家登录游戏的返回
+message Zone_LoginServer_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional uint32 uin = 2;				//登录的Account的uin
+	optional int32 iZoneID = 3;				//玩家所登录的区ID
+	optional int32 iWorldID = 4;			//玩家所登录的世界ID
+	optional GameLoginInfo stLoginInfo = 5;	//返回登录的玩家的数据
+	optional uint32 uRoleId = 6;			//登录的角色ID
+	optional ACCOUNTSTATU stAccountStatu = 7; //玩家封号时间
+}
+
+//重新登录请求
+message Zone_ReloginServer_Request
+{
+	optional uint32 uin = 1;				//请求登录的玩家的uin
+	optional string strSessionKey = 2;		//请求登录的session key，由帐号服务器生成
+	optional uint32 uRoleId = 3;			//RoleId
+	optional uint32 iTime = 4;				//上次登录时间
+}
+//重新登录返回
+message Zone_ReloginServer_Response
+{
+	optional int32 iResult = 1;
+	optional uint32 uin = 2;				//登录的Account的uin
+	optional int32 iZoneID = 3;				//玩家所登录的区ID
+	optional int32 iWorldID = 4;			//玩家所登录的世界ID
+	optional GameLoginInfo stLoginInfo = 5;	//返回登录的玩家的数据
+	optional uint32 uRoleId = 6;			//登录的角色ID
+}
+
+// 玩家数据第二部分
+message Zone_LoginServer_Response_Part2
+{
+	optional HANDBOOK stHandBook = 1;	// 图鉴数据
+}
+
+//玩家登出游戏的通知消息
+message Zone_Logout_Notify
+{
+	optional uint32 uin = 1;			//登出玩家的uin
+}
+
+//玩家拉取好友详细信息的请求
+message Zone_GetFriendInfo_Request
+{
+	optional uint32 ucReqType = 1;		//请求的类型
+	optional uint32 uin = 2;			//自己的uin
+	optional uint32 friend_uin = 3;		//好友的uin
+}
+
+//玩家拉取好友详细信息的返回
+message Zone_GetFriendInfo_Response
+{
+	//todo jasonxiong 暂时先预留，后面再填充内容
+	optional int32 iResult = 1;			//消息处理返回的结果
+}
+//玩家拉取好友信息的请求
+message Zone_FetchFriendInfo_Request
+{
+	optional uint32 uin = 1;			//uin
+	optional uint32 iFetchType = 2;		//请求的类型
+}
+
+//玩家拉取好友详细信息的返回
+message Zone_FetchFriendInfo_Response
+{
+	optional int32 iResult = 1;				//消息处理返回的结果
+	optional FRIENDDBINFO stFriendInfos = 2;// 好友数据
+}
+//分区向世界服务器上报状态的请求
+message Zone_OnlineRole_Request
+{
+	optional int32 iWorldID = 1;		//分区所在世界的编号
+	optional int32 iZoneID = 2;			//分区的区编号
+	optional int32 iRoleNum = 3;		//在线的玩家角色数量
+	optional string strRecordTime = 4;	//上报状态的时间
+}
+
+// 请求好友的请求
+message Zone_FriendList_Request{
+
+}
+// 好友列表的返回
+message Zone_FriendList_Response{
+	repeated BasicPlayerSummary stBasicPlyInfo = 1;// 好友列表
+}
+
+//请求事件好友列表
+message Zone_FriendEvtList_Request
+{
+}
+
+//请求好友事件列表的返回
+message Zone_FriendEvtList_Response
+{
+	optional int32 iResult = 1;				// 消息处理返回的结果
+	repeated FRIENDSOCIAL stFriendEvts = 2; // 好友事件列表
+}
+
+
+//请求好友切磋记录
+message Zone_FriendCombatRecord_Request
+{
+}
+
+//请求好友切磋记录的返回
+message Zone_FriendCombatRecord_Response
+{
+	optional int32 iResult = 1;							//消息处理返回的结果
+	repeated FRIEND_COMBAT_RECORD stCombatRecords = 2;  // 好友切磋记录
+}
+
+//GM管理员的GM管理请求
+message Zone_GameMaster_Request
+{
+	optional uint32 uin = 1;			//GM操作者的UIN
+	optional string strCommand = 2;		//GM操作命令的字符串
+    optional string strAccount = 3;     //GM登录标识
+}
+
+//GM管理员的GM管理返回
+message Zone_GameMaster_Response
+{
+	optional int32 iResult = 1;			//GM命令执行的返回值
+}
+
+//PVE关卡战斗开始的请求
+message Zone_PveStartFight_Request
+{
+	optional uint32 uPinstanceID = 1;		//开始战斗的PVE副本ID
+	optional uint32 uCrossID = 2;			//开始战斗的PVE关卡ID
+}
+
+//更新关卡挑战次数
+message PVEFightCount
+{
+	optional uint32 uPinstanceID = 1;		//开始战斗的PVE副本ID
+	optional uint32 uCrossGrpID = 2;		//开始战斗的PVE关卡ID
+	optional uint32 iCount = 3;				//挑战次数
+	optional uint32 iBuyAddTimes = 4;		//购买的次数
+}
+
+//PVE关卡战斗开始的返回
+message Zone_PveStartFight_Response
+{
+	optional int32 iResult = 1;					//请求处理的结果	
+	optional SpecialLayer stSpecialLayer = 2;	//更新神秘层
+}
+
+//请求重置关卡
+message Zone_PveReset_Request
+{
+	optional uint32 uPinstanceID = 1;		//请求重置的PVE副本ID
+	optional uint32 uCrossGrpID = 2;			//请求重置的PVE关卡ID 
+}
+
+//更新重置关卡次数
+message PVEResetCount
+{
+	optional uint32 uPinstanceID = 1;		//请求重置的PVE副本ID
+	optional uint32 uCrossGrpID = 2;			//请求重置的PVE关卡ID 
+	optional uint32 iResetCount = 3;		//重置次数
+	optional uint32 iFightCount = 4;		//挑战次数
+}
+//返回重置关卡结果
+message Zone_PveReset_Response
+{
+	optional int32 result = 1;
+	optional PVEResetCount ResetCount = 2;	//更新重置次数
+	optional int32 iResult = 3;
+}
+
+//通知定点更新数据
+enum enDataType
+{
+	ePVE_FIGHT = 1;		//关卡挑战次数
+	ePVE_RESET = 2;		//关卡重置次数
+	eROLE_EXTRACT_COUNT = 3;	//抽魂剩余次数
+}
+message DataAttr
+{
+	optional enDataType iDataType = 1;		//更新的数据类型
+	optional int32 iDataValue = 2;			//更新的值
+}
+message Zone_DailyFresh_Notify
+{
+	repeated DataAttr stData = 1;			//更新的数据
+}
+
+enum PVERESULT
+{
+	PVE_CROSSPINSTANCE =  0; //胜利
+	PVE_FAILEDPINSTANCE = 1;//失败
+	PVE_GIVEUPPINSTANCE = 2; //放弃
+}
+
+//PVE关卡战斗结束的请求
+message Zone_PveFinFight_Request
+{
+	optional uint32 uPinstanceID = 1;		//完成战斗的PVE副本的ID
+	optional uint32 uCrossID = 2;			//完成战斗的PVE关卡的ID
+	optional int32 bIsWin = 3;				//当前战斗关卡是否胜利 PVERESULT
+	optional uint32 uPveStar = 4;			//副本评星
+	optional uint32 uMineDemageCount = 5;	//伤害总结算
+}
+
+//PVE奖励领取后英雄的最新等级和经验
+message HeroRewardInfo
+{
+	optional uint32 uOldHeroID = 1;			//升级前的英雄ID
+	optional uint32 uHeroID = 2;			//最新的英雄ID
+	optional int32 iNewLevel = 3;			//英雄新的等级
+	optional int32 iNewExp = 4;				//英雄新的经验
+	optional int32 iAddExp = 5;				//实际总增加的经验
+}
+
+//PVE奖励领取后队伍最新的等级和经验
+message TeamRewardInfo
+{
+	optional int32 iNewLevel = 1;			//新的队伍等级
+	optional int32 iNewExp = 2;				//新的队伍的经验
+	optional int32 iAddExp = 3;				//增加的队伍的经验
+}
+
+//PVE关卡战斗结束的奖励
+//todo jasonxiong 该奖励中后续可能会添加其他的奖励
+message AllHeroRewardInfo{
+	repeated HeroRewardInfo HeroInfos = 1;	//领取奖励后的英雄信息
+}
+message PveReward
+{
+	optional int32 iAddGold = 1;			//本次领取的奖励金币数
+	optional TeamRewardInfo TeamInfo = 2;	//领取奖励后的队伍信息
+	repeated HeroRewardInfo HeroInfos = 3;  //领取奖励后的英雄信息 optional AllHeroRewardInfo stHeroRewardInfos
+	optional OneHeroInfo stHeroInfo = 4;    //PVE新奖励的英雄基本信息
+	optional DropInfoList stDropList = 5;   //掉落组
+}
+// 单一掉落
+message SingleDropInfo{
+	optional int32 iDropType = 1;
+	optional int32 iDropID = 2;
+	optional int32 iDropAmt = 3;
+	optional TeamRewardInfo TeamInfo = 5;	//领取奖励后的队伍信息
+	optional AllHeroRewardInfo stHeroRewardInfo = 6;	//奖励的英雄经验
+	optional OneHeroInfo stHeroInfo = 7;    //奖励后的英雄信息
+	optional uint32 iGetTime = 8;			// 获得时间
+}
+
+// 掉落列表
+message DropInfoList{
+	repeated SingleDropInfo stSingleDropInfo = 1;
+}
+//PVE新的副本关卡信息
+message NewCrossInfo
+{
+	optional uint32 uPinstanceID = 1;		//如果解锁新的副本，此处为新的副本ID
+	optional uint32 uCrossID = 2;			//新的关卡列表ID
+}
+//PVE新的副本关卡组
+message NewCrossGrpInfo{
+	repeated NewCrossInfo stNewCross = 1;
+}
+message PinInfoUpdate{
+	optional int32 iPinId = 1;	    //更新副本ID
+	optional int32 iPinPveStars = 2;	    //更新副本星星数
+	optional bool bPinPassed = 3;	    //该副本是否通关
+}
+
+//PVE关卡战斗结束的返回,包括奖励
+message Zone_PveFinFight_Response
+{
+	optional int32 iResult = 1;				//PVE关卡战斗结束请求的处理结果
+	optional PveReward stRewards = 2;		//PVE关卡战斗结束的奖励 
+	optional NewCrossGrpInfo stNewCrossGrp = 3;	//PVE新的战斗副本关卡信息
+	optional PVEFightCount FightCount = 4;	//更新关卡挑战次数
+	optional PinInfoUpdate stPinInfoUpdate = 5;// 副本的更新
+	optional int32 iCurLayer = 6;			//当前征服塔的层数
+	optional SpecialLayerArray stSpecialLayer = 7;	//增加神秘层
+	optional TowerAward stAwardList = 8;// 奖励列表
+}
+
+//PVE关卡战斗击杀的单只怪物信息
+message OneKilledInfo
+{
+	optional int32 iMonsterIndex = 1;		//PVE关卡怪物index
+	optional int32 iMonsterID = 2;			//PVE关卡怪物的ID
+}
+
+//PVE关卡战斗击杀怪物的信息
+message KilledMonsterInfo
+{
+	repeated OneKilledInfo stKilledInfos = 1;		//PVE关卡击杀怪物信息
+}
+
+//PVE关卡战斗击杀怪物奖励的请求
+message Zone_KillMonster_Request
+{
+	optional int32 iPinstanceID = 1;			//PVE战斗的副本ID
+	optional int32 iCrossID = 2;				//PVE战斗的关卡ID
+	optional KilledMonsterInfo stMonsters = 3;	//PVE关卡击杀的怪物信息
+}
+//PVE关卡击杀怪物的奖励
+message OneKillReward
+{
+	optional int32 iMonsterIndex = 1;			    //本次击杀怪物的index
+	optional int32 iItemID = 2;					//本次击杀怪物的奖励ID
+	optional int32 iItemType = 3;				//本次击杀怪物的奖励类型
+	optional int32 iItemNum = 4;				//本次击杀怪物的奖励数量
+}
+
+//PVE关卡击杀怪物的所有奖励
+message KilledReward
+{
+	repeated OneKillReward stOneReward = 1;		//本次击杀怪物的所有奖励
+}
+
+//PVE关卡战斗击杀怪物奖励的返回
+message Zone_KillMonster_Response
+{
+	optional int32 iResult = 1;				//该请求处理的结果
+	optional KilledReward stRewards = 2;	//本次击杀怪物的所有奖励
+}
+
+//玩家资源变化消息的推送
+message Zone_ResourceChange_Notify
+{
+	optional int32 iResType = 1;				//变化的资源类型
+	optional int32 iNewResNum = 2;				//最新的资源数量
+
+}
+
+//玩家升级装备的请求
+message Zone_UpgradeEquip_Request
+{
+	optional int32 iEquipSlot = 1;				//装备在背包槽中的位置
+	repeated int32 iMaterialSlot = 2;			//消耗的装备在背包槽中的位置
+}
+
+//玩家升级装备的返回
+message Zone_UpgradeEquip_Response
+{
+	optional int32 iResult = 1;					//本次请求的返回结果
+	optional int32 iNewEquipID = 2;				//升级后的最新装备ID
+	repeated int32 iMaterialSlot = 3;			//消耗的装备在背包槽中的位置
+}
+
+//玩家英雄穿卸单件装备
+message OneEquipOpera
+{
+	optional int32 iEquipType = 1;				//英雄身上装备穿卸的槽位
+	optional int32 iEquipSlot = 2;				//穿装备为新装备的背包槽位，脱装备此处填 -1
+}
+
+//单个英雄穿卸装备
+message HeroEquipOpera
+{	
+	optional int32 iFormIdx = 1;				//穿卸装备的阵形index
+	repeated OneEquipOpera stOperas = 2;		//英雄身上装备的穿卸操作
+}
+
+//玩家装备穿卸的请求
+message Zone_HeroEquip_Request
+{
+	optional HeroEquipOpera stReq = 1;				//单个英雄身上装备的操作请求
+}
+
+//玩家装备穿卸的返回
+message Zone_HeroEquip_Response
+{
+	optional int32 iResult = 1;						//穿卸装备处理的结果
+	repeated HeroEquipOpera stResp = 2;				//单个英雄穿卸装备处理结果的返回
+}
+
+//玩家英雄招募的请求
+message Zone_HeroEmploy_Request
+{
+	optional int32 iHeroID = 1;					//要招募的英雄的ID
+}
+
+//玩家英雄招募的返回
+message Zone_HeroEmploy_Response
+{
+	optional int32 iResult = 1;					//该请求的处理结果
+	optional OneHeroInfo stHeroInfo = 2;		//招募的英雄的详细信息
+}
+
+//设置玩家战斗阵形的请求
+message Zone_SetFightForm_Request
+{
+	optional HeroFormGame stForm = 1;			//新设置的玩家战斗阵形
+}
+
+//设置玩家战斗阵形的返回
+message Zone_SetFightForm_Response
+{
+	optional int32 iResult = 1;					//设置战斗阵形消息的处理结果
+	optional HeroFormGame stForm = 2;			//将设置的阵形返回给客户端
+}
+
+//出售道具。单种道具信息
+message SellSingleItem
+{
+	optional int32 iItemSlot = 1;                           //出售的道具在背包上的槽位
+	optional uint32 uCount = 2;				//数量
+}
+//玩家出售道具的背包槽位列表
+message SellItemInfo
+{
+	repeated SellSingleItem iItemSlot = 1;			//出售的道具在背包上的槽位
+}
+
+//玩家出售道具的请求
+message Zone_SellUserItem_Request
+{
+	optional SellItemInfo stItemSlots = 1;		//出售的道具在背包上的槽位
+}
+
+//玩家出售道具的返回
+message Zone_SellUserItem_Response
+{
+	optional int32 iResult = 1;					//出售道具的请求处理结果
+	optional SellItemInfo stItemSlots = 2;		//已经出售的道具在背包上的槽位
+}
+
+//升级英雄技能的请求
+message Zone_UpgradeSkill_Request
+{
+	optional int32 iHeroIdx = 1;				//英雄的index
+	optional int32 iSkillID = 2;				//要升级的英雄技能ID
+}
+
+//升级英雄技能的返回
+message Zone_UpgradeSkill_Response
+{
+	optional int32 iResult = 1;					//升级英雄技能处理的结果
+	optional int32 iHeroIdx = 2;				//升级技能的英雄index	
+	optional int32 iOldSkillID = 3;				//升级前的英雄技能ID
+	optional int32 iNewSkillID = 4;				//升级后的英雄技能ID
+}
+
+//配置英雄技能的请求
+message Zone_EquipHeroSkill_Request
+{
+	optional int32 iHeroIdx = 1;				//英雄的index
+	optional int32 iEquipSkillID = 2;			//装备使用的英雄技能ID
+}
+
+//配置英雄技能的返回
+message Zone_EquipHeroSkill_Response
+{
+	optional int32 iResult = 1;					//配置英雄技能的处理结果
+}
+
+//玩家关卡战斗复活的请求
+message Zone_RevivalHero_Request
+{
+	optional int32 iPinstanceID = 1;			//复活的副本ID
+	optional int32 iCrossID = 2;				//复活的关卡ID
+}
+
+//玩家战斗关卡复活的返回
+message Zone_RevivalHero_Response
+{
+	optional int32 iResult = 1;					//本次请求处理的结果
+	optional int32 iResType = 2;				//玩家复活消耗的资源类型
+	optional int32 iResValue = 3;				//玩家复活消耗的资源数量
+}
+
+//玩家背包中新增加的装备
+message RepEquipInfo
+{
+	optional int32 iItemID = 1;				//增加的装备的ID
+	optional int32 iItemSlot = 2;			//增加的装备在背包中的位置
+}
+
+//玩家背包中增加新装备的通知
+message Zone_NewRepEquip_Notify
+{
+	repeated RepEquipInfo stEquips = 1;			//增加的新的装备信息
+}
+
+//玩家商城抽奖的请求
+message Zone_MarketLottery_Request
+{
+	optional int32 iLotteryType = 1;			//抽奖类型
+	optional bool bIsCostLottery = 2;			//是否付费抽奖
+}
+
+//玩家商城抽奖的返回
+message Zone_MarketLottery_Response
+{
+	optional int32 iResult = 1;					//抽奖请求的处理结果
+	optional int32 iItemID = 2;					//抽中的物品ID
+}
+
+//玩家普通抽奖次数回复的通知
+message Zone_LotteryRecover_Notify
+{
+	optional int32 iNewLotteryTimes = 1;		//新的普通抽奖次数
+	optional int32 iNextRecoverTime = 2;		//普通抽奖次数下次回复时间
+}
+
+//玩家更新新手教程步骤的请求
+message Zone_UpdateBeginner_Request
+{
+	optional int32 iNewStep = 1;				//更新的新手教程的步骤数
+}
+
+//玩家更新新手教程步骤的返回
+message Zone_UpdateBeginner_Response
+{
+	optional int32 iResult = 1;					//请求返回的结果
+	optional SingleDropInfo stSingleDropInfo = 2;//单个掉落
+}
+
+//玩家背包中增加新道具的通知
+message RepPropsInfo
+{
+	optional int32 iItemID = 1;				//增加的道具的ID
+	optional int32 iItemSlot = 2;			//增加的道具在背包中的位置
+	optional int32 iItemNum = 3;			//增加的道具的数量
+}
+
+//玩家背包中增加新道具的通知
+message Zone_NewRepProps_Notify
+{
+	repeated RepPropsInfo stProps = 1;		//玩家背包中增加的新道具的详细信息
+}
+
+//玩家升级英雄品质的请求
+message Zone_UpgradeQuality_Request
+{
+	optional int32 iHeroIdx = 1;			//玩家英雄的索引
+}
+
+//玩家升级英雄品质的返回
+message Zone_UpgradeQuality_Response
+{
+	optional int32 iResult = 1;				//升级品质请求处理的结果
+	optional int32 iHeroIdx = 2;			//升级品质的英雄的索引
+	optional int32 iNewQuality = 3;			//新的英雄品质
+}
+
+//英雄星级的升级请求
+message Zone_UpgradeStar_Request
+{
+	optional int32 iHeroID = 1;                 //英雄的ID
+}
+
+//英雄星级升级的返回
+message Zone_UpgradeStar_Response
+{
+	optional int32 iResult = 1;                 //请求返回的结果 
+	optional int32 iHeroID = 2;                 //英雄的ID
+	optional uint32 iOldStarGrade = 3;          //升级前的英雄星级的ID  
+	optional uint32 iNewStarGrade = 4;          //升级后的英雄星级的ID
+}
+
+//玩家扩充背包格子的请求
+message Zone_AddRepBlock_Request
+{
+	optional int32 iBagType = 1;                 //背包类型
+}
+
+//玩家扩充背包格子的返回
+message Zone_AddRepBlock_Response
+{
+	optional int32 iResult = 1;					//请求处理的结果
+	optional int32 iBuyTimes = 2;				//是第几次购买
+	optional int32 iNewBlockNum = 3;			//最新的背包格子数目
+	optional int32 iBagType = 4;                //背包类型
+}
+// 玩家请求炼金
+message Zone_RefineGold_Request
+{
+	optional int32 iRefineTimes = 1;			//防止出现批量炼金的情况
+}
+// 炼金请求炼金的返回
+message Zone_RefineGold_Response
+{
+	optional int32 iResult = 1;					//请求处理的结果
+	optional int32 iAddGolds = 2;				//基础数值
+	optional int32 iCritTimes = 3;				//暴击倍数
+	optional int32 iCostCash = 4;				//消耗的钻石Cash	
+	optional int32 iRefineGoldTimes = 5;		//当日的炼金次数	
+}
+// 更新当日炼金次数
+message Zone_RefineGold_Notify
+{
+	optional int32 iRefineGoldTimes = 1;		//已经使用的炼金次数	
+}
+
+//请求抽取英雄
+message Zone_ExtractHero_Request
+{
+	optional int32 iExtractType = 1;		//抽取英雄类型	QMExtractHeroType
+	optional bool bFreeExtract = 2;			//是否是免费抽取
+}
+
+//返回抽英雄结果
+message Zone_ExtractHero_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iXZExtractCount = 2;
+	optional int32 iZSExtractCount = 3;
+	repeated int32 iHeroList = 4;
+	optional int32 iFreeDiamondTime = 5;
+	optional int32 iFreeMetalTime = 6;
+	optional int32 iDailyFMExtTime = 7;   // 日常免费勋章抽的次数
+	optional int32 iScrollHeroCount = 8;  	  // 当日魔法卷轴使用次数
+	optional int32 iTenScrollHeroCount = 9;	  // 当日十连抽魔法卷轴使用次数
+}
+
+enum ExtractType
+{
+	enOrdinary = 1;			//普通抽取
+	enAdvanced = 2;			//高级抽取
+}
+enum ExtractCount
+{
+	enExtract_One = 1;		//抽一次
+	enExtract_Ten = 2;		//抽十次
+}
+
+//抽魂请求
+message Zone_ExtractSoul_Request
+{
+	optional ExtractType enEXTRType = 1;		//抽取类型
+	optional ExtractCount enEXTRCount = 2;		//一次抽取次数
+}
+
+//返回随机抽取的结果
+message stSoul
+{
+	optional int32	  enSoulType = 1;		//战魂类型
+	optional int32    nSoulCount = 2;		//战魂数量	
+}
+message Zone_ExtractSoul_Response
+{
+	optional int32	  result = 1;
+	repeated stSoul	  SoulResult = 2;		//战魂数据
+	optional int32	  iRemainCount = 3;		//剩余免费次数
+}
+//战魂兑换
+message Zone_ExchangeSoul_Request
+{
+	optional int32	  enSourceSoul = 1;		//源战魂
+	optional int32    iSourceCount = 2;		//源数量
+	optional int32	  enDesSoul = 3;		//目标战魂
+}
+//返回战魂对换结果
+message Zone_ExchangeSoul_Response
+{
+	optional int32 result = 1;
+}
+
+// 贡献的英雄、和装备列表
+message MatrialInfo{
+	repeated int32 iNeedHeroIdx = 1;	//消耗英雄index
+	repeated int32 iNeedEquipIdx = 2;	//消耗装备index
+}
+//英雄培养请求
+message Zone_FosterHero_Request
+{
+	optional int32 iHeroIndex = 1;				// 要培养的英雄id
+	optional int32 iAddLevel = 2;			// 目标培养增加等级
+	optional MatrialInfo stMatrialInfo = 3; // 材料信息
+}
+//英雄培养的反馈
+message Zone_FosterHero_Response
+{
+	optional int32 		result = 1;				//结果
+	optional int32 		iHeroIndex = 2;				//要培养的英雄id
+	optional int32		FosterLv = 3;			//新培养等级
+}
+//英雄升阶请求
+message Zone_StepUpHero_Request
+{
+	optional int32 iHeroIdx = 1;			//要升阶的英雄index
+	optional MatrialInfo stMatrialInfo = 2;			// 消耗材料的信息
+}
+//英雄的升阶段反馈
+message Zone_StepUpHero_Response
+{
+	optional int32 				result = 1;		//结果
+	optional int32 				Heroid = 2;		//英雄id
+	optional int32				StepLv = 3;		//新阶段
+}
+// 升级星级的请求
+message Zone_StarUpHero_Request{
+	optional int32 iHeroIndex = 1;				// 英雄ID	
+	optional MatrialInfo stMatrialInfo = 2;	// 消耗材料的信息
+}
+// 升级星级的反馈
+message Zone_StarUpHero_Response{
+	optional int32 result = 1;				// 结果
+	optional int32 iHeroIndex = 2;				// 英雄ID	
+	optional int32 iStar = 3;				// 新星级
+}
+
+// 英雄突破请求
+message Zone_HeroBreach_Request
+{
+	optional int32 iHeroIdx = 1;				// 英雄ID	
+	optional MatrialInfo stMatrialInfo = 2;		// 消耗材料的信息
+}
+// 英雄突破反馈
+message Zone_HeroBreach_Response
+{
+	optional int32 iResult = 1;				// 结果	
+	optional OneHeroInfo stHero = 2;		// 新英雄
+}
+
+//删除英雄通知
+message Zone_DelHero_Notify
+{
+	optional int32 iHeroIdx = 1;	//要删除英雄的index
+}
+//英雄传承请求
+message Zone_SmritiHero_Request
+{
+	optional int32 iSourceHeroid = 1;
+	optional int32 iDesHeroid = 2;
+}
+//返回英雄传承结果
+message SmritiHeroInfo
+{
+	optional int32 Heroid = 1;				//英雄id
+	
+	optional int32 HeroLv = 2;				//英雄等级
+	optional int32 HeroExp = 3;				//英雄经验
+	
+	optional int32 HeroFosterLv = 4;		//英雄培养等级
+	optional int32 HeroFosterExp = 5;		//英雄培养经验
+	
+	optional int32 HeroStepLv = 6;			//英雄突破等级
+	optional int32 HeroBlessValue = 7;		//英雄的祝福值
+}
+message Zone_SmritiHero_Response
+{
+	optional int32 			result = 1;
+	optional int32 			iSourceHeroid = 2;		//源英雄id
+	optional SmritiHeroInfo DesHeroInfo = 3;		//目标英雄数据
+}
+// 槽位物品的更新
+message Zone_UpdateSingleItem{
+	optional int32 iItemSlotId = 1;		// 位置
+	optional ItemInfo stItemInfo = 2;	// 要更新的物品
+}
+// 更新物品列表
+message Zone_Items_Notify{
+	repeated Zone_UpdateSingleItem stUpdateSingleItem = 1;// 更新物品的列表
+}
+// 升级框品质的请求
+message Zone_MineQualityUp_Request{
+	optional int32 iMineId = 1;		// 矿厂ID
+}
+// 升级框品质的反馈
+message Zone_MineQualityUp_Response{
+	optional int32 iResult = 1;					// 升级结果反馈
+	optional ONESINGLEMINE stSingleMine = 2;	// 升品的刷新
+}
+// 解锁矿场的请求
+message Zone_UnLockMine_Request{
+	optional int32 iMineId = 1;
+}
+// 解锁矿场的反馈
+message Zone_UnLockMine_Response{
+	optional int32 iResult = 1;					// 成功解锁的矿
+	repeated ONESINGLEMINE stAllMines = 2;		// 解锁的矿 可能会有多个解锁的矿
+}
+// 收获的请求
+message Zone_GainGoldFromMine_Request{
+	optional int32 iMineId = 1; // 要收获的矿Id	
+}
+// 收获的反馈
+message Zone_GainGoldFromMine_Response{
+	optional int32 iResult = 1;  // 结果
+	optional int32 iGoldAmt = 2; // 收获的金币数量
+	optional ONESINGLEMINE stSingleMine = 3; // 刷新
+	optional int32 iLevel = 4;	  			// 等级
+	optional int32 iGoldGainAmount = 5;		// 金币总收获
+	optional int32 iLevelUpCostGoldExp = 6;	// 升级总消耗
+}
+// 加速的请求
+message Zone_SpeedUpMine_Request{
+	optional int32 iMineId = 1; // 矿厂Id
+}
+// 加速的反馈
+message Zone_SpeedUpMine_Response{
+	optional int32 iResult = 1;
+	optional ONESINGLEMINE stSingleMine = 2; // 刷新内容
+}
+// 主动推送的刷新
+message Zone_MineCraft_Notify{
+	optional ONESINGLEMINE stSingleMine = 1; // 主动推送的刷新
+}
+
+//体力购买回复
+message Zone_BuyEnergy_Response   //体力购买回复            
+{
+	optional int32 iResult = 1;
+	optional int32 CostTimes = 2; //已购买次数
+}
+
+message Zone_UpdateBuyEnergyTimes_Notify //体力购买次数更新推送
+{
+	optional int32 CostTimes = 1; //已购买次数
+}
+// 领取副本星级奖励
+message Zone_GetStarReward_Request{
+	optional int32 iInsId = 1;				// 副本ID
+	optional int32 iRewardIndex = 2;		// 副本奖励等级ID
+}
+// 领取副本星级奖励的反馈
+message Zone_GetStarReward_Response{
+	optional int32 iResult = 1;				// 结果
+	optional int32 iInsId = 2;				// 副本ID
+	optional int32 iRewardIndex = 3;		// 副本奖励索引
+	optional DropInfoList stDropList = 4;	// 掉落组
+}
+// 主动掉落 GM等对应获得物品窗
+message Zone_DropReward_Notify{
+	optional DropInfoList stDropList = 1;   // 主动掉落
+}
+
+message Zone_GetEnergyFresh_Notify  //体力领取更新
+{
+    optional int32 iLunchGetEnergy = 1; //更新体力条件 0 未领取 1已经领取
+    optional int32 iDinnerGetEnergy = 2; //同上
+	optional int32 iNightSnack = 3;		//夜宵档体力领取
+}
+
+message Zone_GetEnergy_Response //体力领取回复
+{
+    optional int32 iResult = 1;  //返回结果0表示成功
+    optional int32 iNewEnergy = 2; //最新体力
+    optional int32 iType = 3;  //领取体力类型
+}
+
+message Zone_GetEnergy_Request   //体力领取请求
+{
+    optional int32 iType = 1; //领取体力类型 lunch/dinner
+}
+// 请求领取奖励
+message Zone_GetReward_Request{
+	optional int32 iRewardType = 1;      // 奖励类型
+	optional int32 iRewardParam = 2;	 // 奖励参数
+	optional int32 iRewardParamB = 3;	 // 是否补签
+}
+// 请求领取奖励的反馈
+message Zone_GetReward_Response{
+	optional int32 iResult = 1;      	// 奖励结果
+	optional int32 iRewardType = 2;     // 奖励类型
+	optional int32 iRewardParam = 3;	 // 奖励参数
+	optional DropInfoList stDropList = 4;// 奖励列表
+	optional int32 iReSignTimes = 5;	 // 补签计数
+	optional int32 iRewardParamB = 6;	 // 奖励参数2
+}
+// 英雄刷新
+message Zone_Hero_Notify{
+	repeated OneHeroInfo stOneHero = 1;   // 根据optional 内容确定刷新内容
+}
+
+enum MessageType
+{
+	Bug        = 1;  //Bug
+	Suggestion = 2;  //建议
+	Report     = 3;  //举报
+	Advice     = 4; //咨询
+}
+
+
+//系统反馈
+message Zone_FeedBack_Request
+{
+    optional string AccountId = 1;   //玩家ID
+    optional int32  CommitTime = 2;  //提交时间
+    optional string EquipmentType = 3;//设备类型
+    optional string SystemType = 4;  //系统版本
+    optional MessageType  MessageType = 5; //消息类型 咨询、BUG、建议、举报
+    optional string  Message = 6;    //消息内容
+}
+
+message Zone_FeedBack_Response
+{
+	optional int32 iResult = 1; //回复结果
+}
+
+//合成请求
+message Zone_Compose_Request
+{
+	optional int32 iSourceID = 1;	//合成消耗物品id
+	optional int32 iDesID = 2;		//合成生成物品id
+	optional int32 iType = 3;		//0=普通合成，1=一键合成
+}
+
+//返回合成结果
+message Zone_Compose_Response
+{
+	optional int32 iresult = 1;
+	optional int32 iItemid = 2;			//饰品id
+	optional int32 iEndTime = 3;		//合成结束时间点
+	optional int32 iType = 4;			//0=普通合成，1=一键合成
+}
+
+//合成立即完成
+message Zone_ImdtCompose_Request
+{
+	optional int32 iItemid = 1;		//饰品id
+}
+message Zone_ImdtCompose_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iItemid = 2;		//饰品id
+}
+
+//合成时间结束通知
+message Zone_FinCompose_Notify
+{
+	optional int32 iItemid = 1;			//饰品id
+	optional int32 iComposeResult = 2;  //合成结果 0=失败，1=成功
+}
+// 强化
+message Zone_EquipStrengthen_Request{
+	optional int32 iSlotId = 1;				// 要强化物品所在槽位
+	optional int32 isAutoDone = 2;			// 是否自动强化
+}
+// 强化反馈
+message Zone_EquipStrengthen_Response{
+	optional int32 iResult = 1;			
+	optional int32 iSlotId = 2;				// 要强化物品所在槽位
+	optional int32 iStrengthenTimes = 3;	// 强化次数
+	optional int32 iAddStrLevel = 4;		// 增加强化等级
+	optional int32 iCurStrLevel = 5;		// 当前强化等级
+	optional int32 iCurStrengthenCost = 6;		// 强化消耗
+}
+// 精炼
+message Zone_EquipRefine_Request{
+	optional int32 iSlotId = 1;				// 要精炼物品所在槽位
+	optional int32 iRefineTimes = 2;		// 精炼次数
+	optional int32 iRefineType = 3;         // 精炼类型
+}
+// 精炼反馈
+message Zone_EquipRefine_Response{
+	optional int32 iResult = 1;				// 要精炼物品所在槽位
+	optional int32 iSlotId = 2;				// 要精炼物品所在槽位
+	optional int32 iRefineTimes = 3;		// 精炼次数
+	optional int32 iRefineType = 5;			// 精炼类型
+	repeated EQUIPATTACHATTR stTmpEquipAttr = 6; // 装备临时属性属性
+}
+// 应用精炼结果
+message Zone_ApplyEquipRefine_Request{
+	optional int32 iSlotId = 1;				// 要应用物品所在槽位
+}
+// 应用精炼的反馈
+message Zone_ApplyEquipRefine_Response{
+	optional int32 iResult = 1;				// 物品所在槽位
+	optional int32 iSlotId = 2;				// 物品所在槽位
+	repeated EQUIPATTACHATTR stEquipAttr = 3; // 装备属性
+	// 清空临时属性组
+}
+// 放弃精炼结果
+message Zone_DropEquipRefine_Request{
+	optional int32 iSlotId = 1;				// 要应用物品所在槽位
+}
+// 放弃精炼结果的反馈
+message Zone_DropEquipRefine_Response{
+	optional int32 iResult = 1;				// 放弃结果
+	optional int32 iSlotId = 2;				// 物品所在槽位
+}
+// 分解装备
+message Zone_EquipDecompose_Request{
+	repeated int32 iSlotId = 1;				// 物品所在槽位
+}
+// 分解装备反馈
+message Zone_EquipDecompose_Response{
+	optional int32 iResult = 1;				// 分解结果
+}
+// 使用物品
+message Zone_UseItem_Request{
+	optional int32 iSlotId = 1;
+	optional int32 iNum = 2;
+}
+// 使用物品的反馈
+message Zone_UseItem_Response{
+	optional int32 iResult = 1;			// 单个物品的使用反馈
+	optional int32 iSlotId = 2;			// 物品槽位
+	optional int32 iItemId = 3;			// 物品ID
+	optional int32 iNum = 4;			// 使用数量
+	optional DropInfoList stDropList = 5;// 可能有的掉落
+	optional int32 iPVPFightCount = 6;	//pvp当前挑战次数
+	optional int32 iMasterCount = 7;	//战斗大师剩余挑战次数
+	optional int32 iDailyUsedCount = 8;		// 日常使用次数
+}
+// 心跳 空包
+message Zone_HeartBeat_Request{
+}
+// 心跳回复  空包
+message Zone_HeartBeat_Response{
+}
+// 购买商城购买物品
+message Zone_MallBuyItem_Request{
+	optional int32 iShopItemId = 1;		// 商城商品ID
+	optional int32 iItemNum = 2;		// 购买数量
+}
+// 购买商城物品的返回
+message Zone_MallBuyItem_Response{
+	optional int32 iResult = 1;				// 结果
+	optional int32 iShopItemId = 2; 		// 当日够买次数
+	optional DropInfoList stDropList = 3;	// 实际获得物品
+	optional int32 iBuyTimes = 4;			// 总购买次数
+	optional int32 iDailyBuyTimes = 5; 		// 当日够买次数
+	optional int32 iLastBuyTime = 6; 		// 购买的时间
+}
+// 查看礼品码
+message Zone_CheckGiftCdk_Request{
+	optional string strGiftCdk = 1;
+}
+// 查看礼品码的反馈
+message Zone_CheckGiftCdk_Response{
+	optional int32 iResult = 1;
+	optional int32 iDropGrpId = 2;
+}
+
+// 礼品码使用
+message Zone_UseGiftCdk_Request{
+	optional string strGiftCdk = 1;
+}
+// 礼品码使用返回
+message Zone_UseGiftCdk_Response{
+	optional int32 iResult = 1;
+	optional DropInfoList stDropList = 2; //掉落
+}
+// 扫荡请求
+message Zone_Sweep_Request{
+	optional int32 iCrossId = 1;
+	optional int32 iSweepType = 2;	// 扫荡次数 0单次扫荡 1多次扫荡
+}
+// 扫荡反馈
+message Zone_Sweep_Response{
+	optional int32 iResult = 1;					//关卡ID
+	optional int32 iCrossId = 2;				//关卡ID
+	repeated PveReward stRewards = 3;			//PVE关卡战斗结束的奖励 
+	optional PVEFightCount stFightCount = 4;	//更新关卡挑战次数
+	optional int32 iNextSweepTime = 5;			//造成的冷却时间
+	optional int32 iDailyFreeSweepTime = 6;		//当日免费扫荡次数
+	optional int32 iAddSweepTime = 7;			//增加的扫荡次数
+}
+// 重置扫荡CD
+message Zone_ResetSweepCD_Request{
+}
+// 重置扫荡CD的反馈
+message Zone_ResetSweepCD_Response{
+	optional int32 iResult = 1;			// 重置结果
+	optional int32 iNextSweepTime = 2;	// 下次的扫荡时间
+	optional int32 iResetTimes = 3;	    // 重置CD的次数
+}
+// 设置功能引导步骤
+message Zone_UpdateFunGuideStep_Request{
+	optional int32 iOldFunGuideStep = 1;
+	optional int32 iNewFunGuideStep = 2;
+}
+// 设置功能引导步骤的反馈
+message Zone_UpdateFunGuideStep_Response{
+	optional int32 iResult = 1;			// 重置结果
+	optional int32 iCurFunGuideStep = 2;	// 下次的扫荡时间
+}
+// 所有当日限购物品的次数清零
+message Zone_ClearItemDailyBuy_Notify{
+}
+enum ActionType{
+	ActionType_Open = 1;	// 开启
+	ActionType_Close = 2;	// 关闭
+}
+// 活动开启广播
+message Zone_PVEInsAction_Notify{
+	optional int32 iInsId = 1;			// 副本ID
+	optional int32 iActionType = 2;		// 副本变化类型
+}
+
+// 神秘商店购买请求
+message Zone_MysShopBuyItem_Request{
+	optional int32 iSlotId = 1;
+	optional int32 iType = 2;	//1=英雄刷新，2=装备刷新
+}
+// 神秘商店购买回复
+message Zone_MysShopBuyItem_Response{
+	optional int32 iResult = 1;
+	optional int32 iSlotId = 2;
+	optional SingleDropInfo stSingleDropInfo = 3;
+	optional int32 iType = 4;	//1=英雄刷新，2=装备刷新
+}
+// 神秘商店刷新请求
+message Zone_MysShopUpdate_Request
+{
+	optional int32 iType = 1;	//1=英雄刷新，2=装备刷新
+}
+// 神秘商店刷新回复
+message Zone_MysShopUpdate_Response{
+	optional int32 iResult = 1;
+	optional MYSTERIOUS_SHOP stShop = 2; 
+	optional int32 iType = 3;	//1=英雄刷新，2=装备刷新
+}
+
+// 神秘商店凌晨刷新通知
+message Zone_MysShopUpdate_Notify{
+	optional MYSTERIOUS_SHOP stShopHero = 1;		//英雄
+	optional MYSTERIOUS_SHOP stShopEquip = 2;		//装备
+}
+// 请求神秘商店的通知
+message Zone_MysShopUpdateFreeTimes_Notify{
+	optional int32 iCanFreeUpdateTimes = 1;	// 可免费刷新次数
+}
+enum SourceType{
+	SourceType_Employ = 1;		// 招募	
+	SourceType_MysShop = 2;		// 神秘商店购买
+	SourceType_BornWith = 3;	// 出生携带	
+	SourceType_CDKGift = 4;		// CDK礼包
+	SourceType_LuckyChest = 5;	// 幸运值宝箱
+	SourceType_NormalChest = 6;	// 普通宝箱
+	SourceType_MallBuy = 7;		// 商城购买
+	SourceType_PVECrossReward = 8;	// pve过关奖励
+	SourceType_PVEMonsterReward = 9;// pve过关奖励
+	SourceType_PveStarReward = 10;	// pve星级奖励
+	SourceType_LevelGiftReward = 11;// 等级礼包
+	SourceType_LoginGiftReward = 12;// 登录礼包
+	SourceType_DailyGiftReward = 13;// 签到礼包
+	SourceType_GMAdd = 14;			// GM添加
+	SourceType_GMineReward = 15;	// 地精金矿
+	SourceType_ChipsCompose = 16;	// 碎片合成
+	SourceType_Extracthero = 17;	//抽英雄
+	SourceType_ReviveHero = 18;		//重生英雄
+	SourceType_PVPFightAward = 19;	//pvp挑战奖励
+	SourceType_WrestAward = 20;		//夺宝翻牌奖励
+	SourceType_TowerAward = 21;		//征服之塔奖励
+	SourceType_MasterFight = 22;	//战斗大师奖励
+	SourceType_EquipReborn = 23;	//装备重生
+	SourceType_TrinketReborn = 24;	//饰品重生
+	SourceType_Mail = 25;			//邮件附件
+	SourceType_RechargeFeedBack = 26;//充值回馈奖励
+	SourceType_CostFeedBack = 27;	 //消费回馈奖励
+	SourceType_Tailor = 28;	    	 //裁缝奖励
+	SourceType_Decompose = 29;	 	 //分解
+	SourceType_TaskReward = 30;	 	 //任务奖励
+	SourceType_BeginerGuide = 31;	//新手引导
+	SourceType_GoddessGift = 32;	//女神眷顾
+	SourceType_RechargeGift = 33;	//充值礼包
+	SourceType_ReSignCost = 34;		//补签花费
+	SourceType_UpdateMysShop = 35;	//刷新神秘商店
+	SourceType_UpdateTailorMatrial = 36;//刷新裁缝材料
+	SourceType_UpdateTailorReward = 37;//刷新裁缝奖励
+	SourceType_AddBagBlock = 38;	   //增加背包格子
+	SourceType_PVPStore = 39;	   //PVP商店
+	SourceType_PVPHistoryReward = 40;//PVP历史排名奖励
+	SourceType_ActiveGift = 41;		 //激活天赋
+	SourceType_ChangeName = 42;		 //修改名字
+	SourceType_OpenMine = 43;		 //解锁金矿
+	SourceType_SpeedMine = 44;		 //加速金矿
+	SourceType_LvUpMine = 45;		 //升级金矿
+	SourceType_RefineGold = 46;		 //点金手	
+	SourceType_StrengthEquip = 47;	 //强化装备	
+	SourceType_RefineEquip = 48;	 //精炼装备	
+	SourceType_StrengthTrinket = 49; //强化饰品	
+	SourceType_RefineTrinket = 50;   //精炼饰品	
+	SourceType_DecomposeTrinket = 51;//分解饰品
+	SourceType_PveReset = 52;		 //pve重置
+	SourceType_ResetConqTower = 53;	 // 重置征服之塔
+	SourceType_SweepConqTower = 54;	 // 扫荡征服之塔
+	SourceType_GainMine = 55;		 // 金矿收获
+	SourceType_GuildWorship = 56;	 // 公会膜拜
+	SourceType_CreateGuild = 57;	 // 创建公会
+	SourceType_BuyPveCross = 58;	 // 购买pve关卡挑战次数
+	SourceType_BuyPveSweepTime = 59;	 // 购买pve关卡扫荡次数
+	SourceType_RefreshPVPStore = 60;	 // 刷新PVP商城
+	SourceType_ClearPVPCD = 61;	 		// 清除PVPCD
+	SourceType_BuyGrowPlan = 62;	 	// 购买成长计划
+	SourceType_GetGrowPlan = 63;	 	// 成长计划返还
+	SourceType_ExtractBestHero = 64;	// 抽取限时神将
+	SourceType_Extract10BestHero = 65;	 // 限时神将十连抽
+	SourceType_BuyBlackMarket = 66;	 	// 黑市商人
+	SourceType_UpdateBlackMarket = 67;	// 刷新黑市商人
+	SourceType_BuyEnergy = 68;			// 购买体力
+	SourceType_BuyPVPTimes = 69;		// 购买PVP战斗次数
+	SourceType_BuyMasterFight = 70;		// 购买战斗大师次数
+	SourceType_BuyWrest = 71;			// 购买夺宝次数	
+	SourceType_ResetPve_WWWW = 72;		// 重置PVE
+	SourceType_WorldTalk = 73;			// 世界发言
+	SourceType_SellEquip = 74;			// 装备出售
+	SourceType_SellProp = 75;			// 道具出售
+	SourceType_WorldBoss = 76;			// 世界BOSS
+	SourceType_WorldBossCD = 77;		// 世界BOSS CD	
+	SourceType_StepUpHero = 78;			// 升阶英雄
+	SourceType_StarUpHero = 79;			// 升星英雄
+	SourceType_FosterHero = 80;			// 培养英雄
+	SourceType_DiamondExtractHero = 81;	// 钻石抽
+	SourceType_Diamond10ExtractHero = 82;// 钻石十连抽	
+	SourceType_DiamondExtractTreasure = 83;	// 钻石寻宝
+	SourceType_Diamond10ExtractTreasure = 84;// 钻石十寻宝	
+	SourceType_TreasureRankReward = 85;		// 寻宝排名奖励
+	SourceType_WrestTreasureCompose = 86;	// 夺宝碎片一键
+	SourceType_MasterFightShop = 87;		// 战斗大师商店
+	SourceType_MasterFightCombat = 88;		// 战斗大师胜利
+	SourceType_ClearSweepCrossCD = 89;		// 扫荡关卡CD
+	SourceType_ClearComposeCD = 90;			// 清除合成CD
+	SourceType_VipLevelGiftReward = 91;		// vip等级礼包
+	SourceType_DoubleActivityReward = 92;	// 好钻成双礼包
+	SourceType_ActExchange = 93;			// 限时兑换
+	SourceType_ResetAllConqTower = 94;	 	// 重置整个征服之塔
+	SourceType_ArchFunc = 95;	 			// 考古功能抽取
+	SourceType_FriendSend = 96;	 			// 好友赠送
+	SourceType_AutoGrow = 97;	 			// 自动恢复
+	SourceType_Lunch_Energy = 98;	 		// 午餐体力	
+	SourceType_Dinner_Energy = 99;	 		// 晚餐体力	
+	SourceType_Night_Energy = 100;	 		// 夜间体力
+	SourceType_Prop_Bread = 101;	 		// 使用面包
+	SourceType_SweepPveCross = 102;	 		// 扫荡关卡
+	SourceType_FinPveCross = 103;	 		// 结束PVE
+	SourceType_Achievement = 104;			// 所有的成就奖励
+	SourceType_AnabasisAward = 105;			// 英雄征途奖励
+	SourceType_RefreshAnabasisStore = 106;	// 刷新英雄征途商城
+	SourceType_GetWeekAward = 107;			// 领取周登录奖励
+	SourceType_heroBreach = 108;			// 英雄突破
+	SourceType_tailorexp = 109;			    // 裁缝升级经验
+	SourceType_GuildShop = 110;				// 公会商店购买
+	SourceType_RobTreasureSuc = 111;		// 抢夺宝藏胜利翻牌奖励
+	SourceType_LimitBuy = 112;				//限时购买
+	SourceType_SearchTreasure = 113;		// 搜索消耗
+	SourceType_RobTreasureRes = 114;		// 抢夺宝藏资源奖励
+	SourceType_RobTreasureCost = 115;		// 抢夺消耗
+	SourceType_BuyCheese = 116;				// 购买奶酪
+	SourceType_GrowCheese = 117;			// 奶酪自动回复
+	SourceType_GravePosy = 118;				//铭刻消耗
+	SourceType_ComposePosy = 119;			//铭文合成消耗
+	SourceType_ChangePosy = 120;			//铭文变幻消耗
+	SourceType_QualifyingTimes = 121;		//排位赛次数
+}
+// 添加英雄的通知
+message Zone_AddHero_Notify{
+	optional int32 enSourceType = 1;
+	optional OneHeroInfo stOneHeroInfo = 2;
+}
+
+// 分解英雄
+message Zone_HeroDecompose_Request{
+	repeated int32 iHeroIndexs = 1;				// 英雄索引
+}
+// 分解英雄反馈
+message Zone_HeroDecompose_Response{
+	optional int32 iResult = 1;
+}
+
+//英雄重生请求
+message Zone_ReviveHero_Request
+{
+	optional int32 iReqType = 1;	//1：预览 2：重生
+	optional int32 iHeroIdx = 2;
+}
+
+//英雄重生 回复
+message Zone_ReviveHero_Response
+{
+	optional int32 iReqType = 1;	//1：预览 2：重生
+	optional int32 iResult = 2;
+	optional int32 iHeroIdx = 3;
+	optional DropInfoList stDropList = 4;
+}
+// 单个要分解的资源 支持装备、英雄
+message SingleDecompose{
+	optional int32 iResType = 1;	// 资源类型
+	optional int32 iResSlotId = 2;	// 唯一索引ID
+	optional int32 iResNum	= 3;	//资源数量
+}
+// 分解资源
+message Zone_ResDecompose_Request
+{
+	optional int32 iReqType = 1;	//操作类型，1预览，2分解
+	repeated SingleDecompose stDecompseResList = 2;
+}
+// 分解资源的反馈
+message Zone_ResDecompose_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iReqType = 2;
+	optional DropInfoList stDropList = 3;
+}
+// 装备重生
+message Zone_EquipReborn_Request
+{
+	optional int32 iReqType = 1;//1:预览 2：重生
+	optional int32 iSlotId = 2;// 要重生装备的SlotId
+}
+// 装备重生
+message Zone_EquipReborn_Response
+{
+	optional int32 iReqType = 1;//1:预览 2：重生
+	optional int32 iResult = 2;
+	optional int32 iSlotId = 3;
+	optional DropInfoList stDropList = 4;
+}
+// 设置小伙伴
+message Zone_SetLittleBuddy_Request{
+	optional LITTLEBUDDYSLOT stLittleBuddySlot = 1;// 所有小伙伴槽位
+}
+// 设置小伙伴的返回
+message Zone_SetLittleBuddy_Response{
+	optional int32 iresult = 1;		// 设置结果
+	optional LITTLEBUDDYSLOT stLittleBuddySlot = 2;// 小伙伴槽位
+}
+
+//请求刷新挑战列表
+message Zone_FreshFightList_Request
+{
+}
+//返回挑战列表
+message Zone_FreshFightList_Response
+{
+	optional int32 iResult = 1;			
+	repeated FightInfo stInfo = 2;		//挑战列表
+}
+
+//请求当前排名和前十列表
+message Zone_FightBaseData_Request
+{
+}
+message Zone_FightBaseData_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iMyIndex = 2;		//自己当前排名
+	repeated  FightInfo stInfo = 3;		//当前排行榜前十列表
+}
+
+//请求挑战
+message Zone_FightSomeOne_Request
+{
+	optional int32 iIndex = 1;		//想挑战的排名
+}
+
+message Zone_FightSomeOne_Response
+{	
+	optional int32 iResult = 1;
+	optional string strName = 2;			//对方名字
+	repeated HeroData stHeroInfo = 3;		//对方英雄信息
+	repeated int32 iPartnerID = 4;			//小伙伴id
+	repeated int32 HeroForm = 5;			//英雄站位
+	optional int32 iTalian = 6;				//天赋
+	optional int32 iPvpCD = 7;				//pvp cd
+}
+
+//请求结束pvp
+message Zone_PVPFinFight_Request
+{
+	optional int32 iPVPResult = 1;		//1=胜利，2=失败
+}
+// 历史最高排名变更信息
+message Zone_PVPFinFight_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iFightResult = 2;			//挑战后排名
+	optional DropInfoList stDropList = 3;		//奖励掉落
+	optional int32 iFightCount = 4;				//pvp当前挑战次数
+	optional int32 iOldBestRank = 5;			//旧的历史排名
+	optional int32 iNewBestRank = 6;			//新的历史排名
+	optional DropInfoList stBestRankDropList = 7;//奖励掉落
+	optional int32 iFightUin = 8;				//被攻击的uin
+	optional int32 iCdTime = 9;					//CD冷却时间
+	//repeated PVPHistory stAttackHistory = 8;	//增加的攻击方历史信息
+	//repeated PVPHistory stBeAttackHistory = 9;	//增加的被攻击方历史信息
+}
+
+//请求领取每日奖励
+message Zone_GetFightEveryDayAward_Request
+{
+}
+message Zone_GetFightEveryDayAward_Response
+{
+	optional int32 iResult = 1;
+	optional DropInfoList stDropList = 2;		//每日奖励
+}
+
+//pvp商城购买请求
+message Zone_PVPStore_Buy_Request
+{
+	optional int32 iItemid = 1;				//物品id
+	optional int32 iItemNum = 2;			//物品数量
+	optional int32 iSlotid = 3;				//位置
+}
+
+//pvp购买回复
+message Zone_PVPStore_Buy_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iItemid = 2;			//物品id
+	optional int32 iItemNum = 3;		//物品数量
+	optional int32 iBuyCount = 4;		//购买总次数
+	optional int32 iCurHonor = 5;		//当前剩余荣誉
+	optional int32 iSlotid = 6;			//位置
+}
+
+//各种商城通知类型
+enum enSTORESTYPE
+{
+	ePVPSTORE = 1;			//pvp商城数据
+	ePVPSTOREFRESH = 2;		//pvp商城刷新次数
+	eMASTERSTORE = 3;		//战斗大师商城数据
+	eANABASIS = 4;			//燃烧远征商城数据
+}
+//pvp商城数据更新通知
+message Zone_PVPStoreInfo_Notify
+{
+	optional int32 iStoreType = 1;			//类型 enSTORESTYPE
+	optional PvpStoreInfo stStoreInfo = 2;	//pvp商城数据
+	optional int32 iFreshCount = 3;			//pvp商城刷新次数
+	optional MasterFightStore stMaster = 4;	//战斗大师商城数据
+	optional PvpStoreInfo stAnabasis = 5;	//燃烧远征商城数据
+	optional int32 iAnabasisFreshCount = 6;	//燃烧远征商城刷新次数
+	optional int32 iAnaCrossFreshCount = 7;	//燃烧远征关卡刷新次数
+}
+
+//PVP商城刷新次数
+message Zone_PVPStore_Fresh_Request
+{
+}
+message Zone_PVPStore_Fresh_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iFreshCount = 2;		//当前刷新次数
+}
+
+//pvp排行榜推送消息
+message Zone_PVPRankList_Notify
+{
+	repeated  FightInfo stInfo = 1;		//当前排行榜前十列表 
+	optional int32 ipvpfightcount = 2;	//当前pvp挑战次数
+}
+
+//pvp战报请求
+message Zone_PVPHishtory_Request
+{
+}
+
+//返回pvp战报
+enum eFightType		//PVP战报类型
+{
+	enATTACK_SUC = 1;		//攻击胜利
+	enATTACK_FAIL = 2;		//攻击失败
+	enBEATTACK_SUC = 3;		//防守胜利
+	enBEATTACK_FAIL = 4;	//防守失败
+}
+message PvpHistoryInfo
+{
+	optional string strAttackName = 1;		//攻击方名字
+	optional string strBeAttackName = 2;	//防守方名字
+	optional int32 iFightType = 3;			//PVP战报类型 eFightType
+	optional int32 iAttackTime = 4;			//攻击时间
+	optional int32 iOldIdx = 5;				//战斗前排名
+	optional int32 iNewIdx = 6;				//战斗后排名
+	optional int32 iAgainstLv = 7;			//对方等级
+	optional int32 iPicid = 8;				//头像id
+	optional int32 iRoleid = 9;				//角色id
+	optional int32 iVipLv = 10;				//vip等级
+	optional int32 iIsRevenge = 11;			//是否复仇，1=已经复仇，0=还未复仇
+	optional int32 iTalentid = 12;			//天赋
+}
+message Zone_PVPHistory_Response
+{
+	optional int32 iResult = 1;
+	repeated PvpHistoryInfo stPvpInfo = 2;		//pvp战报
+}
+message AllPVPHistory
+{
+	repeated PvpHistoryInfo stPvpInfo = 1;		//pvp战报
+}
+
+// 查找玩家的请求
+message Zone_QueryBasicPlayerById_Request{
+	optional int32 iRoleId = 1;
+}
+// 查找玩家的反馈
+message Zone_QueryBasicPlayerById_Response{
+	optional int32 iResult = 1;
+	optional BasicPlayerSummary stBasicPlyInfo = 2;
+}
+
+
+enum RobotType
+{
+	enCOMMON = 0;
+	enPVPROBOT = 1;			//竞技场机器人
+	enMASTERROBOT = 2;		//战斗大师机器人
+	enANABASISROBOT = 3;	//英雄征途机器人
+	enWRESTROBOT = 4;		//夺宝机器人
+	enQUALIFYING = 5;		//排位赛跨服数据
+	enGUILDWARSIGN = 6;		//公会战离线玩家报名
+}
+// 查找玩家的请求
+message Zone_QueryPlayerById_Request{
+	optional int32 iRoleId = 1;
+	optional RobotType iType  = 2;		//机器人类型
+	optional int32 iWorldId = 3;		// 
+}
+// 查找玩家的反馈
+message Zone_QueryPlayerById_Response{
+	optional int32 iResult = 1;
+	optional PlayerSummaryInfo stPlySummaryInfo = 2;
+	optional RobotType iType  = 3;		//机器人类型
+	optional int32 iWorldId = 4;
+}
+// 摘要信息列表
+message Zone_SummaryList_Response{
+	optional PlayerSummaryInfo stPlySummaryInfo = 1;
+}
+// 申请加好友的请求
+message Zone_ApplyAddFriend_Request{
+	optional int32 iRoleId = 1;
+}
+// 申请加好友的反馈
+message Zone_ApplyAddFriend_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;
+}
+// 申请加好友的在线通知
+message Zone_ApplyAddFriend_Notify{
+	optional BasicPlayerSummary stBasicPlyInfo = 1;	
+}
+// 处理添加好友的请求
+message Zone_HandleApplyAddFriend_Request{
+	optional int32 iRoleId = 1;
+	optional bool bAgree = 2;	// 是否同意
+}
+// 处理添加好友的反馈
+message Zone_HandleApplyAddFriend_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;
+	optional bool bAgree = 3;	// 是否同意
+}
+// 处理加好友的在线通知
+message Zone_HandleApplyAddFriend_Notify{
+	optional int32 iResult = 1;				// 0同意 非零拒绝
+	optional ONEFRIENDINFO stFriendInfo = 2;
+}
+// 删除好友的请求
+message Zone_DelFriend_Request{
+	optional int32 iRoleId = 1;
+}
+// 删除好友的反馈
+message Zone_DelFriend_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;
+}
+// 删除好友的在线通知
+message Zone_DelFriend_Notify{
+	optional int32 iRoleId = 1;
+}
+// 赠送体力的请求
+message Zone_SendEnergy_Request{
+	optional int32 iRoleId = 1;
+}
+// 赠送体力的反馈
+message Zone_SendEnergy_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iTime = 3;	
+}
+// 赠送体力的在线通知
+message Zone_SendEnergy_Notify{
+	optional int32 iRoleId = 1;
+	optional int32 iTime = 2;	
+}
+// 索取体力的请求
+message Zone_AskEnergy_Request{
+	optional int32 iRoleId = 1;
+}
+// 索取体力的反馈
+message Zone_AskEnergy_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iTime = 3;
+}
+// 索取体力的在线通知
+message Zone_AskEnergy_Notify{
+	optional int32 iRoleId = 1;
+	optional int32 iTime = 2;
+}
+// 获取体力的请求
+message Zone_GetFriendEnergy_Request{
+	optional int32 iRoleId = 1;
+}
+// 获取体力的反馈
+message Zone_GetFriendEnergy_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iTime = 3;
+}
+// 请求推荐好友的请求
+message Zone_RecommendFriends_Request{
+}
+// 请求推荐好友的反馈
+message Zone_RecommendFriends_Response{
+	optional int32 iResult = 1;
+	repeated BasicPlayerSummary stRoleList = 2;
+}
+
+// 请求强化饰品的请求
+message Zone_TrinketStrength_Request{
+	optional int32 iTrinketSlot = 1;		// 饰品槽位
+	repeated int32 iMaterialSlots = 2;		// 材料槽位
+}
+// 请求强化饰品的请求
+message Zone_TrinketStrength_Response{
+	optional int32 iResult = 1;				// 结果
+	optional int32 iTrinketSlot = 2;		// 饰品槽位
+	optional int32 iStrengthLevel = 3;		// 饰品的强化等级
+	optional int32 iStrengthExp = 4;		// 饰品的强化经验
+}
+// 请求精炼饰品的请求
+message Zone_TrinketRefine_Request{
+	optional int32 iTrinketSlot = 1;		// 饰品槽位 
+	repeated int32 iMaterialSlots = 2;		// 材料槽位 没有填0
+}
+// 请求精炼饰品的请求
+message Zone_TrinketRefine_Response{
+	optional int32 iResult = 1;				// 结果
+	optional int32 iTrinketSlot = 2;		// 饰品槽位 
+	optional int32 iRefineStage = 3;		// 饰品的精炼段位
+}
+// 饰品重生的请求
+message Zone_TrinketReborn_Request{
+	optional int32 iReqType = 1;			// 1：预览 2：重生
+	optional int32 iTrinketSlot = 2;		// 饰品槽位
+	optional int32 iPropSlot = 3;			// 道具槽位 没有填0
+}
+// 饰品重生的返回
+message Zone_TrinketReborn_Response{
+	optional int32 iReqType = 1;			// 1：预览 2：重生
+	optional int32 iResult = 2;				// 结果
+	optional int32 iTrinketSlot = 3;		// 饰品槽位
+	optional int32 iRebornStrengthLevel = 4;// 重生后的强化等级
+	optional int32 iRebornRefineLevel = 5;  // 重生后的精炼等级
+	repeated SingleDropInfo stDropList = 6; // 重生产生的掉落组
+}
+// 饰品熔炼的请求
+message Zone_TrinketDecompose_Request{
+	optional int32 iReqType = 1;			// 1：预览 2：重生
+	optional int32 iTrinketSlot = 2;		// 饰品槽位
+	optional int32 iPropSlot = 3;			// 道具槽位 没有填0
+}
+// 饰品熔炼的返回
+message Zone_TrinketDecompose_Response{
+	optional int32 iReqType = 1;			// 1：预览 2：重生
+	optional int32 iResult = 2;				// 结果
+	optional int32 iTrinketSlot = 3;		// 分解的饰品槽位
+	repeated SingleDropInfo stDropList = 4; // 分解产生的掉落组
+}
+
+
+message Zone_FetchGM_Request
+{
+    optional string  strAccount = 1;   //account认证
+    optional int32 iZoneID = 2; //zoneid  
+}
+
+message Zone_FetchGM_Response
+{
+    optional int32 iResult = 1;  //拉取GM结果
+    optional int32  iZoneID = 2; //zoneid 
+}
+
+message Zone_LogoutGameRoleByGM_Request
+{
+    optional int32 iUin = 1; //下线的玩家的uin
+}
+
+message Zone_LogoutGameRoleByGM_Response
+{
+    optional int32 iResult = 1; //玩家下线回复
+}
+
+//上报战斗力
+message Zone_FightValue_Notify
+{
+	optional int32 iFightValue = 1;			//总战斗力
+	optional int32 iMaxFightValue = 2;		//最高战斗力（五个英雄）
+	optional int32 iDefFightValue = 3;		//防守阵容战斗力
+}
+// 踢下线的通知
+message Zone_RoleKicked_Notify
+{
+	optional int32 iResult = 1;
+}
+// 请求可选头像列表
+message Zone_HeadImgList_Request{
+}
+// 请求可选头像列表
+message Zone_HeadImgList_Response{
+	optional UNLOCKHEADIMG stHeadImg = 1;
+}
+// 请求可选头像列表 解锁多个的情况
+message Zone_AddHeadImg_Notify{
+	repeated uint32 iHeadImgs = 1;
+}
+// 请求更换头像
+message Zone_ChangeHeadImg_Request{
+	optional uint32 iHeadImgId = 1;	// 头像ID
+}
+// 请求更换头像
+message Zone_ChangeHeadImg_Response{
+	optional int32 iResult = 1;	// 更换结果
+	optional uint32 iHeadImgId = 2;	// 头像ID
+}
+// 请求更改昵称
+message Zone_ChangeNickName_Request{
+	optional string strName = 1;	// 修改昵称
+}
+// 请求更改昵称
+message Zone_ChangeNickName_Response{
+	optional int32 iResult = 1;		// 更换结果
+	optional string strName = 2;	// 修改昵称
+}
+// 任务进度的请求
+message Zone_TaskSchedule_Request{
+
+}
+// 任务进度的反馈
+message Zone_TaskSchedule_Response{
+}
+// 更新任务进度的通知
+message Zone_UpdateTaskSchedule_Notify{
+	optional int32 iTaskId = 1;			// 任务ID
+	optional int32 iSchedule = 2;		// 任务进度
+}
+// 重置通知
+message Zone_ResetDailyTask_Notify{
+}
+
+//刷新夺宝对手
+message Zone_FreshWrestList_Request
+{
+	optional int32 ChipID = 1;
+}
+
+//返回刷新结果
+message Zone_FreshWrestList_Response
+{
+	optional int32 iResult = 1;
+	repeated FightInfo stList = 2;
+}
+
+//请求夺宝记录
+message Zone_WrestHistory_Request
+{
+}
+message WrestHistoryInfo
+{
+	optional string strAttackName = 1;		//攻击方名字
+	optional int32 iPicID = 2;				//攻击方头像id
+	optional int32 iAttackLv = 3;			//攻击方等级
+	optional int32 iFightType = 4;			//PVP战报类型 eFightType
+	optional int32 iChipID = 5;				//碎片id
+	optional int32 iAttackTime = 6;			//攻击时间
+	optional int32 iVipLv = 7;				//vip等级
+	optional int32 iTalentid = 8;			//天赋
+}
+message RoleWrestHistory
+{
+	repeated WrestHistoryInfo stHistory = 1;
+}
+message Zone_WrestHistory_Response
+{
+	optional int32 iResult = 1;
+	optional RoleWrestHistory stHistory = 2;
+}
+
+//请求夺宝
+message Zone_WrestTreasure_Request
+{
+	optional int32 ChipID = 1;
+	optional int32 iRoleID = 2;		//角色id
+}
+
+message Zone_WrestTreasure_Response
+{
+	optional int32 iResult = 1;
+	optional RoleFightInfo stInfo = 2;	//战斗数据
+	optional string strName = 3;		//对方名字
+}
+
+//请求夺宝结果
+message Zone_WrestResult_Request
+{
+	optional int32 iWrestResult = 1;	//夺宝结果1=胜利，2=失败
+}
+message Zone_WrestResult_Response
+{
+	optional int32 iResult = 1;
+	optional DropInfoList stDropList = 2;		//奖励掉落
+	optional int32 iFightCount = 3;				//夺宝当前挑战次数 
+	optional int32 iWrestResult = 4;			//夺宝结果1=胜利，2=失败
+	optional int32 iChipid = 5;					//碎片id
+	optional DropInfoList stDropList2 = 6;		//固定掉落组2
+}
+//购买夺宝次数
+message Zone_WrestBuyCount_Request
+{
+	optional int32 iBuyCount = 1;	//购买次数
+}
+message Zone_WrestBuyCount_Response
+{	
+	optional int32 iResult = 1;
+	optional int32 iBuyCount = 2;			//购买次数
+	optional int32 iWrestRemainCount = 3;	//夺宝剩余次数
+}
+
+//通知夺宝次数上次回复时间
+message Zone_WrestRecoverTime_Notify
+{
+	optional int32 iRecoverTime = 1;
+}
+//web服务器通知zone
+message Zone_OrderForm_Notify
+{
+    optional string strOrderId = 1;	//订单号	
+    optional int32 iNumber = 2;    //金币数量
+    optional string strItemId  = 3;    //商品ID
+	optional int32  iRoleId  = 4;   //角色id
+	optional string  iPlatform = 5; //平台ID
+	optional int32  iSid = 6;    //所在区服
+	optional float  iAmount = 7;  //充值金额
+}
+message Zone_OrderForm_Response
+{
+	optional int32 iResult = 1;
+}
+message Zone_OffLineFormQuery_Request
+{
+	optional uint32 roleid = 1; //玩家角色
+	optional int32 iZoneID  = 2;
+}
+
+//订单列表
+message OrderList
+{
+	optional string strOrderId = 1;	//订单号	
+    optional int32  iNumber = 2;    //金币数量
+    optional string  strItemId  = 3;    //商品ID
+	optional int32  iRoleId  = 4;   //角色id
+	optional string  iPlatform = 5;   //平台ID
+	optional int32  iSid = 6;    //所在区服
+	optional float  iAmount = 7; //充值金额
+	optional int32  iState = 8;     //1表示生成订单2未处理3已经处理
+}
+message Zone_OffLineFormQuery_Response
+{
+	repeated OrderList  stListForm = 1;
+	optional int32  iResult = 2;    //查询结果
+	optional int32 iZoneID = 3;
+}
+
+message Zone_RechargeInfo_Notify
+{	
+	optional int32 irechargeamt = 1; // 充值累计数变更
+	optional ONERECHARGE_INFO stOneRechargeInfo = 2; //更新充值
+}
+message Zone_FetchOrderID_Request
+{
+	optional string strItemId = 1; //商品ID
+	optional float fMoney = 2;  //充值金额
+	optional int32 iGameCoin = 3;//充值的游戏币
+}
+message Zone_FetchOrderID_Response
+{
+	optional int32 iResult = 1; //返回结果0表示成功
+	optional string strOrderid = 2; //订单号
+	optional string strItemId = 3; //商品ID
+	optional int32 iZoneID = 4;
+}
+
+enum OrderStart
+{
+	ORDER_STAT_UNDO = 1;//生效未处理的订单
+	ORDER_STAT_DONE = 2;//已经处理的订单
+	ORDER_STAT_UNDEAL = 3; //未生效的订单
+}
+
+message Zone_NewHandBook_Notify
+{
+	optional int32 iEquipId = 1;	//装备ID
+	optional int32 iHeroId = 2;		//英雄ID
+}
+// 拉取物品列表
+message Zone_FetchItem_Response
+{
+	optional ITEMDBINFO stItemInfo = 1;				//玩家拥有的道具信息
+}
+// 邮件
+// 拉取邮件列表包括已发送邮件、草稿邮件、收到邮件
+message Zone_FetchMailList_Request
+{
+	optional int32 iUin = 1;
+	optional int32 iRoleId = 2;
+}
+// 拉取邮件列表的反馈
+message Zone_FetchMailList_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iUin = 2;
+	optional int32 iRoleId = 3;
+	repeated OneMail stMailList = 4;// 邮件列表
+}
+// 新邮件通知 收件人的通知
+message Zone_NewMail_Notify{
+	repeated OneMail stNewMailList = 1;// 新到邮件通知 
+}
+// 阅读单封邮件的请求
+message Zone_ReadMail_Request{
+	optional int32 iMailId = 1;
+}
+// 阅读单封邮件的反馈
+message Zone_ReadMail_Response{
+	optional int32 iResult = 1;
+	optional OneMail stOneMail = 2;
+}
+// 收取附件
+message Zone_RecvAttachments_Request{
+	repeated int32 iMailIds = 1;
+}
+// 收取附件的反馈
+message Zone_RecvAttachments_Response{
+	optional int32 iResult = 1;
+	repeated int32 iMailIds = 2;
+	optional DropInfoList stDropList = 3;
+}
+// 删除邮件
+message Zone_DeleteMail_Request{
+	repeated int32 iMailIds = 1;
+}
+// 删除邮件的反馈
+message Zone_DeleteMail_Response{
+	optional int32 iResult = 1;
+	repeated int32 iMailIds = 2;
+}
+// 删除邮件的通知
+message Zone_DeleteMail_Notify{
+	repeated int32 stMailList = 1;
+}
+
+//女神眷顾奖
+message Zone_ExtraAward_Notify
+{
+	optional DropInfoList stDropList = 1; // 女神眷顾奖励列表
+}
+
+//请求打开worldboss数据
+message Zone_EnterWorldBoss_Request
+{
+}
+
+//返回worldboss基础数据
+message HurtRank
+{
+	optional int32 iIdx = 1;		//排名
+	optional string strName = 2;	//名字
+	optional int32 iFightValue = 3;	//战斗力
+	optional int32 iRoleLv = 4;		//玩家等级
+	optional int32 iRoleID = 5;		//角色id
+	optional int32 iPicid = 6;		//头像id
+	optional int32 iVipLv = 7;		//vip等级
+	optional int32 iTalian = 8;		//天赋
+	optional int32 iHurt = 9;		//当前输出伤害
+}
+message Zone_EnterWorldBoss_Response
+{
+	optional int32 iResult = 1;
+	optional HurtRank stLastKiller = 2;	//上次活动击杀者信息
+	repeated HurtRank stHurtRank = 3;		//本次活动前十
+	optional int32 iBossLv = 4;				//boss等级
+	optional int32 iBossMaxBlood = 5;		//boss最大血量
+	optional int32 iBossCurBlood = 6;		//boss当前血量
+	optional int32 iBossPhyAtt = 7;			//boss物攻
+	optional int32 iBossMagAtt = 8;			//boss魔攻
+	optional int32 iBossPhyDef = 9;			//boss物防
+	optional int32 iBossMagDef = 10;		//boss魔防
+	optional int32 iHurt = 11;				//自己当前造成的伤害
+	optional int32 iHurtIdx = 12;			//自己当前所在伤害排行位置
+	optional int32 iNextTime = 13;			//下次可以进入的时间
+	optional int32 iBossState = 14;			//0=不可以挑战。1=可以挑战
+	optional int32 iClearCount = 15;		//清除cd次数
+}
+
+//请求挑战worldboss
+message Zone_FightWorldBoss_Request
+{
+	optional int32 iActiveID = 1;	//活动id（即日常表里配置的id）
+}
+message Zone_FightWorldBoss_Response
+{	
+	optional int32 iResult = 1;
+	optional int32 iBossCurBlood = 2;	//boss当前血量
+}
+
+//上传世界boss伤害
+message Zone_WorldBossHurt_Upload
+{
+	optional int32 iHurt = 1;
+}
+
+//退出本次worldboss挑战
+message Zone_FinWorldBoss_Request
+{
+}
+message Zone_FinWorldBoss_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iHurt = 2;				//自己本次造成的伤害
+	optional int32 iBossCurBlood = 3;		//boss当前血量
+	optional int32 iCD = 4;					//更新等待cd
+	optional DropInfoList stDropList = 5;	//本次伤害奖励 
+}
+
+//worldboss被击杀通知
+message Zone_KillWorldBoss_Notify
+{
+	optional string strName = 1;		//击杀worldboss玩家名字
+}
+
+//排行变动通知
+message Zone_WorldBossRank_Notify
+{
+	repeated HurtRank stHurtRank = 1;		//本次活动前十
+	optional int32 iHurtIdx = 2;			//自己当前所在伤害排行位置
+}
+
+//boss血量更新
+message Zone_WorldBossBlood_Request
+{
+}
+message Zone_WorldBossBlood_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iCurBlood = 2;
+}
+
+//请求清除等待cd worldboss
+message Zone_WorldBossClearCD_Request
+{
+}
+
+message Zone_WorldBossClearCD_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iClearCount = 2;		//清除cd次数
+}
+
+enum RankType{
+	enRankType_LEVEL = 1;		//等级排行榜
+	enRankType_FIGHTVALUE = 2;	//战斗力排行榜
+	enRankType_PVECROSS = 3;	//副本排行榜
+	enRankType_QUALIFYING = 4;	//排位赛排行榜
+	enRankType_QUALIFYING_ALL = 5;	//排位赛全服排行榜
+}
+// 请求排行榜
+message Zone_SelfRank_Request
+{
+	optional int32 iRankType = 1; // 1表示等级排行榜2表示战斗力排行榜3表示副本排行榜
+}
+// 请求排行榜的反馈
+message Zone_SelfRank_Response
+{
+	optional int32 iRankType = 1; // 排名类型
+	optional int32 iSelfRank = 2; // 自己的排名 
+}
+// 请求排行榜
+message Zone_RankList_Request
+{
+	optional int32 iRankType = 1; // 战斗力排行榜
+	optional int32 iRankFrom = 2; // 从多少名到多少名
+	optional int32 iRankTo = 3;   // 从多少名到多少名
+}
+// 请求排行榜的反馈
+message Zone_RankList_Response
+{
+	optional int32 iRankType = 1; // 排名类型
+	optional int32 iRankFrom = 2; // 从多少名到多少名
+	optional int32 iRankTo = 3;   // 从多少名到多少名
+	repeated BasicPlayerSummary stPlyInfoList = 4;// 摘要信息
+}
+message MailRecvInfo{
+	optional int32 iUin = 1;
+	optional int32 iRoleId = 2;
+	optional string strName = 3;
+}
+enum MailSendType{
+	enSendMailToSelf = 1;
+	enSendMailToList = 2;
+	enSendMailToOnline = 3;
+	enSendMailToAll = 4;
+}
+
+// 测试邮件
+message Zone_TestMail_Request
+{
+	optional int32 iMailId = 1; // 测试邮件ID
+	optional int32 iSendType = 2; // 测试邮件ID
+	repeated MailRecvInfo stRoleList = 3;// 用户列表
+}
+// 测试邮件
+message Zone_TestMail_Response
+{
+	optional int32 iResult = 1; // 测试邮件结果
+	optional int32 iMailId = 2; // 测试邮件ID
+}
+
+// 开启天赋的请求
+message Zone_ActiveTalent_Request
+{
+	optional int32 iTalentId = 1; // 天赋ID
+}
+// 开启天赋的请求
+message Zone_ActiveTalent_Response
+{
+	optional int32 iResult = 1;   // 请求的结果
+	optional int32 iTalentId = 2; // 天赋ID
+}
+
+// 裁缝数据的请求
+message Zone_FetchTailorInfo_Request{
+}
+// 裁缝数据的反馈
+message Zone_FetchTailorInfo_Response{
+	optional int32 iResult = 1;
+	optional TAILORINFO stTailor = 2;
+	optional int32 iTailorLevel = 3;
+	optional int32 iTailorExp = 4;
+}
+// 选取材料
+message Zone_GetTailorMatrial_Request{
+	optional int32 iMatrialIndex = 1;
+}
+// 选取材料
+message Zone_GetTailorMatrial_Response{
+	optional int32 iResult = 1;
+	optional int32 iMatrialIndex = 2;	// 材料索引
+	optional int32 iScore = 3;		 	// 当前积分
+	optional int32 iBPMatrialIndex = 4; // 增加图纸索引
+	optional int32 iBPMatrialNum = 5;	// 增加图纸数量
+	optional int32 iGetMatrialTimes = 6;// 获取材料次数
+	optional int32 iTailorExp = 7;		//新的裁缝经验
+}
+// 刷新材料的请求
+message Zone_RefreshTailorMatrial_Request{
+
+}
+// 刷新材料的反馈
+message Zone_RefreshTailorMatrial_Response{
+	optional int32 iResult = 1;
+}
+// 新图纸的通知
+message Zone_TailorBluePrint_Notify{
+	optional int32 iBluePrintNum = 1;
+	optional TAILORBLUEPRINT stTailorBluePrint = 2;
+}
+// 新材料的通知
+message Zone_TailorMatrial_Notify{
+	repeated TAILORMATRIAL stTailorMatrials = 1;
+}
+
+// 刷新奖励的请求
+message Zone_RefreshTailorReward_Request{
+}
+// 刷新奖励的反馈
+message Zone_RefreshTailorReward_Response{
+	optional int32 iResult = 1;
+	optional TAILORREWARD stTailorReward = 2; 
+	optional int32 iAwardFreshCount = 3;		//奖励刷新次数
+}
+// 获取奖励的请求
+message Zone_GetTailorReward_Request{
+}
+// 获取奖励的反馈
+message Zone_GetTailorReward_Response{
+	optional int32 iResult = 1;
+	optional TAILORREWARD stTailorRewards = 2;
+	optional DropInfoList stDropList = 3;
+}
+// 购买成长计划的请求
+message Zone_BuyGrowPlan_Request{
+	optional int32 iPlanId = 1;
+}
+// 购买成长计划的反馈
+message Zone_BuyGrowPlan_Response{
+	optional int32 iResult = 1;
+	optional int32 iPlanId = 2;
+}
+// 获取基金的请求
+message Zone_GetGrowPlanPart_Request{
+	optional int32 iPlanId = 1;
+	optional int32 iRewardId = 2;
+}
+// 获取基金的反馈
+message Zone_GetGrowPlanPart_Response{
+	optional int32 iResult = 1;
+	optional int32 iPlanId = 2;
+	optional int32 iRewardId = 3;
+}
+// 参加的活动的通知
+message Zone_ActivityRecharge_Notify{
+	optional int32 iBatchId = 1;	// 批次ID
+	optional int32 iActType = 2;	// 活动类型
+	optional int32 iActID = 3;		// 活动ID
+	optional int32 iActProcess = 4;	// 活动进度
+	repeated ACTIVITY_REWARD stNewRewardRecord = 5;// 活动奖励
+}
+// 获取基金的请求
+message Zone_ActivityGetReward_Request{
+	optional int32 iBatchId = 1;	// 批次ID
+	optional int32 iActType = 2;	// 活动类型
+	optional int32 iActID = 3;		// 活动ID
+	optional int32 iRewardId = 4;	// 奖励ID
+	optional int32 iRewardParam = 5;// 领取参数
+}
+// 获取基金的请求
+message Zone_ActivityGetReward_Response{
+	optional int32 iResult = 1;
+	optional int32 iBatchId = 2;	// 批次ID
+	optional int32 iActType = 3;	// 活动类型
+	optional int32 iActID = 4;		// 活动ID
+	optional int32 iRewardId = 5;	// 奖励ID
+	optional DropInfoList stDropList = 6;// 奖励列表
+}
+
+// 第一次的奖励、材料 为 定点重置刷新
+
+//进入征服之塔
+message Zone_EnterConqTower_Request
+{
+}
+
+//返回征服之塔数据
+message Zone_EnterConqTower_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iCurLayer = 2;		//当前挑战层数
+	optional int32 iRemainCount = 3;	//剩余挑战次数
+	optional int32 iSweepTime = 4;		//扫荡开始时间 0=不在扫荡状态
+	optional int32 iMaxSweepLayer = 5;	//扫荡最高层
+	optional int32 iBuyCount = 6;		//购买次数
+	optional int32 iResetCount = 7;		//剩余重置次数
+	repeated SpecialLayer stSpecialLayer = 8;	//神秘层
+	optional TowerAward stAwardList = 9;// 奖励列表
+	optional int32 iBuyResetCount = 10; //购买重置次数计数
+}
+
+//征服之塔重置操作
+enum eReset
+{
+	EN_RESET_LAYER = 1;			//购买某一层挑战次数
+	EN_RESET_ALLTOWER = 2;		//重置整个征服之塔
+	EN_IMMED_SWEEP = 3;			//立即完成扫荡
+}
+message Zone_ConqTowerReset_Request
+{
+	optional int32 iType = 1;	//重置类型 eReset
+}
+
+message Zone_ConqTowerReset_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iType = 2;	//重置类型
+	optional SpecialLayerArray stSpecialLayer = 3;	//增加的神秘层
+	optional TowerAward stAwardList = 4;// 奖励列表
+	optional TeamRewardInfo stTeamInfo = 5;	//队伍奖励
+}
+
+//请求扫荡征服之塔
+message Zone_SweepConqTower_request
+{
+}
+
+//
+message Zone_SweepConqTower_response
+{	
+	optional int32 iResult = 1;
+	optional int32 iSweepTime = 2;		//扫荡开始时间
+	optional int32 iMaxSweepLayer = 3;	//扫荡最高层
+}
+
+//请求取消扫荡
+message Zone_CancelSweep_Request
+{
+}
+
+message Zone_CancelSweep_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iCurLayer = 2;		//当前挑战层数
+	optional SpecialLayerArray stSpecialLayer = 3;	//增加的神秘层
+	optional TowerAward stAwardList = 4;// 奖励列表
+	optional TeamRewardInfo stTeamInfo = 5;	//队伍奖励
+}
+
+//扫荡结束通知
+message Zone_FinSweepTower_Notify
+{
+	optional int32 iCurLayer = 1;		//当前挑战层数
+	optional SpecialLayerArray stSpecialLayer = 2;	//增加的神秘层
+	optional TowerAward stAwardList = 3;// 奖励列表
+	optional TeamRewardInfo stTeamInfo = 4;	//队伍奖励
+}
+
+//请求领取奖励
+message Zone_GetTowerAward_Request
+{
+}
+
+message Zone_GetTowerAward_Response
+{
+	optional int32 iResult = 1;
+}
+
+//聊天协议
+message Zone_TalkMsg_Request
+{
+	optional int32 iChannal = 1;	//频道   QMChatChannalType
+	optional int32 iRecieveId = 2;	//接收者roleid
+	optional string strName = 3;	//接收者名字
+	optional string strMsg = 4;		//说话内容
+	optional string strHttp = 5;	//语音网址
+	optional int32 iSoundTime = 6;	//语音时长
+}
+
+message Zone_TalkMsg_Response
+{
+	optional int32 iResult = 1;
+	optional TalkMsgList stInfo = 2;	//聊天内容列表
+}
+
+//请求语音聊天内容
+message Zone_SoundChat_Request
+{
+	optional int32 iChannal = 1;	//频道   QMChatChannalType
+	optional int32 iSoundid = 2;
+}
+
+message Zone_SoundChat_Response
+{
+	optional int32 iResult = 1;
+	optional SoundChat stSound = 2;
+}
+
+enum CLIENTEVENTTYPE
+{
+	EVENT_LOG_CHARGE = 1; //充值事件
+}
+//客户端事件记录
+message Zone_LogEvent_Request
+{
+	optional int32 iEventType = 1; //记录发送的事件类型
+}
+// 玩家事件
+message Zone_PlyEvtBulletin_Notify{
+	optional int32 iPriorityLevel = 1;	// 优先级
+	optional string strContent = 2;		// 公告内容
+}
+// 公告走马灯
+message Zone_Bulletin_Notify{
+	optional int32 iType = 1;			// 公告类型
+	optional int32 iRoleId = 2;			// 角色ID
+	optional int32 iPriorityLevel = 3;	// 优先级
+	optional int32 iLoopTime = 4;		// 循环时间
+	optional int32 iTrigTimes = 5;		// 触发次数
+	optional int32 iStartTime = 6;		// 开始时间
+	optional int32 iEndTime = 7;		// 结束时间
+	optional string strContent = 8;		// 公告内容
+}
+// 好友事件
+message Zone_FriendEvtDel_Notify{
+	optional int32 iType = 1;			// 事件类型
+	optional int32 iRoleId = 2;			// 角色ID	
+}
+//请求抽取英雄
+message Zone_ExtractBestHero_Request
+{
+	optional int32 iBatchId = 1;			// 批次ID
+	optional int32 iActId = 2;				// 活动ID
+	optional int32 iExtractCount = 3;		// 抽取数量
+	optional bool bFreeExtract = 4;			// 是否是免费抽取
+}
+
+//返回抽英雄结果
+message Zone_ExtractBestHero_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iBatchId = 2;
+	optional int32 iActId = 3;
+	optional int32 iFreeExtractTime = 4;	
+	optional int32 iExtractCount = 5;	
+	optional int32 iScore = 6;
+	optional int32 iRank = 7;
+	optional DropInfoList stDropList = 8;// 掉落列表
+}
+
+//考古抽取请求
+message Zone_ArchExtract_Request
+{
+	optional int32 iExtractCount = 1;		// 单次抽次数
+	optional int32 iType  = 2;				// 1=英雄抽取，2=装备抽取
+}
+
+message Zone_ArchExtract_Response
+{
+	optional int32 iResult = 1;	
+	optional int32 iExtractCount = 2;		//单次抽次数
+	optional DropInfoList stDropList = 3;	// 掉落列表
+	optional int32 iType  = 4;				// 1=英雄抽取，2=装备抽取
+	optional int32 iArchCount = 5;			//考古抽取次数
+}
+
+//考古数据
+message SingleArchInfo
+{
+	optional int32 iWeekID = 1;			//每周热点宝箱id
+	optional int32 iDailyID = 2;		//每日热点宝箱id
+}
+message Zone_ArchaeologyInfo_Notify
+{
+	optional SingleArchInfo stHero = 1;		//英雄之匣
+	optional SingleArchInfo stEquip = 2;	//装备之匣
+}
+
+//玩家设备信息与帐号绑定
+message Zone_UserInfo_Request
+{
+	optional string  strAccount = 1; //玩家帐号
+	optional string  strPhone   = 2; //手机类型
+	optional string  strDeviceID = 3; //设备标识
+	optional string  strSystemType = 4; //系统类型
+}
+
+//请求参数的具体要求
+message CommondParam
+{
+	optional int32 iParamA = 1;	//需要的参数数量
+	optional int32 iParamB = 2;	//需要的参数数量扩展
+}
+enum FETCHTYPE
+{
+	ROLE_ID = 1;	//角色ID
+	ROLE_UIN = 2;	//帐号uin
+	ROLE_NAME = 3;	//角色名
+}
+enum GMEVENT
+{
+	GMEVENT_ALL = 1;	//拉取全部信息
+	GMEVENT_PVE = 2;	//拉取pve副本信息
+}
+message Zone_GMFetchRole_Request
+{
+	optional string strAccount = 1; //请求的GM帐号
+	optional int32 iFetchType = 2; //拉取帐号的方式(1=>roleid,2=>uin,3=>nickname)
+	optional string strParam = 3;	//参数
+	optional int32 iWorldID = 4;  //区服ID
+	optional int32 iEvent = 5;	//拉取信息的事件
+}
+//GM请求
+message Zone_CommondGM_Request
+{
+	optional string strAccount = 1; //请求的GM帐号
+	optional int32 iSelectType = 2; //请求类型
+	optional CommondParam stParam = 3; //请求参数
+	optional int32 iFetchType = 4;
+	optional int32 iWorldID = 5;
+	optional string strRole	= 6;
+}
+//GM回馈
+message Zone_CommondGM_Response
+{
+	optional int32 iResult = 1;	//返回结果0表示成功
+}
+
+message Zone_GMFetchRole_Response
+{
+	optional int32 iResult = 1;				//登录请求返回的结果
+	optional uint32 uin = 2;				//登录的Account的uin
+	optional int32 iZoneID = 3;				//玩家所登录的区ID
+	optional int32 iWorldID = 4;			//玩家所登录的世界ID
+	optional GameLoginInfo stLoginInfo = 5;	//返回登录的玩家的数据
+	optional uint32 uRoleId = 6;			//登录的角色ID
+	optional int32 iUpdateTime = 7;			//更新时间
+	optional string strGuildName = 8;		// 公会名称
+}
+message Zone_GMFetchPve_Response
+{
+	optional int32 iResult = 1;		//返回结果
+	optional uint32 uin = 2;		//登录的Account的uin
+	optional BASEDBINFO stBaseInfo = 3;		//玩家的基础数据
+	optional FIGHTDBINFO stFightInfo = 4;	//玩家的战斗信息
+}
+
+// 请求积分排名列表
+message Zone_BestHeroRankList_Request{
+	optional int32 iBatchId = 1;
+	optional int32 iActID = 2;
+}
+// 请求积分排名的反馈
+message Zone_BestHeroRankList_Response{
+	optional int32 iResult = 1;
+	optional int32 iBatchId = 2;
+	optional int32 iActId = 3;
+	optional int32 iMaxRank = 4;
+	optional int32 iSelfRank = 5;
+	optional ACTIVITY_BESTHERO stBestHeroInfo = 6;
+}
+// 请求活动信息的请求
+message Zone_ActivityList_Request{
+
+}
+// 请求活动信息的反馈
+message Zone_ActivityList_Response{
+	repeated ACTIVITY_DATA stActivityList = 1;
+}
+// 活动的变更
+message Zone_Activity_Notify{
+	optional ACTIVITY_DATA stActivity = 1;
+}
+// 活动的变更
+message Zone_ActivityInfo_Notify{
+	optional ACTIVITY_INFO stActivityInfo = 1;
+}
+
+message Zone_ChargeToClient_Notify
+{
+	optional string strOrderId = 1;	//订单号
+	optional int32 iResult = 2;	//是否成功 0成功，非0失败
+	optional int32 iShopId = 3;	//充值发货的ID
+}
+
+//刷新战斗大师挑战列表
+message Zone_FreshMasterFightList_Request
+{
+	optional int32 iType = 1;		//刷新类型 0=正常刷新，1=结算时间刷新
+}
+
+message MasterList
+{
+	repeated FightInfo stList = 1;
+}
+message Zone_FreshMasterFightList_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iMasterIdx = 2;			//排名
+	optional int32 iMasterHornor = 3;		//声望
+	optional int32 iRemainFightCount = 4;	//剩余挑战次数
+	optional int32 iMasterScore = 5;		//积分
+	optional MasterList stFightList = 6;	//挑战列表
+	optional int32 iType = 7;				//刷新类型 0=正常刷新，1=结算时间刷新
+}
+
+//战斗大师前十排名
+message Zone_MasterTenList_Request
+{
+}
+
+message Zone_MasterTenList_Response
+{
+	optional int32 iResult = 1;
+	optional MasterList stTen = 2;
+}
+
+//战斗大师复仇列表
+message Zone_MasterRevengeList_Request
+{
+}
+
+message MasterRevengeList
+{
+	repeated PvpHistoryInfo stList = 1;
+}
+message Zone_MasterRevengeList_Response
+{
+	optional int32 iResult = 1;
+	optional MasterRevengeList stRevengeList = 2;
+}
+
+//战斗大师商城购买请求
+message Zone_MasterStore_Buy_Request
+{
+	optional int32 iItemid = 1;				//物品id
+	optional int32 iItemNum = 2;			//物品数量
+}
+
+//战斗大师购买回复
+message Zone_MasterStore_Buy_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iItemid = 2;			//物品id
+	optional int32 iItemNum = 3;		//物品数量
+	optional int32 iBuyCount = 4;		//购买总次数
+	optional int32 iCurHonor = 5;		//当前剩余荣誉
+}
+
+//请求挑战
+message Zone_MasterFightSomeOne_Request
+{
+	optional int32 iRoleid = 1;		//想挑战的角色id
+	optional int32 iTime = 2;		//复仇记录的时间，用作定位所在列表位置
+}
+
+message Zone_MasterFightSomeOne_Response
+{	
+	optional int32 iResult = 1;
+	optional string strName = 2;			//对方名字
+	optional RoleFightInfo stInfo = 3;		//战斗数据
+	optional int32 iRemainCount = 4;		//剩余挑战次数
+}
+
+//结束战斗大师
+message Zone_MasterFinFight_Request
+{
+	optional int32 iPVPResult = 1;		//1=胜利，2=失败
+}
+// 
+message Zone_MasterFinFight_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iMasterIdx = 2;			//挑战后排名
+	optional int32 iMasterHornor = 3;		//荣誉
+	optional int32 iMasterScore = 4;		//积分
+	optional DropInfoList stDropList = 5;	//奖励掉落
+	optional int32 iRemainCount = 6;		//剩余挑战次数
+	optional DropInfoList stTeamInfo = 7;	//队伍奖励
+	optional int32 iAddScore = 8;			//增加的积分
+}
+
+//单个商品购买记录
+message SingleMasterFightStore
+{
+	optional int32 iItemid = 1;
+	optional int32 iNum = 2;
+}
+//商品购买记录列表
+message MasterFightStore
+{
+	repeated SingleMasterFightStore stStore = 1;
+}
+
+message MasterFightRank
+{
+	optional FightInfo stInfo = 1;			//角色信息
+	optional MasterRevengeList stHistory = 2;	//复仇列表
+	optional MasterFightStore stStoreInfo = 3; //商城信息
+}
+
+//购买扫荡次数的请求
+message Zone_BuySweepTimes_Request
+{
+
+}
+//购买扫荡次数的请求
+message Zone_BuySweepTimes_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iCurAddSweepTimes = 2;	// 当前通过购买方式的增加的扫荡次数
+	optional int32 iDailyBuyCount = 3;		// 日常购买计数
+}
+//购买挑战次数的请求
+message Zone_BuyCrossTimes_Request
+{
+	optional int32 iGrpId = 1;				//  关卡组ID
+}
+//购买挑战次数的请求
+message Zone_BuyCrossTimes_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iGrpId = 2;			// 关卡组ID
+	optional int32 iBuyCrossTimes = 3;	// 当前通过购买方式的增加的挑战次数
+	optional int32 iBuyCount = 4;			// 购买过的次数
+}
+
+enum eNotifyType
+{
+	ENNOTIFY_PVP = 1;		//竞技场
+	ENNOTIFY_WREST = 2;		//夺宝
+	ENNOTIFY_MASTER = 3;	//战斗大师
+}
+
+message Zone_FightHistory_Notify
+{
+	optional int32 iType = 1;			//类型 eNotifyType
+	repeated PvpHistoryInfo stList1 = 2;
+	repeated WrestHistoryInfo stList2 = 3;
+}
+
+//gm发送走马灯到zone
+message Zone_GMSendBulletinBoard_Notify
+{
+	optional int32 iType = 1;	//类型
+	optional int32 iPriorityLevel = 2;	//等级
+	optional int32 iTrigTimes = 3;	//播放次数
+	optional int32 iStartTime = 4;	//开始时间
+	optional int32 iEndTime = 5;	//结束时间
+	optional int32 iLoopTime = 6;	//循环时间
+	optional string strContext = 7;	//播放内容
+	optional string strAccount = 8; //请求的GM帐号
+}
+//GM发送公告到zone
+message Zone_GMLoginBoard_Notify
+{
+	optional ONEBOARD stBoard = 1;//一个公告的推送
+	optional string strAccount = 2; //请求的GM帐号
+}
+//新登录公告推送
+message Zone_LoginBoard_Notify
+{
+	optional ONEBOARD stBoard = 1;//一个公告的推送
+}
+//登录推送公告
+message Zone_LoginBoard_Response
+{
+	optional int32 iResult = 1;	//返回结果 
+	repeated ONEBOARD stBoard = 2;	//登录公告
+}
+//登录公告更新到数据库
+message Zone_UpdateLoginBoardToDB_Notify
+{
+	repeated ONEBOARD stBoard = 1;
+}
+//更新登录公告从数据库
+message Zone_UpdateLoginBoardfromDB_Notify
+{
+	repeated ONEBOARD stBoard = 1;
+}
+
+
+//////////////公会协议----BEGIN
+// 帮会列表的请求
+message Zone_GuildList_Request{
+
+}
+
+// 帮会列表的反馈
+message Zone_GuildList_Response{
+	optional int32 iResult = 1;			// 查找结果
+	repeated ApplyGuildInfo stGuildList = 2;	// 公会列表
+}
+
+// 请求公会信息
+message Zone_FetchGuildInfo_Request{
+	optional int32 iGuildId = 1;		// 公会ID
+}
+// 请求公会的返回
+message Zone_FetchGuildInfo_Response{
+	optional int32 iResult = 1;			 // 帮会的反馈
+	optional int32 iGuildId = 2;		 // 公会ID
+	optional string strGuildName = 3;	 // 公会名字
+	optional string strPresidentName = 4;// 公会会长
+	optional string strDeclaration = 5;	 // 宣言
+	optional string strNotice = 6;		 // 公告
+	optional int32 iMemberNum = 7;		 // 公会人数
+	repeated GUILD_EVENT strEvtList = 8; // 事件列表
+	optional int32 iActiveVal = 9;		 // 公会总活跃度
+	optional int32 iSelfPosition = 10;   // 在公会里的职位
+	optional int32 iSelfMedalNum = 11;	 // 勋章数量
+	optional int32 iSelfActiveVal = 12;	 // 活跃度
+	repeated int32 iWorshipRoldIds = 13; // 膜拜的RoldId记录
+	optional int32 iFlag = 14;			 // 旗帜
+	optional int32 iPresidentTalentId = 15;// 会长天赋ID
+	optional int32 iFightValue = 16;		// 战斗力
+}
+
+// 查找公会的请求
+message Zone_SearchGuild_Request{
+	optional string strGuildName = 1; 	// 查找公会名
+}	
+// 查找公会的反馈
+message Zone_SearchGuild_Response{
+	optional int32 iResult = 1;					// 查找结果
+	repeated ApplyGuildInfo stGuildInfo = 2;	// 公会信息
+}
+
+// 创建公会的请求
+message Zone_CreateGuild_Request{
+	optional string strGuildName = 1;	// 帮派名
+	optional int32 iGuildFlag = 2;		// 帮派旗帜
+}
+
+// 创建公会的返回
+message Zone_CreateGuild_Response{
+	optional int32 iResult = 1;			// 创建帮会的结果
+	optional int32 iGuildId = 2;		// 创建的帮会的ID
+}
+// 编辑宣言的申请
+message Zone_EditDeclaration_Request{
+	optional string strNewDeclaration = 1;// 编辑宣言
+}
+// 编辑宣言的反馈
+message Zone_EditDeclaration_Response{
+	optional int32 iResult = 1;			  // 修改成功
+}
+// 编辑公告的申请
+message Zone_EditNotice_Request{
+	optional string strNewNotice = 1;	  // 修改公告
+}
+// 编辑公告的反馈
+message Zone_EditNotice_Response{
+	optional int32 iResult = 1;			 // 修改成功
+}
+
+// 申请加入工会的请求
+message Zone_ApplyGuild_Request{
+	optional int32 iGuildId = 1;		// 公会ID
+}
+// 申请加入公会的反馈
+message Zone_ApplyGuild_Response{
+	optional int32 iResult = 1;			// 结果ID
+	optional int32 iGuildId = 2;		// 公会ID
+	optional int32 iForbidTime = 3;		// 限制时间
+}
+// 取消加入工会的请求
+message Zone_CancelGuildApply_Request{
+	optional int32 iGuildId = 1;		// 公会ID
+}
+// 取消加入公会的反馈
+message Zone_CancelGuildApply_Response{
+	optional int32 iResult = 1;			// 结果ID
+	optional int32 iGuildId = 2;		// 公会ID
+}
+
+// 处理公会申请的请求
+message Zone_DealGuildApply_Request{
+	optional int32 iApplyRoleId = 1;	// 操作目标人的RoleId
+	optional int32 iApplyUin = 2;		// 操作目标人的Uin
+	optional int32 iResult = 3;			// 0 为同意 非0为拒绝
+}
+// 处理公会申请的反馈
+message Zone_DealGuildApply_Response{
+	optional int32 iResult = 1;			// 处理结果
+}
+
+// 职位任免的请求
+message Zone_EditPosition_Request{
+	optional int32 iRoleId = 1;			// roleId
+	optional int32 iUin = 2;			// iUin
+	optional int32 iPosition = 3;		// 目标职位
+	optional int32 iCurPosition = 4;	// 当前职位
+}
+// 职位任免的反馈
+message Zone_EditPosition_Response{
+	optional int32 iResult = 1;			// 请求结果
+	optional int32 iRoleId = 2;			// roleId
+	optional int32 iUin = 3;			// iUin
+	optional int32 iOldPosition = 4;		// 原来职位
+	optional int32 iCurPosition = 5;		// 目标职位
+}
+
+// 踢出公会的请求
+message Zone_KickoutGuild_Request{
+	optional int32 iKickoutRoleId = 1;   // 被踢出的Roleid
+	optional int32 iKickoutUin = 2;		 // 被踢者Uin
+}
+// 踢出公会的反馈
+message Zone_KickoutGuild_Response{
+	optional int32 iResult = 1;				// 结果
+	optional int32 iKickoutRoleId = 2;		// 剔除人的roleId
+	optional int32 iKickoutUin = 3;			// 剔除人的uin
+}
+// 退出公会的请求
+message Zone_QuitGuild_Request{
+}
+// 退出公会的反馈
+message Zone_QuitGuild_Response{
+	optional int32 iResult = 1;				// 结果
+}
+// 转让公会的请求
+message Zone_TransferPresident_Request{
+	optional int32 iTransferToRoleId = 1;	// 公会转让roleid
+	optional int32 iTransferToUin = 2;		// 公会转让uin
+}
+// 转让公会的反馈
+message Zone_TransferPresident_Response{
+	optional int32 iResult = 1;
+	optional int32 iTransferToRoleId = 2;// 公会转让roleid
+	optional int32 iTransferToUin = 3;	 // 公会转让uin
+}
+// 膜拜的请求
+message Zone_GuildWorship_Request{
+	optional int32 iRoleId = 1;			// 被膜拜人的roleid
+	optional int32 iUin = 2;			// 被膜拜人的uin
+	optional int32 iWorshipType = 3;	// 膜拜类型 免费膜拜、金币膜拜、钻石膜拜
+}
+// 膜拜的反馈
+message Zone_GuildWorship_Response{
+	optional int32 iResult = 1;			// 膜拜结果
+	optional int32 iRoleId = 2;			// 膜拜的人的ID
+}
+// 获取膜拜的金币
+message Zone_GatherWorshipCoin_Request{
+	
+}
+// 收集膜拜的金币
+message Zone_GatherWorshipCoin_Response{
+	optional int32 iResult = 1;		   // 收集结果
+}
+
+// 新事件通知
+message Zone_NewGuildEvent_Notify{
+	optional GUILD_EVENT stNewGuildEvent = 1;
+}
+
+// 公会申请的通知
+message Zone_NewGuildApply_Notify{
+	optional BasicPlayerSummary stPlyInfo = 1;		// 摘要信息
+}
+// 取消公会申请的通知
+message Zone_CancelGuildApply_Notify{
+	optional int32 iGuildId = 1;		// 公会ID
+	optional int32 iUin = 2;			// Uin
+	optional int32 iRoleId = 3;			// 角色ID
+}
+
+// 公会审核的通知
+message Zone_GuildApproval_Notify{
+	optional int32 iGuildId = 1;		// 公会ID
+	optional string strGuildName = 2;	// 公会名称
+	optional int32 iOperType = 3;		// 审核结果 0通过 1拒绝
+}
+
+// 查看已经申请的公会的列表
+message Zone_GuildApplyList_Request{
+
+}
+
+// 查看已经申请的公会列表的反馈
+message Zone_GuildApplyList_Response{
+	repeated ApplyGuildInfo stGuildList = 1;	// 公会列表
+}
+
+// 请求公会成员列表
+message Zone_GuildMemberList_Request{
+
+}
+// 请求公会成员列表
+message Zone_GuildMemberList_Response{
+	optional ALL_GUILD_MEMBER stAllGuildMember = 1;
+}
+
+// 请求公会的申请玩家列表
+message Zone_Guild_ApplyPlyList_Request{
+
+}
+// 请求公会的申请玩家列表
+message Zone_Guild_ApplyPlyList_Response{
+	repeated BasicPlayerSummary stPlyList = 1;
+}
+
+// 请求膜拜信息
+message Zone_WorshipInfo_Request{
+
+}
+// 请求膜拜信息
+message Zone_WorshipInfo_Response{
+	optional int32 iCoinAmt = 1;			// 金币总数
+	optional int32 iBadgeAmt = 2;			// 徽章总数
+	optional int32 iWorshipTime = 3;		// 今日膜拜次数
+	repeated WORSHIPRECORD stRecordList = 4;// 被膜拜的记录总数
+}
+// 请求解散公会
+message Zone_Guild_Dismiss_Request{
+
+}
+// 请求解散公会的反馈
+message Zone_Guild_Dismiss_Response{
+	optional int32 iResult = 1;
+}
+// 请求更换旗帜
+message Zone_Guild_ChangeFlag_Request{
+	optional int32 iNewFlag = 1;
+}
+// 请求更换旗帜的反馈
+message Zone_Guild_ChangeFlag_Response{
+	optional int32 iResult = 1;
+	optional int32 iFlag = 2;
+}
+// 请求批量处理
+message Zone_Guild_DealAllApply_Request{
+	optional int32 iOperType = 1;			// 0为同意 非零为拒绝
+}
+// 请求批量处理的反馈
+message Zone_Guild_DealAllApply_Response{
+	optional int32 iResult = 1;				// 批量处理
+	optional int32 iOperType = 2;			// 0为同意 非零为拒绝
+}
+
+//公会商店购买请求
+message Zone_Guild_ShopBuy_Request
+{
+	optional int32 iShopType = 1;
+	optional int32 iGoodId = 2;	//购买的物品序号
+}
+//公会商店购买返回
+message Zone_Guild_ShopBuy_Response
+{
+	optional int32 iResult = 1;	//购买是否成功
+	optional int32 iShopType = 2;// 商店类型
+	optional int32 iGoodId = 3; //购买的物品序号
+	optional SingleDropInfo stDrop = 4;	//购买的物品
+}
+
+//公会商店刷新请求，将返回Zone_Guild_ShopLoad_Response
+message Zone_Guild_ShopRefresh_Request
+{
+	optional int32 iShopType = 1;
+}
+
+//公会商店加载界面请求
+message Zone_Guild_ShopLoad_Request
+{
+	optional int32 iShopType = 1;
+}
+
+//公会商店加载界面请求返回
+message Zone_Guild_ShopLoad_Response
+{
+	optional int32 iResult = 1;	//加载是否成功
+	optional int32 iShopType = 2;
+	optional GuildShopInfo stShopInfo = 3;//加载的界面信息
+}
+
+/////////////////////公会协议---END
+//封号禁言的协议体
+message FORBIDDENTROLE
+{
+	optional int32 iForbidType = 1;	//封号类型
+	optional int32 iStarttime = 2;
+	optional int32 iEndtime = 3;
+}
+message Zone_GMForbidenToRole_Request
+{
+	optional int32 iType = 1;	//操作类型1=》封号操作，2=>禁言操作
+	optional int32 iWorldid = 2;	//所在区服
+	optional int32 iRoleUin = 3;	//uin
+	optional FORBIDDENTROLE stForbid = 4;	//封号的具体信息
+	optional int32 iTime = 5;		//禁言的时间
+	optional string strAccount = 6; //请求的GM帐号
+}
+enum XINGETYPE
+{
+	TYPE_ENERGY = 1;	//体力恢复推送
+	TYPE_WREST = 2;		//夺宝被抢推送
+	TYPE_PVP = 3;		//PVP排名推送
+	TYPE_MASTER = 4;	//战斗大师击败推送
+}
+
+message Zone_CloseXinge_Request
+{
+	optional int32 iType = 1;	//推送类型===>XINGETYPE
+}
+
+message Zone_CloseXinge_Response
+{
+	optional int32 iResult = 1;	//返回结果
+	optional int32 iType = 2;	//关闭的推送类型
+}
+
+// 商城购买功能次数的请求
+message Zone_BuyFuncUseTime_Request{
+	optional int32 iFuncType = 1;
+	optional int32 iFuncParam = 2;
+}
+// 商城购买功能次数的反馈
+message Zone_BuyFuncUseTime_Response{
+	optional int32 iResult = 1;		    			// 购买结果
+	optional int32 iFuncParam = 2;					// 参数类型 关卡组ID	
+	optional FUNCBUYRECORD stFuncBuyRecord = 3;		// 功能数值 历史购买次数
+	optional int32 iCurParam = 4;					// 当前参数 当前挑战次数、当前体力数
+	optional int32 iResetTimes = 5;					// 当前参数 重置次数
+}
+// 领取标记
+message Zone_GetDailyTaskReward_Request{
+	optional int32 iTaskId = 1;					
+	optional int32 iTaskType = 2;
+	optional int32 iTaskParam = 3;
+}
+
+// 领取任务奖励
+message Zone_GetDailyTaskReward_Response{
+	optional int32 iResult = 1;		    			// 战斗结果
+	optional int32 iTaskId = 2;						// 任务类型
+	optional int32 iTaskType = 3;					// 任务类型
+	optional int32 iTaskParam = 4;					// 任务参数
+	optional TeamRewardInfo stTeamRewardInfo = 5;	// 队伍信息
+	optional DropInfoList stDropList = 6;			// 掉落列表 
+}
+
+// 购买黑市物品的请求
+message Zone_BuyBlackMarket_Request{
+	optional int32 iSlotId = 1;
+}
+
+// 购买黑市物品的反馈
+message Zone_BuyBlackMarket_Response{
+	optional int32 iResult = 1;
+	optional int32 iSlotId = 2;
+	optional SingleDropInfo stSingleDropInfo = 3;
+}
+// 刷新黑市商人的请求
+message Zone_UpdateBlackMarket_Request{
+	
+}
+// 刷新黑市商人的反馈
+message Zone_UpdateBlackMarket_Response{
+	optional int32 iResult = 1;		    				  	// 结果
+}
+// 刷新黑市商人的通知
+message Zone_UpdateBlackMarket_Notify{
+	optional int32 iTrigType = 1;	 // 1表示从PVE触发
+	optional MYSTERIOUS_SHOP stBlackMarketShop = 2;
+}
+// 公会红点 
+message Zone_RedPoint_Notify{
+	optional int32 iRedPointType = 1;	// 红点类型 公会申请、膜拜奖励领取
+	optional int32 iShowAmt = 2;		// 限时类型 0无红点 非0有红点 并数量
+}
+
+message OneMailInfo
+{
+	optional int32 iMailId = 1;		//邮件标识
+	optional string strTitle = 2;	//邮件标题
+	optional string strContext = 3;	//邮件内容
+	optional int32 iSendTime = 4;	//发送时间
+	repeated int32 iRoleid = 5;		//发送角色
+	optional MailAttachment stAttachment = 6;	//附件 
+}
+
+message Zone_AddNewMail_Request
+{
+	optional int32 id = 1;	//邮件撤回标志也是唯一标识
+	optional bytes stMail = 2;	//整个邮件内容插入到数据库中
+	optional int32 iSendTime = 3;//邮件发送的触发时间
+	optional int32 iZoneID = 4;
+	optional int32 iglobal = 5;	//是否为全服邮件
+	optional int32 iMinRole = 6;
+	optional int32 iMaxRole = 7;
+	optional int32 iMinVip = 8;
+	optional int32 iMaxVip = 9;
+	optional int32 iGuild = 10;
+	optional int32 iLoginBegin = 11;
+	optional int32 iLoginEnd = 12;
+}
+
+message Zone_GMCreateMail_Request
+{
+	optional string strAccount = 1;	//验证帐号
+	optional OneMailInfo stMail = 2; //邮件内容
+	optional int32 iReturn = 3;		//撤回标志
+}
+// 清除CD
+message Zone_ClearPVPCD_Request{
+
+}
+// 清除PVPCD的回复
+message Zone_ClearPVPCD_Response{
+	optional int32 iResult = 1;
+}
+message Zone_FetchMailTable_Request
+{
+	optional int32 iZoneID = 1;	
+}
+message OneMailTable
+{
+	optional int32 iMailId = 1;
+	optional int32 iSendTime = 2;
+}
+message Zone_FetchMailTable_Response
+{
+	optional int32 iResult = 1;
+	repeated OneMailTable stMailList = 2; //获取定时邮件列表
+	optional int32 iZoneID = 3;
+}
+message Zone_FetchOneMail_Request
+{
+	optional int32 iMailId = 1;
+	optional int32 iZoneID = 2;
+}
+message Zone_FetchOneMail_Response
+{
+	optional bytes stMail = 1; //获取触发的定时邮件
+	optional int32 iResult = 2;
+	optional int32 iMinRole = 3;
+	optional int32 iMaxRole = 4;
+	optional int32 iMinVip = 5;
+	optional int32 iMaxVip = 6;
+	optional int32 iGuild = 7;
+	optional int32 iLoginBegin = 8;
+	optional int32 iLoginEnd = 9;
+	optional int32 iZoneID = 10;
+	optional int32 iglobal = 11;
+}
+message Zone_UpdateMailStatu_Request
+{
+	optional int32 iMailId = 1;
+}
+
+message Zone_RevokeMail_Request
+{
+	optional int32 iMailed = 1;	//撤回邮件
+	optional string strAccount = 2;	//帐号验证
+}
+
+// PVE次数重置通知
+message Zone_PveCrossReset_Notify{
+	optional CrossGrpInfo stGrpInfo = 1;		// 关卡组信息
+	optional int32 iFreeSweepTimes = 2;			// 免费扫荡次数
+	optional int32 iAddSweepTimes = 3;			// 购买的扫荡次数
+	optional int32 iBuySweepTimes = 4;			// 购买扫荡次数的次数
+}
+// 功能购买记录重置
+message Zone_ClearFunBuyRecord_Notify{
+}
+
+//GM发放全服邮件
+message Zone_AllRoleMail_Request
+{
+	optional string strAccount =  1;
+	optional OneMailInfo stOneMail = 2;
+	optional int32 iMinRole = 3;
+	optional int32 iMaxRole = 4;
+	optional int32 iMinVip = 5;
+	optional int32 iMaxVip = 6;
+	optional int32 iGuild = 7;
+	optional int32 iLoginBegin = 8;
+	optional int32 iLoginEnd = 9;
+}
+// 成就完成度更新信息
+message Zone_AchievementUpdate_Notify{
+	optional ACHIEVEMENT stAchievement = 1;// 成就
+}
+// 领取成就奖励
+message Zone_GetAchievementReward_Request{
+	optional int32 iAchievementId = 1;	// 成就
+	optional int32 iSubAchievementId = 2;// 子成就
+}
+message Zone_GetAchievementReward_Response{
+	optional int32 iResult = 1;				// 结果
+	optional int32 iAchievementId = 2;		// 成就
+	optional int32 iSubAchievementId = 3;	// 子成就
+	optional SingleDropInfo stDropInfo = 4;	// 掉落
+}
+// 领取成就奖励
+message Zone_ActiveAchievement_Notify{
+	optional int32 iAchievementId = 1;	// 成就
+	optional int32 iSubAchievementId = 2;// 子成就
+}
+
+//撤回邮件通知
+message Zone_RevokeMail_Notify
+{
+	optional int32 iMailId = 1;  //撤回邮件id
+}
+
+//重置燃烧远征挑战列表
+message Zone_ResetAnabasis_Request
+{
+}
+
+message AnabasisInfo
+{
+	optional int32 iHeroIdx = 1;
+	optional int32 iHeroBlood = 2;
+}
+message AnabasisInfoList
+{
+	repeated AnabasisInfo stList = 1;	//英雄血量
+}
+message AnabasisList
+{
+	repeated FightInfo stList = 1;
+	repeated int32 stBoxid = 2;
+}
+message Zone_ResetAnabasis_Response
+{
+	optional int32 iResult = 1;
+	optional AnabasisList stInfo = 2;		//新的挑战列表
+	optional int32 iRemainCount = 3;		//剩余刷新次数
+	optional int32 iCurCross = 4;			//当前关卡
+	optional int32 iTotalCross = 5;			//总关卡
+	optional int32 iHaveAward = 6;			//是否可以领取宝箱
+	optional AnabasisInfoList stHerosBlood = 7;	//英雄血量
+	optional int32 iAnabasisMaxCross = 8;	//最高通关关卡
+}
+
+//开始挑战
+message Zone_StartAnabasis_Request
+{
+	optional int32 iCrossid = 1;	//关卡id
+}
+
+message Zone_StartAnabasis_Response
+{
+	optional int32 iResult = 1;
+	optional RoleFightInfo stFightInfo = 2;	//战斗数据
+	optional int32 iCrossid = 3;			//关卡id
+}
+
+//结束战斗
+message Zone_FinAnabasis_Request
+{
+	optional int32 iFightResult = 1;		//战斗结果 1=胜利，2失败
+	repeated AnabasisInfo stMyHero = 2;		//自方英雄信息
+	repeated AnabasisInfo stOppHero = 3;	//对手英雄信息
+	optional int32 iCrossid = 4;			//关卡id
+}
+
+message Zone_FinAnabasis_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iFightResult = 2;		//战斗结果 1=胜利，2失败
+	optional int32 iCurCross = 3;			//当前关卡
+	optional int32 iTotalCross = 4;			//总关卡
+	optional int32 iHaveAward = 5;			//是否可以领取宝箱
+	optional int32 iCrossid = 6;			//关卡id
+	optional DropInfoList stDropList = 7;	//奖励掉落
+	optional AnabasisInfoList stHerosBlood = 8;	//英雄血量
+}
+
+//领取奖励
+message Zone_GetAnabasisAward_Request
+{
+}
+
+message Zone_GetAnabasisAward_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iCurCross = 2;			//当前关卡
+	optional int32 iTotalCross = 3;			//总关卡
+	optional int32 iHaveAward = 4;			//是否可以领取宝箱
+	optional DropInfoList stDropList = 5;	//奖励掉落
+}
+
+//英雄征途扫荡
+message Zone_AnabasisSweep_Request
+{
+}
+
+message AnaSingleAward
+{
+	optional int32 iCross = 1;
+	optional DropInfoList stAward = 2;
+}
+message Zone_AnabasisSweep_Response
+{
+	optional int32 iResult = 1;
+	repeated AnaSingleAward stAwardList = 2;
+	optional int32 iCurCross = 3;			//当前关卡
+	optional AnabasisInfoList stHerosBlood = 4;	//我方英雄血量
+}
+
+//燃烧远征商城购买请求
+message Zone_AnabasisStore_Buy_Request
+{
+	optional int32 iItemid = 1;				//物品id
+	optional int32 iItemNum = 2;			//物品数量
+}
+
+//燃烧远征购买回复
+message Zone_AnabasisStore_Buy_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iItemid = 2;			//物品id
+	optional int32 iItemNum = 3;		//物品数量
+	optional int32 iBuyCount = 4;		//购买总次数
+}
+
+//燃烧远征商城刷新
+message Zone_AnabasisStore_Fresh_Request
+{
+}
+message Zone_AnabasisStore_Fresh_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iFreshCount = 2;		//当前刷新次数
+}
+
+//更新周奖励状态
+message Zone_WeekAwardState_Notify
+{
+	optional WeekAwardDataList stWeekAwardData = 1;		//周登录奖励数据
+}
+
+// 精炼请求
+message Zone_NewEquipRefine_Request{
+	optional int32 iSlotId = 1;				// 要精炼物品所在槽位
+	repeated int32 iMaterialSlots = 2;		// 材料ID列表
+}
+// 精炼反馈
+message Zone_NewEquipRefine_Response{
+	optional int32 iResult = 1;				// 要精炼物品所在槽位
+	optional int32 iSlotId = 2;				// 槽位ID
+	optional int32 iRefineLv = 3;			// 精炼等级
+}
+
+enum eREDPOINTTYPE
+{
+	EN_WRESTTREASURE = 1;	//夺宝
+	EN_PVPHISTORY = 2;		//竞技场
+	EN_MASTERHISTORY = 3;	//战斗大师
+}
+//红点提醒
+message Zone_RedPointAll_Notify
+{
+	optional int32 iType = 1;	//类型 eREDPOINTTYPE
+}
+
+// GM请求活动列表
+message Zone_GM_ActivityList_Request{
+	optional string strAccount = 1;
+}
+
+// GM请求活动列表的反馈
+message Zone_GM_ActivityList_Response{
+	repeated ACTIVITY_DATA stActivityList = 1;
+}
+
+// GM修改活动的通知
+message Zone_GM_ChangeActivity_Notify{
+	optional ACTIVITY_DATA stActivityList = 1;
+	optional string strAccount = 2;
+}
+
+// GM添加活动的通知 ID为日期+活动类型 以防止重复添加
+message Zone_GM_AddActivity_Notify{
+	optional ACTIVITY_DATA stActivityList = 1;
+	optional string strAccount = 2;
+}
+
+// 公会排名
+message Zone_GuildFightValueRank_Request{
+}
+// 公会排名的反馈
+message Zone_GuildFightValueRank_Response{
+	optional int32 iSelfGuildRank = 1;
+	optional int32 iSelfGuildId = 2;
+	optional int32 iSelfGuildFightVal = 3;
+	repeated GuildSummary stGuildList = 4;
+}
+
+
+// 请求积分排名列表
+message Zone_ActScoreRank_Request{
+	optional int32 iBatchId = 1;
+	optional int32 iActID = 2;
+}
+// 请求积分排名的反馈
+message Zone_ActScoreRank_Response{
+	optional int32 iResult = 1;
+	optional int32 iBatchId = 2;
+	optional int32 iActId = 3;
+	optional int32 iMaxRank = 4;
+	optional int32 iSelfRank = 5;
+	repeated ACTSCORERANKINFO stRankList = 6;
+}
+//请求抽奖
+message Zone_ActExtractReward_Request
+{
+	optional int32 iBatchId = 1;			// 批次ID
+	optional int32 iActId = 2;				// 活动ID
+	optional int32 iExtractCount = 3;		// 抽取数量
+	optional bool bFreeExtract = 4;			// 是否是免费抽取
+}
+// 抽取的返回
+message Zone_ActExtractReward_Response 
+{
+	optional int32 iResult = 1;
+	optional int32 iBatchId = 2;
+	optional int32 iActId = 3;
+	optional int32 iExtractCount = 4;		// 抽取计数
+	optional int32 iFreeExtractCount = 5;	// 已经免费抽取次数
+	optional DropInfoList stDropList = 6;// 掉落列表
+}
+//请求领取寻宝积分奖励
+message Zone_GetActRankReward_Request
+{
+	optional int32 iBatchId = 1;		// 批次ID
+	optional int32 iChestId = 2;		// 宝箱ID
+	optional int32 iItemType = 3;		// 物品类型
+	optional int32 iItemID = 4;			// 物品ID
+	optional int32 iItemNum = 5;		// 物品数量
+}
+// 请求领取寻宝积分奖励的返回
+message Zone_GetActRankReward_Response 
+{
+	optional int32 iResult = 1;
+	optional int32 iBatchId = 2;
+	optional DropInfoList stDropList = 3;// 掉落列表
+}
+
+// 兑换活动
+message Zone_ActExchange_Request
+{
+	optional int32 iBatchId = 1;		// 批次ID
+	optional int32 iExchangeId = 2;		// 兑换ID
+	repeated int32 iEquipSlotIds = 3;	// 装备槽位列表
+	repeated int32 iHeroIndexs = 4;		// 英雄索引列表
+}
+message Zone_ActExchange_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iBatchId = 2;		// 批次ID
+	optional DropInfoList stDropList = 3;// 掉落列表
+}
+// 更新首次标记 
+message Zone_FirstTag_Notify{
+	optional int32 iFirstTag = 1;
+}
+// 兑换次数更新
+message Zone_ActExchangeInfo_Notify{
+	optional ACT_EXCHANGE_INFO stExchangeInfo = 1;
+}
+
+// 攻击阵形类型
+enum AttackFormType
+{
+	ATTACK_FORM_PVE_CROSS = 0;		// PVE关卡
+	ATTACK_FORM_TRIAL_LIFE = 1;		// 生命巨龙
+	ATTACK_FORM_TRIAL_MAGIC = 2;	// 魔法巨龙
+	ATTACK_FORM_TRIAL_WAR = 3;		// 战争巨龙
+	ATTACK_FORM_TRIAL_TIME = 4;		// 时光巨龙
+	ATTACK_FORM_ACT_DJJK = 5;		// 地精金矿
+	ATTACK_FORM_ACT_LHJT = 6;		// 灵魂祭坛
+	ATTACK_FORM_ACT_SPBK = 7;		// 饰品宝库
+	ATTACK_FORM_CON_TOWER = 8;		// 征服之塔
+	ATTACK_FORM_MASTERFIGHT = 9;	// 战斗大师
+	ATTACK_FORM_TRIAL = 10;			// 试炼副本
+	ATTACK_FORM_PVP = 11;			// PVP竞技场
+	ATTACK_FORM_WREST = 12;			// PVP夺宝
+	ATTACK_FORM_JOURNEY = 13;		// 征途
+	ATTACK_FORM_TREASURE = 14;		// 地精宝藏
+	ATTACK_FORM_QUALIFYING_DEF = 15;// 排位赛的防守阵型
+	ATTACK_FORM_QUALIFYING = 16;	// 排位赛的进攻阵型
+	ATTACK_FORM_GUILDWAR_DEF1 = 17;	// 公会战的防守阵型
+	ATTACK_FORM_GUILDWAR_DEF2 = 18;	// 公会战的防守阵型
+	ATTACK_FORM_GUILDWAR = 19;		// 公会战的进攻阵型
+	ATTACK_FORM_MAX = 20;			// 最大标识
+}
+
+// 修改进攻阵容
+message Zone_SetAttackForm_Request
+{
+	optional int32 iAttachFormType = 1;
+	repeated int32 iFormIndex = 2;		// 阵容
+	optional int32 iFightVal = 3;		// 战斗力变更
+}
+// 修改进攻阵容
+message Zone_SetAttackForm_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iAttachFormType = 2;	// 阵形类型
+	repeated int32 iFormIndex = 3;		// 阵容
+}
+// 排队信息通知
+message Zone_LineUpInfo_Notify
+{
+	optional int32 iLineRoleNum = 1;	// 在你之前的人数
+	optional int32 iWaitSeconds = 2;	// 预计等待时间
+}
+// 取消排队的请求
+message Zone_CancelLineUp_Request
+{
+}
+// 取消排队的请求
+message Zone_CancelLineUp_Response
+{
+	optional int32 iResult = 1;
+}
+
+
+message Zone_QueryUin_Request
+{
+	optional int32 iuin = 1;	
+	optional int32 iZoneid = 2;
+}
+
+message  Zone_QueryUin_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iAmt = 2;     //返回金额
+	optional int32 iLastDay = 3; //累积登录天数
+	optional int32 iLastLoginNum = 4; //上次登录天数
+	optional int32 iNextTime = 5;	//下次累加时间
+	optional int32 iUin = 6;		//玩家
+	optional int32 iZoneid = 7;
+}
+
+message Zone_Update_LastDay_Notify
+{
+	optional int32 iZoneid = 1;
+	optional int32 iUin = 2;
+	optional int32 iAddDay = 3; //累加天数
+	optional int32 iNextTime = 4; //上次登录天数
+}
+
+// 日常免费的5次重置
+message Zone_DailyFreeFMTimes_Notify{
+	optional int32 iFreeExtractTimes = 1;
+}
+// 开始好友切磋的请求
+message Zone_StartFightFriend_Request{
+	optional int32 iRoleId = 1;
+}
+// 开始好友切磋的反馈
+message Zone_StartFightFriend_Response{
+	optional int32 iResult = 1;
+	optional PlayerSummaryInfo stPlySummaryInfo = 2;
+}
+// 好友切磋战斗的结束
+message Zone_FinishFightFriend_Request{
+	optional int32 iRoleId = 1;			// 战斗结果
+	optional int32 iCombatResult = 2;	// 战斗结果
+}
+// 好友切磋战斗的结束
+message Zone_FinishFightFriend_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleid = 2;
+}
+
+message GlobalMail
+{
+	optional int32 id = 1;	//邮件撤回标志也是唯一标识
+	optional bytes stMail = 2;	//整个邮件内容
+	optional int32 iSendTime = 3;
+	optional int32 iMinRole = 4;
+	optional int32 iMaxRole = 5;
+	optional int32 iMinVip = 6;
+	optional int32 iMaxVip = 7;
+	optional int32 iGuild = 8;
+	optional int32 iLoginBegin = 9;
+	optional int32 iLoginEnd = 10;
+	optional int32 iversion = 11; //版本
+}
+
+
+
+message Zone_AddNewGlobalMail_Request
+{
+	optional int32 id = 1;	//邮件撤回标志也是唯一标识
+	optional bytes stMail = 2;	//整个邮件内容插入到数据库中
+	optional int32 iSendTime = 3;//邮件发送的触发时间
+	optional int32 iMinRole = 4;
+	optional int32 iMaxRole = 5;
+	optional int32 iMinVip = 6;
+	optional int32 iMaxVip = 7;
+	optional int32 iGuild = 8;
+	optional int32 iLoginBegin = 9;
+	optional int32 iLoginEnd = 10;
+	optional int32  iZoneID = 11;
+	optional int32 iversion = 12; //版本
+}
+
+message Zone_FetchGlobalMail_Request
+{
+	optional int32 iMailVersion = 1;
+	optional int32 iZoneID = 2;
+}
+
+message Zone_FetchGlobalMail_Response
+{
+	repeated GlobalMail stGMail = 1;
+	optional int32 iZoneID = 2;
+    optional int32 iResult = 3;
+}
+
+message Zone_RevokeGlobalMail_Notify
+{
+	optional int32 iMailId = 1;
+}
+
+message Zone_FriendCombatTimes_Notify{
+	optional int32 iAllCombatTimes = 1;
+	optional int32 iFriendRoleId = 2;
+	optional int32 iFriendCombatTimes = 3;
+}
+// 战斗记录
+message Zone_NewCombatRecord_Notify{
+	optional FRIEND_COMBAT_RECORD stRecord = 1;
+}
+
+//战斗验证
+message Attribute
+{
+	optional int32 iObjID = 1;				//id（英雄id，或者怪物id）
+	optional int32 iAttack = 2;				//攻击
+	optional int32 iMagicDefence = 3;		//魔法防御
+	optional int32 iPhysicsDefence = 4;		//物理防御
+	optional int32 iBlood = 5;				//血量
+	optional int32 iIdx = 6;				//英雄索引
+}
+message FightVerify
+{
+	optional Attribute stAttackAttribute = 1;		//攻击方属性
+	optional Attribute stBeAttackAttribute = 2;		//被攻击方属性
+	optional int32 iHurt = 3;		//伤害
+	optional int32 iSkillID = 4;	//技能id
+	optional int32 iCrit = 5;		//是否暴击
+	optional int32 iKill = 6;		//是否击杀
+	optional int32 iTime = 7;		//当前时间
+	optional int32 iUseSkill = 8;	//0=不是使用技能，1=使用技能
+	optional int32 iCamp = 9;		//1=自己阵容，2=敌方阵营
+	optional int32 iEnterFight = 10; //0=已经在战斗中，1=开始进入战斗
+}
+message Zone_FightVerify_Notify
+{
+	repeated FightVerify stList = 1;
+}
+
+//--------------------------------地精宝藏协议START----------------------------------
+message SingleMineCross
+{
+	optional int32 iCrossid = 1;
+	optional int32 iState = 2;	//0=空位，1=已占用
+}
+message MineTreasure
+{
+	optional int32 iStartTime = 1;	//宝藏索引
+	optional int32 iType  = 2;		//宝藏类型
+	optional int32 iSpeed = 3;		//采矿速度
+	optional int32 iEndTime = 4;	//结束时间
+	repeated int32 DefForm = 5;		//防守阵容
+	optional DropInfoList stDropList = 6;   //累积资源
+	optional int32 iCrossid = 7;	//自己所在的位置
+	repeated SingleMineCross stCrossList = 8;	//位置信息
+	optional int32 iRoleid = 9;		//开矿人id
+	optional int32 iTreasureIdx = 10;//宝藏索引
+}
+//开采宝藏
+message Zone_MineTreasure_Request
+{
+	optional int32 iType = 1;		//宝藏类型
+	repeated int32 DefForm = 2;		//防守阵容
+	optional int32 iFightValue = 3;	//防守阵容战力
+}
+message Zone_MineTreasure_Response
+{
+	optional int32 iResult = 1;
+	optional MineTreasure stTreasure = 2;	//宝藏数据
+}
+
+//邀请防守宝藏
+message Zone_InviteTreasure_Request
+{
+	optional int32 iTreasureIdx = 1;	//宝藏索引
+	optional int32 iSlot = 2;			//防守位置
+	repeated int32 RoleList = 3;		//邀请列表
+}
+message Zone_InviteTreasure_Response
+{
+	optional int32 iResult = 1;
+}
+
+//邀请通知
+message InviteInfo
+{
+	optional int32 iTreasureIdx = 1;	//宝藏索引
+	optional int32 iTime = 2;			//邀请时间
+	optional string strName = 3;		//名字
+	optional int32 iPicID = 4;			//头像id
+	optional int32 iLv = 5;				//等级
+	optional int32 iVipLv = 6;			//vip等级
+	optional int32 iTalentid = 7;		//天赋 
+	optional int32 iTreasureType = 8;	//宝藏类型
+	optional string strGuildName = 9;	//工会名字
+}
+message Zone_InvateTreasure_Notify
+{
+	optional InviteInfo stInvaite = 1;
+}
+
+//查看地精宝藏信息
+message Zone_CheckTreasure_Request
+{
+	optional int32 iTreasureIdx = 1;	//宝藏索引
+}
+message Zone_CheckTreasure_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iTreasureIdx = 2;			//宝藏索引
+	repeated SingleMineCross StateList = 3;		//状态列表
+	optional int32 iEndTime = 4;				//结束时间
+	optional int32 iTreasureType = 5;			//宝藏类型
+}
+
+//接受邀请防守宝藏
+message Zone_AckInviteTreasure_Request
+{
+	optional int32 iTreasureIdx = 1;	//宝藏索引
+	repeated int32 DefForm = 2;			//防守阵容
+	optional int32 iFightValue = 3;		//防守阵容战力
+}
+message Zone_AckInviteTreasure_Response
+{
+	optional int32 iResult = 1;
+	optional MineTreasure stTreasure = 2;	//宝藏数据
+}
+
+//宝藏状态更新
+message Zone_ChangeTreasureState_Notify
+{
+	optional int32 iTreasureIdx = 1;		//宝藏索引
+	optional SingleMineCross stCross = 2;	//修改信息
+}
+
+//修改阵容
+message Zone_ChangeMineForm_Request
+{
+	optional int32 iTreasureIdx = 1;	//宝藏索引
+	repeated int32 DefForm = 2;			//防守阵容
+	optional int32 iSlot = 3;			//所在位置
+	optional int32 iFightValue = 4;		//战斗力
+}
+message Zone_ChangeMineForm_Response
+{
+	optional int32 iResult = 1;
+	repeated int32 DefForm = 2;			//防守阵容
+	optional int32 iTreasureIdx = 3;	//宝藏索引
+	optional int32 iSpeed = 4;			//开采速度
+}
+
+//收取宝藏
+message Zone_GetMineTreasureAward_Request
+{
+	optional int32 iType = 1;			//奖励类型 1=采矿奖励，2=防守奖励 ，3=抢夺奖励
+	optional int32 iTreasureIdx = 2;	//宝藏索引
+}
+message Zone_GetMineTreasureAward_Response
+{
+	optional int32 iResult = 1;
+	optional DropInfoList stDropList = 2;   //掉落组
+	optional int32 iTreasureIdx = 3;		//宝藏索引
+	optional int32 iType = 4;				//奖励类型 1=采矿奖励，2=防守奖励 ，3=抢夺奖励
+}
+
+//正在开采宝藏通知
+//message Zone_MineTreasure_Notify
+//{
+//	repeated MineTreasure stList = 1;
+//}
+
+//防守记录
+message MineDefHistoryInfo
+{
+	optional string strAttackName = 1;		//攻击方名字
+	optional int32 iResult = 2;				//战斗结果，1=胜利，2=失败
+	optional int32 iAttackTime = 3;			//攻击时间
+	optional int32 iAttackLv = 4;			//对方等级
+	optional int32 iPicid = 5;				//头像id
+	optional int32 iRoleid = 6;				//角色id
+	optional int32 iVipLv = 7;				//vip等级
+	optional int32 iTalent = 8;				//天赋
+	optional DropInfoList stLostList = 9;   //损失
+	optional DropInfoList stDropList = 10;  //奖励
+	optional int32 iTreasureType = 11;		//宝藏类型
+	optional int32 iWorldid = 12;			//攻击方worldid
+}
+//message Zone_DefHistory_Notify
+//{
+//	repeated MineDefHistoryInfo stList = 1;
+//}
+
+message RobCross
+{
+	optional int32 iCrossid = 1;			//关卡id
+	optional int32 iState = 2;				//关卡状态 0=未通关，1=已通关
+	optional DropInfoList stDropList = 3;  	//奖励
+}
+//地精宝藏相关数据通知（登录通知）
+message Zone_TreasureData_Notify
+{
+	repeated InviteInfo InviteList = 1;			//邀请列表
+	repeated MineDefHistoryInfo DefList = 2;	//防守列表
+	repeated MineTreasure TreasureList = 3;		//宝藏列表
+	repeated RobCross stList = 4;				//搜索到的宝藏防守列表
+	optional int32 iTreasureType = 5;			//搜索到的宝藏类型
+	optional int32 iSearchEndTime = 6;			//搜索宝藏的有效时间
+	optional int32 iWorldid = 7;				//搜索宝藏的worldid
+}
+
+//搜索宝藏
+message Zone_SearchTreasure_Request
+{
+}
+message Zone_SearchTreasure_Response
+{
+	optional int32 iResult = 1;
+	repeated RobCross stList = 2;			//防守列表
+	repeated AnabasisInfo stHeroList = 3;	//自己英雄血量变化
+	optional int32 iTreasureType = 4;		//宝藏类型
+	optional int32 iSearchEndTime = 5;		//搜索宝藏的有效时间
+	optional int32 iWorldid = 6;			//搜索宝藏的worldid
+}
+
+//查看宝藏防守阵容
+message SingleDefForm
+{
+	optional int32 iHeroid = 1;		//英雄id
+	optional int32 iLevel = 2;		//英雄等级
+	optional int32 iStepLv = 3;		//英雄升阶等级
+	optional int32 iStartLv = 4;	//英雄星级
+	optional int32 iBlood = 5;		//英雄血量
+}
+message Zone_CheckTreasureForm_Request
+{
+	optional int32 iTreasureIdx = 1;	//宝藏索引
+	optional int32 iCrossid = 2;		//查看索引
+	optional int32 iType = 3;			//类型，0=自己的矿，1=搜索出来的矿
+}
+message Zone_CheckTreasureForm_Response
+{
+	optional int32 iResult = 1;
+	repeated SingleDefForm stFightForm = 2;		//防守阵容简介
+	optional DropInfoList stDropList = 3;  		//奖励
+	optional int32 iCrossid = 4;				//查看索引
+	optional FightInfo stInfo = 5;				//基础信息
+	optional int32 iSpeed = 6;					//开采速度
+	optional int32 iTreasureIdx = 7;			//宝藏索引
+	optional int32 iType = 8;					//类型，0=自己的矿，1=搜索出来的矿
+}
+
+//抢夺宝藏
+message Zone_StartRobTreasure_Request
+{
+	optional int32 iCrossid = 1;		//抢夺索引
+}
+message Zone_StartRobTreasure_Response
+{
+	optional int32 iResult = 1;
+	optional RoleFightInfo stFightInfo = 2;			//战斗阵容数据
+	optional int32 iSearchEndTime = 3;				//搜索宝藏的有效时间
+}
+
+//抢夺宝藏结果
+message Zone_FinRobTreasure_Request
+{
+	optional int32 iCrossid = 1;			//抢夺索引
+	optional int32 iFightResult = 2;		//战斗结果，1=胜利，2=失败
+	repeated AnabasisInfo stMyHero = 3;		//自方英雄信息
+	repeated AnabasisInfo stOppHero = 4;	//对手英雄信息
+}
+message Zone_FinRobTreasure_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iCrossid = 2;			//抢夺索引
+	optional int32 iFightResult = 3;		//战斗结果，1=胜利，2=失败
+	optional DropInfoList stDropList = 4;  	//通关奖励
+}
+
+//成功抢夺宝藏通知
+message Zone_RobTreasure_Notify
+{
+	repeated RobCross stList = 1;	//抢夺关卡列表
+}
+
+//宝藏被抢通知
+message Zone_BeRobTreasure_Notify
+{
+	optional int32 iTreasureIdx = 1;			//宝藏索引
+	optional DropInfoList stDropList = 2;   	//累积资源
+	optional int32 iType = 3;					//类型1=宝藏被抢，2=宝藏时间结束
+	optional MineDefHistoryInfo stDef = 4;		//防守记录
+}
+//--------------------------------地精宝藏协议END------------------------------------
+
+//裁缝提升等级请求
+message Zone_Tailor_LevelUp_Request
+{
+	optional int32  ilevel = 1; //升级等级
+}
+//裁缝提升等级回复
+message Zone_Tailor_LevelUp_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iTrialNewLevel = 2;	//升级后等级
+	optional int32 iTrialNewExp = 3;	//升级后经验
+	optional int32 iTailorScore = 4;	//今日进度
+}
+
+// -------------公会副本-----------------
+// 公会副本列表的请求
+message Zone_GuildCross_Request{
+	
+}
+// 公会副本列表的反馈
+message Zone_GuildCross_Response{
+	optional int32 iResult = 1;
+	repeated OneGuildCross stGuildCrossList = 2;	// 关卡列表
+}
+// 公会副本更新  新开启副本、进度更新，伤害值更新，通关状态更新
+message Zone_GuildCross_Notify{
+	optional OneGuildCross stGuildCross = 1; 
+}
+// 开启副本
+message Zone_OpenGuildCross_Request{
+	optional int32 iCrossId = 1;  // 关卡ID
+}
+// 开启副本的反馈
+message Zone_OpenGuildCross_Response{
+	optional int32 iResult = 1;  // 结果ID
+	optional int32 iCrossId = 2;  // 关卡ID
+}
+// 公会资源更新
+message Zone_GuildRes_Notify{
+	optional int32 iResType = 1;
+	optional int32 iResNum = 2;
+}
+//上传伤害
+message Zone_CrossHurt_Upload{
+	optional int32 iCrossId = 1;	// 关卡ID
+	optional int32 iMonsterID = 2;	// 怪物ID
+	optional int32 iHurt = 3;		// 伤害值
+}
+
+// 副本伤害数据
+message GuildCrossHurt{
+	optional BasicPlayerSummary stSummary = 1;
+	optional int32 iHurt = 2;
+}
+// 请求公会副本伤害排行榜
+message Zone_GuildCrossHurtRank_Request{
+	optional int32 iCrossId = 1;
+}
+// 请求公会副本伤害排行榜的反馈
+message Zone_GuildCrossHurtRank_Response{
+	optional int32 iCrossId = 1;
+	repeated GuildCrossHurt stRankList = 2; 
+}
+
+// 请求战利品列表
+message Zone_GuildBootyList_Request{
+
+}
+// 请求战利品列表的反馈
+message Zone_GuildBootyList_Response{
+	repeated GuildBooty stBootyList = 1; 
+}
+// 公会战利品数据更新
+message Zone_GuildBooty_Notify{
+	repeated GuildBooty stUpdateList = 1;// 有ID 无数据为删除的竞拍物品
+}
+// 竞拍请求
+message Zone_GuildAuction_Request{
+	optional int32 iBootyId = 1;
+	optional int32 iAddOfferPrice = 2;// 可能会因为多个人竞拍出现冲突
+	optional int32 iOfferPrice = 3;
+}
+// 竞拍反馈
+message Zone_GuildAuction_Response{
+	optional int32 iResult = 1;
+	optional int32 iBootyId = 2;
+	optional int32 iAddOfferPrice = 3;
+	optional int32 iOfferPrice = 4;
+}
+
+// 请求弹劾会长的请求
+message Zone_ImpeachGuildPresident_Request{
+	optional int32 iRoleId = 1;
+}
+// 请求弹劾会长的反馈
+message Zone_ImpeachGuildPresident_Response{
+	optional int32 iResult = 1;
+	optional int32 iPosition = 2;
+}
+// 拉取交易日志
+message Zone_GuildAuctionRecord_Request{
+
+}
+// 拉取日志的反馈
+message Zone_GuildAuctionRecord_Response{
+	optional int32 iResult = 1;
+	repeated GuildBooty stBootyList = 2;
+}
+// 被提出公会的通知
+message Zone_GuildKickOut_Notify{
+
+}
+// -----------------------------
+
+
+
+message  DropInfo{
+	optional int32 iDropType = 1;
+	optional int32 iDropID = 2;
+	optional int32 iDropAmt = 3;
+}
+
+//饰品精华兑换协议
+message Zone_ExchangeTrinket_Request
+{
+	optional int32 iExchangeId = 1; //兑换的id
+}
+
+message Zone_ExchangeTrinket_Respone
+{
+	optional int32 iResult = 1;
+	repeated DropInfo stDropList = 2;
+}
+
+//--------------------------------铭文系统start------------------------------------
+//请求铭刻
+message Zone_Grave_Request
+{
+	optional int32 iGraveCount = 1;		//铭刻次数
+	optional int32 iGraveType = 2;		//铭刻类型，0=普通铭刻，1=钻石铭刻
+}
+//返回铭刻结果
+message Zone_Grave_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iGraveType = 2;		//铭刻类型，0=普通铭刻，1=钻石铭刻
+	repeated int32 PosyList = 3;		//铭文列表
+	optional int32 iGraverLv = 4;		//铭文师等级
+}
+
+//铭文合成请求
+message PosyCompose
+{
+	optional int32 iSlot = 1;		//源铭文所在slot
+	optional int32 iCount = 2;		//此铭文的数量
+}
+message Zone_PosyCompose_Request
+{
+	repeated PosyCompose stSourceList = 1;	//源铭文信息
+	optional int32 iComposeType = 2;		//合成类型0=普通合成，1=一键合成
+}
+//铭文合成返回
+message Zone_PosyCompose_Response
+{
+	optional int32 iResult = 1;
+	repeated int32 PosyList = 2;		//铭文列表
+}
+
+//铭文变幻请求
+message Zone_PosyChange_Request
+{
+	optional int32 iSourceSlot = 1;			//源铭文所在slot
+	optional int32 iDestPosyType = 2;		//目标铭文类型
+	optional int32 iSourceNum = 3;			//源铭文数量
+}
+//铭文变幻返回
+message Zone_PosyChange_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iPosyid = 2;		//变幻后的铭文id
+	optional int32 iPosyNum = 3;	//变幻后的铭文数量
+}
+
+//铭文穿戴请求
+message Zone_WearPosy_Request
+{
+	optional int32 iFormIdx = 1;		//穿卸装备的阵形index
+	optional int32 iSourceSlot = 2;		//源铭文所在slot
+	optional int32 iDestSlot = 3;		//目标装备位所在slot
+	optional int32 iWearType = 4;		//穿戴类型，0=穿，1=卸
+}
+//铭文穿戴返回
+message Zone_WearPosy_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iFormIdx = 2;		//穿卸装备的阵形index
+	optional int32 iSourceSlot = 3;		//源铭文所在slot
+	optional int32 iDestSlot = 4;		//目标装备位所在slot
+	optional int32 iWearType = 5;		//穿戴类型，0=穿，1=卸
+}
+//--------------------------------铭文系统end------------------------------------
+// 请求排位赛信息
+message Zone_QualifyingInfo_Request{
+}
+// 请求排位赛信息的反馈
+message Zone_QualifyingInfo_Response{
+	optional int32 iScore = 1;		// 积分
+	optional int32 iRank = 2;		// 排名
+	optional int32 iFightTimes = 3;	// 挑战次数
+	optional int32 iFightCD = 4;	// 战斗CD
+	optional int32 iRefreshCD = 5;	// 刷新CD	
+	optional int32 iBuyFightTimes = 6;// 购买的战斗次数
+	repeated PlayerSummaryInfo stPlyInfoList = 7;//	玩家信息列表3个	
+}
+
+// 请求查看排位赛玩家数据的信息
+message Zone_FetchQualifyingPly_Request{
+	optional int32 iRoleId = 1;	
+	optional int32 iWorldId = 2;
+}
+// 请求查看排位赛玩家数据的信息
+message Zone_FetchQualifyingPly_Response{
+	optional int32 iRoleId = 1;		
+	optional int32 iWorldId = 2;
+	optional PlayerSummaryInfo stPlyInfo = 3;// 玩家数据
+}
+
+// 请求开始战斗
+message Zone_StartQualifyingFight_Request{
+	optional int32 iRoleID = 1;		// RoleId
+	optional int32 iWorldId = 2;	// WorldId
+}
+// 请求开始战斗
+message Zone_StartQualifyingFight_Response{
+	optional int32 iResult = 1;		// 结果ID
+	optional int32 iRoleID = 2;		// RoleId
+	optional int32 iWorldId = 3;	// WorldId
+}
+
+// 请求结束战斗
+message Zone_FinQualifyingFight_Request{
+	optional int32 iResult = 1;
+}
+// 请求结束战斗
+message Zone_FinQualifyingFight_Response{
+	optional int32 iResult = 1;
+	optional DropInfoList stDropList = 2;
+}
+
+// 请求清除CD
+message Zone_ClearQualifyingFightCD_Request{
+}
+// 请求结束战斗
+message Zone_ClearQualifyingFightCD_Response{
+	optional int32 iResult = 1;
+}
+// 手动刷新
+message Zone_RefreshQualifyingInfo_Request{
+
+}
+// 手动刷新
+message Zone_RefreshQualifyingInfo_Response{
+	optional int32 iResult = 1;
+}
+
+// 查看战斗记录的请求
+message Zone_QualifyingCombatRecord_Request{
+}
+// 查看战斗记录的反馈
+message Zone_QualifyingCombatRecord_Response{
+	optional int32 iResult = 1;
+	repeated QualifyingRecord stRecordList = 4;
+}
+
+// 通知重置玩家身上的卷轴使用信息
+message Zone_ClearUseScrollRecord_Notify{
+	optional int32 iCurrScrollHeroCount = 1;
+	optional int32 iCurrTenScrollHeroCount = 2;
+}
+
+// 打开界面的请求
+message Zone_GuildWarInfo_Request{
+}
+
+// 打开界面的反馈
+message Zone_GuildWarInfo_Response{
+	optional int32 iResult = 1;
+	optional GuildCombatInfo stGuildInfo = 2;
+}
+
+// 报名
+message Zone_GuildWarSign_Request{
+}
+// 报名
+message Zone_GuildWarSign_Response{
+	optional int32 iResult = 1;
+}
+
+// 公会跨服战查看阵容的请求
+message Zone_FetchGuildWarForm_Request{
+	optional int32 iRoleId = 1;		
+	optional int32 iWorldId = 2;	
+}
+// 公会跨服战查看阵容的反馈
+message Zone_FetchGuildWarForm_Response{
+	optional int32 iResult = 1;
+	optional int32 iRoleId = 2;		
+	optional int32 iWorldId = 3;
+	optional PlayerSummaryInfo stPlyInfo = 4;// 玩家数据
+}
+// 出手战斗的请求
+message Zone_StartGuildWarCombat_Request{
+	optional int32 iWorldId = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iGuildId = 3;
+	optional int32 iTeamId = 4;
+}
+// 出手战斗的反馈
+message Zone_StartGuildWarCombat_Response{
+	optional int32 iResult = 1;
+	optional int32 iWorldId = 2;
+	optional int32 iRoleId = 3;
+	optional int32 iGuildId = 4;
+	optional int32 iTeamId = 5;
+}
+// 结束战斗的请求
+message Zone_FinGuildWarCombat_Request{
+	optional int32 iCombatResult = 1;
+}
+// 结束战斗的反馈
+message Zone_FinGuildWarCombat_Response{
+	optional int32 iResult = 1;
+	optional DropInfoList stDropList = 2;
+}
+// 请求公会战总榜
+message Zone_GuildWarRankList_Request{
+}
+// 公会战总榜反馈
+message Zone_GuildWarRankList_Response{
+	optional int32 iResult = 1;
+	repeated GuildWarGuildInfo stGuildList = 2; 
+}
+// 请求公会战排名的请求
+message Zone_GuildWarSelfRank_Request{
+}
+// 请求公会战排名的反馈
+message Zone_GuildWarSelfRank_Response{
+	optional int32 iResult = 1;
+	optional int32 iRank = 2;
+	optional int32 iWinTimes = 3;
+	optional int32 iLoseTimes = 4;
+}
+// 请求队伍详情的请求
+message Zone_GuildWarTeamInfo_Request{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+}
+// 请求队伍详情的反馈
+message Zone_GuildWarTeamInfo_Response{
+	optional int32 iResult = 1;
+	optional PlayerSummaryInfo stPlySummaryInfo = 2;
+	repeated int32 iFightVal = 3;
+}
+message GuildWarPlyInfo{
+	optional int32 iRoleId = 1;
+	optional int32 iWorldId = 2;
+	optional string strName = 3;
+	optional int32 iVipLv = 4;
+	optional int32 iHeadImg = 5;
+	optional int32 iTalent = 6;
+	optional int32 iLevel = 7;
+}
+message GuildWarCombatRecord{
+	optional GuildWarPlyInfo stSelf = 1;
+	optional GuildWarPlyInfo stEnemy = 2;
+	optional int32 iCombatResult = 3;// 1胜利2失败
+	optional int32 iCombatType = 4;	// 1 攻击2 防御
+}
+// 公会战战斗记录的请求
+message Zone_GuildWarCombatRecord_Request{
+}
+// 公会战战斗记录的请求
+message Zone_GuildWarCombatRecord_Response{
+	optional int32 iResult = 1;
+	repeated GuildWarCombatRecord stRecordList = 2;
+}
+// 战斗数据的广播、结果的广播 状态通知 
+message Zone_GuildWarState_Notify{
+	optional int32 iSeasonId =1;		// 赛季ID
+	optional int32 iRoundId = 2;		// 回合
+	optional int32 iState = 3;			// 比赛状态
+	optional int32 iStartTime = 4;		// 开始时间
+}
+// 队伍状态通知 死亡状态
+message Zone_GuildWarTeamInfo_Notify{
+	optional int32 iWorldId = 1;
+	optional int32 iGuildId = 2;
+	optional int32 iRoleId = 3;
+	optional int32 iTeamId = 4;
+	optional int32 iState = 5;	
+}
+// 对阵状态通知 对阵、对阵结果
+message Zone_GuildWarAgainstInfo_Notify{
+	optional GuildCombatAgainst stAgasinst = 1;
+}
+// 公会的名词、积分、变化通知
+message Zone_GuildWarGuildInfo_Notify{
+	optional int32 iGuildId = 1;
+	optional int32 iWinTimes = 2;
+}
+// TeamGrp_Notify通知
+message Zone_GuildWarTeamGrp_Notify{
+	optional int32 iGuildId = 1;
+	optional int32 iWorldId = 2;
+	optional int32 iScore = 3;
+	optional int32 iAtkTimes = 4;
+}
+// 玩家的数据
+message Zone_GuildWarPlyInfo_Notify{
+	optional int32 iWorldId = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iAtkTimes = 3;	
+}

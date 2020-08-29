@@ -1,0 +1,228 @@
+//本文件用于定义邮件各种通信及结构
+message OneAttachment{
+	optional int32 iDropType = 1;	// 掉落类型
+	optional int32 iDropId = 2;		// 掉落ID
+	optional int32 iDropNum = 3;	// 掉落数量
+}
+message MailAttachment{
+	repeated OneAttachment stAttachments = 1;// 附件
+	optional int32 iSourceType = 2;		 // 邮件附件类型
+}
+// 单个邮件
+message OneMail{
+	optional int32 iMailId = 1;		// 邮件ID
+	optional int32 iuin = 2;		// 拥有者ID
+	optional int32 iRoleId = 3;		// 角色ID
+	optional int32 iMailType = 4;	// 邮件类型
+	optional int32 iSendUin = 5;    // 发送者uin
+	optional int32 iSendRoleId = 6; // 发送者roleid
+	optional string strSenderName = 7;// 发送者昵称
+	optional int32 iRecvUin = 8;	  // 接收者uin
+	optional int32 iRecvRoleId = 9;	  // 接收者roleid
+	optional string strRecverName = 10; // 接收者名称	
+	optional string strTitle = 11;	  // 邮件标题
+	optional string strContent = 12;  // 邮件内容
+	optional int32 iSendDateTime = 13;// 发送的时间
+	optional int32 iReadDateTime = 14;// 阅读的时间
+	optional int32 iReadTag = 15;	   // 邮件标识
+	optional int32 iRecvTag = 16;	   // 收取标识
+	optional int32 iAttachMentTag = 17;// 附件领取标识
+	optional int32 iAttachMentNum = 18;// 附件数量
+	optional MailAttachment stMailAttachment = 19;// 附件
+	optional int32 iDeleteTag = 20;				  // 删除标识
+	optional int32 iMark = 21;					  //撤回字段,字段值为后台对应的一个id，id相同表示同一批邮件
+}
+// Mail 和 World通信 
+// 拉取邮件列表的请求
+message Mail_FetchMailList_Request
+{
+	optional int32 iUin = 1;   // uin
+	optional int32 iRole = 2;  // roleid
+}
+// 拉取邮件列表请求的反馈
+message Mail_FetchMailList_Response
+{
+	optional int32 iUin = 1;   // uin
+	optional int32 iRole = 2;  // roleid
+	repeated OneMail stMailList = 3;//  
+}
+// 查看新到的邮件
+message Mail_FetchNewMailList_Request{
+	optional int32 iUin = 1;
+	optional int32 iRole = 2;
+}
+// 查看新到的邮件的反馈
+message Mail_FetchNewMailList_Response{
+	optional int32 iUin = 1;
+	optional int32 iRole = 2;
+	repeated OneMail stMailList = 3; 
+}
+// 创建邮件
+message Mail_CreateNewMail_Request{
+    optional OneMail stMail = 1;
+}
+// 创建邮件的反馈
+message Mail_CreateNewMail_Response{
+	optional int32 iResult = 1;
+    optional OneMail stMail = 2;
+}
+// 发送邮件
+message Mail_SendMail_Request{
+    repeated OneMail stMailList = 1;
+}
+// 发送邮件的反馈
+message Mail_SendMail_Response{
+	optional int32 iResult = 1;
+    repeated OneMail stMailList = 2;
+}
+// 删除邮件的请求
+message Mail_DeleteMail_Request{
+    repeated int32 stMailIdList = 1;
+}
+// 删除邮件的反馈
+message Mail_DeleteMail_Response{
+	optional int32 iResult = 1;
+	repeated int32 stMailList = 2;
+}
+// 更新邮件标记 标记发件箱为以读、
+message Mail_UpdateMail_Request{
+	optional int32 iResult = 1;
+}
+// 更新邮件标记
+message Mail_UpdateMail_Response{
+	optional int32 iResult = 1;
+}
+// Mail向Zone请求的服务
+// 邮件服务器请求添加物品
+message ApplyMailAttachment{
+	optional int32 iMailId = 1;
+	optional MailAttachment stMailAttachMents = 2;
+	optional int32 iMailType = 3;
+}
+message Mail_ApplyAttachment_Request{
+	repeated ApplyMailAttachment stApplyMailAttachMents = 1;
+}
+// 邮件服务器请求添加物品的反馈
+message Mail_ApplyAttachment_Response{
+	optional int32 iResult = 1;
+	repeated int32 iMailIds = 2;
+}
+
+// Mail 和 MailDB 通信
+// 拉取邮件列表的请求
+message MailDB_FetchMailList_Request
+{
+	optional int32 iUin = 1;   // uin
+	optional int32 iRole = 2;  // roleid
+	optional int32 iRecvTag = 3;// 接收的标识符
+}
+// 拉取邮件列表请求的反馈
+message MailDB_FetchMailList_Response
+{
+	optional int32 iResult = 1;// 结果
+	optional int32 iUin = 2;   // uin
+	optional int32 iRole = 3;  // roleid
+	repeated OneMail stMailList = 4;  
+}
+// 拉取邮件列表的请求
+message MailDB_FetchOneMail_Request
+{
+	optional int32 iUin = 1;   // uin
+	optional int32 iRole = 2;  // roleid
+	optional int32 iMailId = 3;// mailid
+}
+// 拉取邮件列表请求的反馈
+message MailDB_FetchOneMail_Response
+{
+	optional OneMail stMail = 1;  
+}
+// 查看新到的邮件
+message MailDB_CheckNewMailList_Request{
+	optional int32 iUin = 1;
+	optional int32 iRole = 2;
+}
+// 查看新到的邮件的反馈
+message MailDB_CheckNewMailList_Response{
+	optional int32 iUin = 1;
+	optional int32 iRole = 2;
+	repeated OneMail stMailList = 3; 
+}
+// 查询未过期邮件数量
+message MailDB_FetchMailNum_Request{
+	optional int32 iUin = 1;
+	optional int32 iRole = 2;
+    optional int32 iNormalLiveTime = 3;
+    optional int32 iAttachLiveTime = 4;
+}
+// 查询未过期邮件数量的反馈
+message MailDB_FetchMailNum_Response{
+	optional int32 iResult = 1;
+	optional int32 iUin = 2;
+	optional int32 iRole = 3;
+	optional int32 iMailNum = 4;
+}
+// 创建邮件
+message MailDB_CreateNewMail_Request{
+    optional OneMail stMail = 1;
+    optional int32 iNormalLiveTime = 2;
+    optional int32 iAttachLiveTime = 3;
+    optional int32 iMaxMailNum = 4;
+}
+// 创建邮件的反馈
+message MailDB_CreateNewMail_Response{
+	optional int32 iResult = 1;
+    optional OneMail stMail = 2;
+}
+// DB 更新类型
+enum MailDBUpdateType{
+	MailDB_UpdateAttachmentTag = 1;
+	MailDB_UpdateReadTag = 2;
+	MailDB_UpdateDelTag = 3;
+	MailDB_UpdateAll = 4;
+}
+// 更新邮件标记 标记发件箱为以读
+message MailDB_UpdateMail_Request{
+	optional int32 iUpdateType = 1;
+	optional int32 iUpdateParam = 2;
+    optional OneMail stMail = 3;
+}
+// 更新邮件标记
+message MailDB_UpdateMail_Response{
+	optional int32 iResult = 1;
+	optional int32 iUpdateType = 2;
+	optional int32 iUpdateParam = 3;
+    optional OneMail stMail = 4;
+}
+
+//GM查询邮件事件是否有触发
+message MailDB_GMQueryMail_Request
+{
+	optional int32 iMailID = 1; //查询的最大ID
+	optional int32 iZoneID = 2;
+}
+//查询回复
+message MailDB_GMQueryMail_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iZoneID = 2;
+	repeated OneMail stMailList = 3;
+}
+
+//记录GM请求发送的邮件
+message MailDB_InsertNewMailGM_Request
+{
+	optional int32 iZoneID = 1;
+	optional OneMail stMail = 2;
+}
+//插入回复
+message MailDB_InsertNewMailGM_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iZoneID = 2;
+} 
+
+message Mail_RevokeMail_Request
+{
+	optional int32 iZoneID = 1;
+	optional int32 iRevokeId = 2;
+}

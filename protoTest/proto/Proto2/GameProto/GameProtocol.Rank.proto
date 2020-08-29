@@ -1,0 +1,91 @@
+
+import "GameProtocol.Common.proto";
+import "GameProtocol.USERDB.proto";
+import "GameProtocol.Zone.proto";
+
+//返回领取奖励的index
+message Rank_GetFightEveryDayAward_Response
+{
+	optional int32 iResult = 1;
+	optional int32 iIndex = 2;
+	optional int32 iLastHistoryTime = 3;
+}
+
+//通知ranksvr更新pvp数据
+message Rank_UpdataPVP_Notify
+{
+	optional int32 iUin = 1;			//角色uin
+	optional string strName = 2;		//名字
+	optional int32 iFightValue = 3;		//战斗力
+	optional int32 iRoleLv = 4;			//队伍等级
+	repeated HeroData stHeroInfo = 5;	//英雄信息(包括技能和装备)
+	repeated int32 iPartnerID = 6;		//小伙伴id
+	optional int32 iRoleid = 7;			//角色id
+	optional int32 iPicid = 8;			//头像id
+	repeated int32 HeroForm = 9;		//英雄站位
+	optional int32 iTalian = 10;		//天赋
+	optional int32 iVipLv = 11;			//vip等级
+}
+
+//mysql pvp history 
+message SqlPvpHistoryInfo
+{
+	repeated PvpHistoryInfo stHistory = 1;
+}
+
+//mysql pvp heros 
+message SqlPvpHerosInfo
+{
+	repeated HeroData stHeros = 1;
+	repeated int32 iPartner = 2;
+	repeated int32 Heroform = 3;
+}
+
+// 更新排名数据的请求
+message RankDB_UpdateRank_Request{
+	optional int32 iUin = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iLevel = 3;
+	optional int32 iMaxCrossId = 4;
+	optional int32 iCrossStar = 5;
+	optional int32 iFightValue = 6;
+}
+// 更新排名数据的反馈
+message RankDB_UpdateRank_Response{
+	optional int32 iResult = 1;
+	optional int32 iUin = 2;
+	optional int32 iRoleId = 3;
+}
+
+// 请求自己的排名
+message RankDB_FetchSelfRank_Request{
+	optional int32 iUin = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iRankType = 3;
+}
+// 请求自己的反馈
+message RankDB_FetchSelfRank_Response{
+	optional int32 iResult = 1;
+	optional int32 iUin = 2;
+	optional int32 iRoleId = 3;
+	optional int32 iRankType = 4;
+	optional int32 iRank = 5;
+}
+// 请求排名列表
+message RankDB_FetchRankList_Request{
+	optional int32 iUin = 1;
+	optional int32 iRoleId = 2;
+	optional int32 iRankType = 3;
+	optional int32 iRankFrom = 4;
+	optional int32 iRankTo = 5;
+}
+// 请求排名的列表
+message RankDB_FetchRankList_Response{
+	optional int32 iResult = 1;
+	optional int32 iUin = 2;
+	optional int32 iRoleId = 3;
+	optional int32 iRankType = 4;
+	optional int32 iRankFrom = 5;
+	optional int32 iRankTo = 6;
+	repeated int32 iRankIds = 7;
+}
