@@ -1,0 +1,197 @@
+﻿
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace RegexTest
+{
+    class Program
+    {
+        static string curLine = "";
+
+        static List<string> allDirs = new List<string> {
+            @"\Assets\Code",
+            @"\Assets\Editor",
+            @"\Assets\LuaFramework\Editor",
+            @"\Assets\LuaFramework\Scripts",
+            @"\Assets\LuaFramework\ToLua\BaseType",
+            @"\Assets\LuaFramework\ToLua\Core",
+            @"\Assets\LuaFramework\ToLua\Editor",
+            @"\Assets\LuaFramework\ToLua\Lua",
+            @"\Assets\LuaFramework\ToLua\Misc",
+            @"\Assets\LuaFramework\ToLua\Reflection",
+            //@"\Assets\LuaFramework\Scripts\Manager\GameManager.cs"
+            //@"\Assets\LuaFramework\Scripts\ConstDefine\AppConst.cs"
+        };
+
+        static List<string> whiteFiles = new List<string>
+        {
+            @"\Assets\Code\WordFilter.cs",
+        };
+        
+        static List<string> allFiles = new List<string>();
+
+        static int allCount = 0;
+        static int curCount = 0;
+
+        static void GenDirFiles(string _url)
+        {
+            if (Directory.Exists(_url))
+            {
+                var files = Directory.GetFileSystemEntries(_url);
+                foreach (var f in files)
+                {
+                    GenDirFiles(f);
+                }
+            }
+            else if(File.Exists(_url))
+            {
+                var name = Path.GetFileName(_url);
+                var ext = Path.GetExtension(_url);
+                if (whiteFiles.Contains(name)) return;
+                if (ext != ".cs") return;
+                allFiles.Add(_url);
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--代码混淆工具--");
+            Console.WriteLine("注：请不要对已经混淆过的文件多次混淆！");
+            RegexTools.stopwatch.Start(); //  开始监视代码运行时间
+
+            string curDirName = Directory.GetCurrentDirectory();
+            if (!Directory.Exists(curDirName + @"\Assets"))
+            {
+                Console.WriteLine("请将工具放在项目中与Assets同级目录后重新运行，或手动输入项目路径！");
+                Console.Write("请输入：");
+                curDirName = Console.ReadLine();
+                while (!Directory.Exists(curDirName + @"\Assets"))
+                {
+                    Console.WriteLine(curDirName + @"\Assets  不存在！");
+                    Console.Write("请输入：");
+                    curDirName = Console.ReadLine();
+                }
+            }
+            
+            string projectUrl = curDirName;
+
+            string tempDirName = projectUrl + @"\TempRegexTest";      //备份目录
+            int tempDirIdx = 1;
+            while (Directory.Exists(tempDirName + tempDirIdx)) tempDirIdx += 1;
+            tempDirName = tempDirName + tempDirIdx;
+            
+            foreach (var dirUrl in allDirs) GenDirFiles(projectUrl + dirUrl);   //所有需要处理的文件
+
+            allCount = allFiles.Count;
+            if (allCount <= 0)
+            {
+                Console.WriteLine("没有需要处理的文件，请检查目录！");
+                Console.WriteLine("请输入任意键退出");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine($"共{allCount}个文件");
+            System.Threading.Thread.Sleep(1000);
+
+            foreach (var fileUrl in allFiles)
+            {
+                curCount += 1;
+                string result = DealFileContent(fileUrl);
+
+                string newTempFileUrl = fileUrl.Replace(projectUrl, tempDirName);
+                var newTempDir = Path.GetDirectoryName(newTempFileUrl);
+                if (!Directory.Exists(newTempDir)) Directory.CreateDirectory(newTempDir);
+
+                File.Copy(fileUrl, newTempFileUrl);     //备份文件
+                File.WriteAllText(fileUrl, result, Encoding.UTF8);  //结果写入原文件
+
+                Console.WriteLine($"{curCount}/{allCount} {fileUrl.Replace(projectUrl, "")}");
+            }
+
+            Console.WriteLine($"已完成！{curCount}/{allCount}");
+            Console.WriteLine();
+            Console.WriteLine("混淆完至少运行一次项目登录游戏确保混淆没问题，发现有个别错误地方需要手动核对修改！");
+            Console.WriteLine($"提交项目查看混淆改动！");
+            Console.WriteLine($"备份文件夹在  {tempDirName}");
+            System.Threading.Thread.Sleep(1000);
+            Console.WriteLine("请输入任意键退出");
+            Console.ReadKey();
+
+            RegexTools.stopwatch.Stop(); //  停止监视
+        }
+        
+
+        static string DealFileContent(string fileUrl)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(fileUrl);
+            fileName += $"_{curCount}";
+            CheckCode checkCode = new CheckCode();
+            RegexTools.checkCode = checkCode;
+            string result = $"#define {fileName}\n";
+            using (StreamReader read = File.OpenText(fileUrl))
+            {
+                while ((curLine = read.ReadLine()) != null)
+                {
+                    result += curLine + "\n";
+
+                    string tab = RegexTools.GetTab(curLine);
+                    curLine = curLine.Trim();
+                    if (Regex.IsMatch(curLine, @"//")) curLine = Regex.Replace(curLine, @"//.*", "");
+                    if (Regex.IsMatch(curLine, @"^\s*using\s*;$")) continue;            // using
+
+                    checkCode.checkInIf(curLine);              // if 
+                    if (checkCode.lastIFCount > 0) continue;
+                    
+                    checkCode.checkInInterface(curLine);   //Interface
+                    checkCode.checkInStruct(curLine);     //Struct
+                    checkCode.checkInClass(curLine);     //Class
+                    checkCode.checkInFor(curLine);              //是否是在不正常的if块当中
+
+                    if (checkCode.isFor) continue;
+
+                    if (Regex.IsMatch(curLine, @"^(\s*).*;\s*$"))   //符合正常语句结束
+                    {
+                        if (Regex.IsMatch(curLine, @"^\s*return")) continue;     //return 表示 语句结束，不再添加
+                        if (Regex.IsMatch(curLine, @"^\s*break;")) continue;     //break
+                        if (Regex.IsMatch(curLine, @"^\s*(private)?(public)?(protected)?\s*get\s*;\s*$")) continue;     //get
+                        if (Regex.IsMatch(curLine, @"^\s*(private)?(public)?(protected)?\s*set\s*;\s*$")) continue;     //set
+                        if (Regex.IsMatch(curLine, @"\s*delegate\s*")) continue;     //delegate
+
+                        //Console.WriteLine(curLine);
+
+                        if (checkCode.isStructIng)//Struct中声明的字段必须在构造方法结束后赋值，无法添加
+                            continue;
+                        else if (checkCode.isInterfaceIng)    //Interface添加属性或方法后无法判断是否有实现，无法添加
+                            continue;
+                        else if (checkCode.isInEnumIng)     //Enum中不添加任何东西
+                            continue;
+                        else if (checkCode.isInClassIng)        //在class定义中
+                        {
+                            result += $"#if {fileName}\n";
+                            result += tab;              //计算制表符
+                            RegexTools.InsterToClass(ref result);
+                        }
+                        else if (!checkCode.isInClass)          //不在class中，表示在语句外
+                            continue;
+                        else
+                        {
+                            result += $"#if {fileName}\n";
+                            result += tab;              //计算制表符
+                            RegexTools.InsterToFun(ref result);
+                        }
+                        result += $"#endif //{fileName}\n";
+                    }
+                }
+            }
+            return result;
+        }
+    }
+}

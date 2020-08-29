@@ -1,0 +1,6 @@
+E:\Zhangxin\项目\CSharp\hunxiao\GenCode\bin\Debug\GenCode.exe.config
+E:\Zhangxin\项目\CSharp\hunxiao\GenCode\bin\Debug\GenCode.exe
+E:\Zhangxin\项目\CSharp\hunxiao\GenCode\bin\Debug\GenCode.pdb
+E:\Zhangxin\项目\CSharp\hunxiao\GenCode\obj\Debug\GenCode.csprojResolveAssemblyReference.cache
+E:\Zhangxin\项目\CSharp\hunxiao\GenCode\obj\Debug\GenCode.exe
+E:\Zhangxin\项目\CSharp\hunxiao\GenCode\obj\Debug\GenCode.pdb

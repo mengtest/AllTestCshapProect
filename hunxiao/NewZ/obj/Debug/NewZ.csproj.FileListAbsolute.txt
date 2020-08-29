@@ -1,0 +1,4 @@
+E:\Zhangxin\项目\CSharp\hunxiao\NewZ\bin\Debug\NewZ.exe.config
+E:\Zhangxin\项目\CSharp\hunxiao\NewZ\bin\Debug\NewZ.exe
+E:\Zhangxin\项目\CSharp\hunxiao\NewZ\obj\Debug\NewZ.exe
+E:\Zhangxin\项目\CSharp\hunxiao\NewZ\obj\Debug\NewZ.csprojResolveAssemblyReference.cache

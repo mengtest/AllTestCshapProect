@@ -1,0 +1,14 @@
+E:\Zhangxin\Project\hunxiao\Z\bin\Debug\Z.exe.config
+E:\Zhangxin\Project\hunxiao\Z\bin\Debug\Z.exe
+E:\Zhangxin\Project\hunxiao\Z\obj\Debug\Z.exe
+E:\Zhangxin\Project\hunxiao\Z\obj\Debug\Z.csprojResolveAssemblyReference.cache
+E:\Zhangxin\Project\hunxiao\Z\bin\Debug\Newtonsoft.Json.dll
+E:\Zhangxin\项目\CSharp\hunxiao\Z\bin\Debug\Z.exe.config
+E:\Zhangxin\项目\CSharp\hunxiao\Z\bin\Debug\Z.exe
+E:\Zhangxin\项目\CSharp\hunxiao\Z\bin\Debug\Newtonsoft.Json.dll
+E:\Zhangxin\项目\CSharp\hunxiao\Z\obj\Debug\Z.csprojResolveAssemblyReference.cache
+E:\Zhangxin\项目\CSharp\hunxiao\Z\obj\Debug\Z.exe
+E:\Zhangxin\项目\CSharp\hunxiao\Z\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+E:\Zhangxin\项目\CSharp\hunxiao\Z\bin\Debug\zh-Hans\Microsoft.VisualStudio.QualityTools.UnitTestFramework.resources.dll
+E:\Zhangxin\项目\CSharp\hunxiao\Z\bin\Debug\Z.pdb
+E:\Zhangxin\项目\CSharp\hunxiao\Z\obj\Debug\Z.pdb

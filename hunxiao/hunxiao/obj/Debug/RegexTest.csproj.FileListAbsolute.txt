@@ -1,0 +1,12 @@
+E:\Zhangxin\Project\CSharp\CShap_Test\RegexTest\bin\Debug\RegexTest.exe.config
+E:\Zhangxin\Project\CSharp\CShap_Test\RegexTest\bin\Debug\RegexTest.exe
+E:\Zhangxin\Project\CSharp\CShap_Test\RegexTest\obj\Debug\RegexTest.exe
+E:\Zhangxin\Project\CSharp\CShap_Test\RegexTest\obj\Debug\RegexTest.csprojResolveAssemblyReference.cache
+E:\Zhangxin\Project\hunxiao\hunxiao\bin\Debug\RegexTest.exe.config
+E:\Zhangxin\Project\hunxiao\hunxiao\bin\Debug\RegexTest.exe
+E:\Zhangxin\Project\hunxiao\hunxiao\obj\Debug\RegexTest.csprojResolveAssemblyReference.cache
+E:\Zhangxin\Project\hunxiao\hunxiao\obj\Debug\RegexTest.exe
+E:\Zhangxin\项目\CSharp\hunxiao\hunxiao\bin\Debug\RegexTest.exe.config
+E:\Zhangxin\项目\CSharp\hunxiao\hunxiao\bin\Debug\RegexTest.exe
+E:\Zhangxin\项目\CSharp\hunxiao\hunxiao\obj\Debug\RegexTest.csprojResolveAssemblyReference.cache
+E:\Zhangxin\项目\CSharp\hunxiao\hunxiao\obj\Debug\RegexTest.exe
