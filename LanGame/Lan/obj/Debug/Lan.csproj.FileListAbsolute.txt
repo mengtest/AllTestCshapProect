@@ -1,0 +1,9 @@
+E:\Project\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Lan.exe.config
+E:\Project\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Lan.exe
+E:\Project\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Lan.pdb
+E:\Project\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.csprojAssemblyReference.cache
+E:\Project\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.csproj.CoreCompileInputs.cache
+E:\Project\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.exe
+E:\Project\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.pdb
+E:\Project\github\AllTestCshapProect\LanGame\Lan\bin\Debug\LitJson.dll
+E:\Project\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.csproj.CopyComplete

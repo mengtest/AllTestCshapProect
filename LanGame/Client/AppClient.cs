@@ -9,7 +9,7 @@ namespace AppClient {
     class AppClient {
         static void Main (string[] args) {
             UdpCore udp = new UdpCore();
-            udp.dealmsg = (str) => {
+            udp.Dealmsg = (str) => {
                 Console.WriteLine("msg:" + str);
             };
             udp.StartServer();

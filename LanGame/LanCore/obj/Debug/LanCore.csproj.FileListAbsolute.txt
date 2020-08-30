@@ -3,3 +3,8 @@ E:\Project\zhangxin\项目\CSharp\LanGame\LanCore\bin\Debug\LanCore.dll
 E:\Project\zhangxin\项目\CSharp\LanGame\LanCore\obj\Debug\LanCore.csprojAssemblyReference.cache
 E:\Project\zhangxin\项目\CSharp\LanGame\LanCore\obj\Debug\LanCore.csproj.CoreCompileInputs.cache
 E:\Project\zhangxin\项目\CSharp\LanGame\LanCore\obj\Debug\LanCore.dll
+E:\Project\github\AllTestCshapProect\LanGame\LanCore\bin\Debug\LanCore.dll.config
+E:\Project\github\AllTestCshapProect\LanGame\LanCore\bin\Debug\LanCore.dll
+E:\Project\github\AllTestCshapProect\LanGame\LanCore\obj\Debug\LanCore.csprojAssemblyReference.cache
+E:\Project\github\AllTestCshapProect\LanGame\LanCore\obj\Debug\LanCore.csproj.CoreCompileInputs.cache
+E:\Project\github\AllTestCshapProect\LanGame\LanCore\obj\Debug\LanCore.dll

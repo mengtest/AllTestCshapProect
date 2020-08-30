@@ -12,63 +12,77 @@ using System.Threading.Tasks;
 
 namespace LanCore {
     public class UdpCore {
-        private Thread receiveThread = null;
-        private Socket server = null;
-        private Socket client = null;
-        public int port = 23333;
-        public Action<string> dealmsg = null;
+        Thread receiveThread = null;
+        Socket server = null;
+        Socket client = null;
+        int port = 23333;
+        Action<string> dealmsg = null;
+        string localIp = "";
+
+        public int Port { get => this.port; set => this.port = value; }
+        public Socket Client { get => this.client; set => this.client = value; }
+        public Socket Server { get => this.server; set => this.server = value; }
+        public Thread ReceiveThread { get => this.receiveThread; set => this.receiveThread = value; }
+        public Action<string> Dealmsg { get => this.dealmsg; set => this.dealmsg = value; }
+        public string LocalIp { get => this.localIp; set => this.localIp = value; }
+
         public UdpCore () {
-            client = new Socket(AddressFamily.InterNetwork , SocketType.Dgram , ProtocolType.Udp);
-            server = new Socket(AddressFamily.InterNetwork , SocketType.Dgram , ProtocolType.Udp);
+            Client = new Socket(AddressFamily.InterNetwork , SocketType.Dgram , ProtocolType.Udp);
+            Server = new Socket(AddressFamily.InterNetwork , SocketType.Dgram , ProtocolType.Udp);
         }
         public void StartServer () {
             IPEndPoint point = new IPEndPoint(IPAddress.Any , 0);
-            server.Bind(point);
-            IPEndPoint p = (IPEndPoint)server.LocalEndPoint;
-            port = p.Port;
-            Console.WriteLine(p.Port);
-            receiveThread = new Thread(ReceiveMessage);
-            receiveThread.Start();
+            Server.Bind(point);
+            IPEndPoint p = (IPEndPoint)Server.LocalEndPoint;
+            Port = p.Port;
+            ReceiveThread = new Thread(ReceiveMessage);
+            ReceiveThread.Start();
+
+            LocalIp = GetLocalIp();
+            Console.WriteLine("start server to:" + LocalIp);
         }
         public void StopServer () {
-            receiveThread.Abort();
-            receiveThread = null;
-            server.Dispose();
-            server.Close();
-            server = null;
+            ReceiveThread.Abort();
+            ReceiveThread = null;
+            Server.Dispose();
+            Server.Close();
+            Server = null;
         }
         public void ReceiveMessage () {
             byte[] byt = new byte[1024];
             while (true) {
-                EndPoint receivePoint = new IPEndPoint(IPAddress.Any , port);
-                int length = server.ReceiveFrom(byt , ref receivePoint);
+                EndPoint receivePoint = new IPEndPoint(IPAddress.Any , 0);
+                int length = Server.ReceiveFrom(byt , ref receivePoint);
                 string str = Encoding.UTF8.GetString(byt , 0 , length);
-                string localIp = GetLocalIp();
-                Console.WriteLine(str);
-                Console.WriteLine("localIp == " + localIp);
-                Console.WriteLine("receivePoint.ToString() == " + receivePoint.ToString());
-                if (receivePoint.ToString() == localIp) {
+                //Console.WriteLine(receivePoint);
+                Console.WriteLine("ReceiveMessage ip to: == " + receivePoint.ToString());
+                if (receivePoint.ToString() == LocalIp) {
                     Console.WriteLine(111);
                 } else if (str == "RequestServer") {
-                    SendMsg(localIp , receivePoint);
-                } else if (dealmsg != null) {
-                    dealmsg(str);
+                    SendMsg(LocalIp, receivePoint);
+                } else if (Dealmsg != null) {
+                    Dealmsg(str);
                 }
             }
         }
 
         public void CheckServerRoom () {
-            SendMsg("RequestServer" , new IPEndPoint(IPAddress.Broadcast , port));
+            var a = new IPEndPoint(IPAddress.Broadcast, 0);
+            SendMsg("RequestServer" , a);
         }
 
         public void SendMsg (string str , EndPoint ip = null) {
             if (ip == null)
-                ip = new IPEndPoint(IPAddress.Broadcast , port);
+                ip = new IPEndPoint(IPAddress.Broadcast , 0);
             byte[] data = Encoding.UTF8.GetBytes(str);
-            client.SetSocketOption(SocketOptionLevel.Socket , SocketOptionName.Broadcast , 1);
-            client.SendTo(data , ip);
+            Client.SetSocketOption(SocketOptionLevel.Socket , SocketOptionName.Broadcast , 1);
+            Console.WriteLine("str:" +str+ ",send to:" + ip);
+            Client.SendTo(data , ip);
         }
-
+        /// <summary>
+        /// 获取本地ip
+        /// </summary>
+        /// <returns></returns>
         public string GetLocalIp () {
             string addressIP = "";
             string hostName = Dns.GetHostName();
@@ -81,7 +95,7 @@ namespace LanCore {
                     addressIP = ipEntry.AddressList[i].ToString();
                 }
             }
-            return addressIP + ":" + port;
+            return addressIP + ":" + Port;
         }
 
         /// <summary>
