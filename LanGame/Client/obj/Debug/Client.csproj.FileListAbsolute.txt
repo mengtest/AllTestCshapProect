@@ -1,0 +1,8 @@
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\bin\Debug\AppClient.exe.config
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\bin\Debug\AppClient.exe
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\bin\Debug\LanCore.dll
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\bin\Debug\LanCore.dll.config
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\obj\Debug\Client.csprojAssemblyReference.cache
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\obj\Debug\Client.csproj.CopyComplete
+E:\Project\zhangxin\项目\CSharp\LanGame\Client\obj\Debug\AppClient.exe
