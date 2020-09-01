@@ -1,0 +1,21 @@
+
+package LoginUser;
+
+import "Base.proto";
+
+message CS_LoginUser
+{
+	optional uint32 uid = 1;
+	optional string userName = 2;
+	optional string passWord = 3;
+}
+
+message SC_LoginUser	//用户信息
+{
+	optional int32 Ret = 1;//信息
+	optional uint32 Sex = 2;
+	optional string Nick = 3;
+	optional uint32 Uid = 4;
+	optional string Token = 5;
+	optional Base.GVector3 vet = 6;
+}
