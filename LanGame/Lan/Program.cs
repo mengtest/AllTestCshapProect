@@ -12,7 +12,6 @@ namespace Lan {
         static void Main(string[] args) {
 
             var h = new Phone();
-            h.p
 
             var udpType = 0;
             var get = Console.ReadKey();
