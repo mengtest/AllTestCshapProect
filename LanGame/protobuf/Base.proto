@@ -1,4 +1,6 @@
-package Base;//消息结构
+syntax = "proto2";
+
+package Base; //消息结构
 
 message GIPEndPoint{
 	optional int32 Ip = 1;//这是ip
