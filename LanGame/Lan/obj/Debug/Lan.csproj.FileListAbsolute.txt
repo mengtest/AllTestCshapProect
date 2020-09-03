@@ -10,14 +10,11 @@ E:\Project\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.csproj.CopyComple
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Lan.exe.config
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Lan.exe
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Lan.pdb
-E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Google.Protobuf.dll
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\LitJson.dll
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Buffers.dll
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Memory.dll
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Numerics.Vectors.dll
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
-E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Google.Protobuf.pdb
-E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\Google.Protobuf.xml
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Buffers.xml
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Memory.xml
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Numerics.Vectors.xml
@@ -25,3 +22,11 @@ E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Runtime.Compi
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.csprojResolveAssemblyReference.cache
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.exe
 E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\obj\Debug\Lan.pdb
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Collections.Immutable.dll
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.ServiceModel.Primitives.dll
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.Collections.Immutable.xml
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\System.ServiceModel.Primitives.pdb
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\protobuf-net.Core.dll
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\protobuf-net.dll
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\protobuf-net.xml
+E:\Zhangxin\github\AllTestCshapProect\LanGame\Lan\bin\Debug\protobuf-net.Core.xml
